@@ -1,0 +1,12 @@
+name = "Eig3x3"
+version = "0.1.0"
+defaultTargets = ["eig3x3"]
+
+[[lean_lib]]
+name = "Eig3x3"
+srcDir = "src"
+
+[[lean_exe]]
+name = "eig3x3"
+root = "Main"
+srcDir = "src"
