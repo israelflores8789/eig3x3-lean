@@ -31,10 +31,13 @@ references:
         given-names: Andreas
         orchid: https://orcid.org/0000-0002-4228-4465
     year: 2025
-    journal: arXiv preprint
+    journal: arXiv
     doi: 10.48550/arXiv.2511.00292
     date-released: 2025-31-10
     url: https://arxiv.org/abs/2511.00292
+    license: CC-BY-4.0
+    keywords:
+      - math.NA
   - type: software
     title: "eig3x3: reference C implementation"
     authors:
@@ -45,6 +48,23 @@ references:
     year: 2025
     repository-code: https://github.com/michalhabera/eig3x3
     license: MIT
+  - type: article
+    title: "Symbolic spectral decomposition of 3x3 matrices"
+    authors:
+      - family-names: Habera
+        given-names: Michal
+        orchid: https://orcid.org/0000-0003-0604-8884
+      - family-names: Zilian
+        given-names: Andreas
+        orchid: https://orcid.org/0000-0002-4228-4465
+    year: 2021
+    journal: arXiv
+    doi: 10.48550/arXiv.2111.02117
+    date-released: 2021-03-11
+    url: https://arxiv.org/abs/2111.02117
+    license: CC-BY-4.0
+    keywords:
+      - math.NA
   - type: report
     title: "A Robust Eigensolver for 3x3 Symmetric Matrices"
     authors:
