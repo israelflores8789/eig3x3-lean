@@ -1,0 +1,36 @@
+module
+
+import Eig3x3
+import all Eig3x3.Eigenvalues
+import Tests.Util
+
+/-!
+# Tests.Regression — pinned historical failures
+
+The r₁₀ transcription regression (exact discriminant value) and the
+near-double path that distinguishes the Algorithm 8 discriminant from the
+naive one. `delta`, `j2`, `j3`, and `deltaNaive` are package-private in
+`Eig3x3.Eigenvalues`; this suite reaches them via `import all`, the
+sanctioned mechanism for tests to access non-public internals.
+-/
+
+namespace Eig3x3.Tests
+
+public def runRegression : IO Unit := do
+  -- Exact discriminant on the matrix that caught the r₁₀ sign error.
+  -- 13,021,520 < 2^53, so it is exactly representable in float64.
+  assertClose "regression Δ" (delta regressionMatrix) 13021520.0 0.0
+
+  -- Near-double eigenvalues at machine precision (the naive Δ gave ≈2.5e-9
+  -- absolute eigenvalue error here).
+  let d := eigendecomp nearDouble
+  assertClose "nearDouble λ₁" d.eigvals.l₁ (-1.0) 1e-12
+  assertClose "nearDouble λ₂" d.eigvals.l₂ 0.99999999 1e-12
+  assertClose "nearDouble λ₃" d.eigvals.l₃ 1.00000001 1e-12
+  assertTrue "nearDouble ordered" d.eigvals.isOrdered
+
+  -- Informational: present vs naive discriminant on the near-double path.
+  IO.println s!"info nearDouble Δ (Alg. 8): {delta nearDouble}"
+  IO.println s!"info nearDouble Δ (naive):  {deltaNaive (j2 nearDouble) (j3 nearDouble)}"
+
+end Eig3x3.Tests
