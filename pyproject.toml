@@ -1,0 +1,14 @@
+[project]
+name = "eig3x3-verification"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["numpy", "mpmath", "pytest"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["parity"]
+
+[tool.ruff]
+# lint config here
