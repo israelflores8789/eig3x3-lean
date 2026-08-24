@@ -9,10 +9,17 @@ eig3x3-lean/
 ├── src/                       # ALL Lean source
 │   ├── Eig3x3.lean            # root module, re-exports the library
 │   ├── Eig3x3/
+│   │   ├── Basic.lean         # Type definitions and primitives
 │   │   ├── Eigenvalues.lean   # Habera–Zilian port with improvements
 │   │   ├── Eigenvectors.lean  # Eberly port with improvements
-│   │   └── ...
-│   └── Main.lean              # lean_exe: parity/bench CLI driver
+│   │   ├── Eigendecomp.lean   # Perform eigendecomposition
+│   │   └── Certificates.lean  # Runtime calculation assurances
+├── tests/
+│   ├── Main.lean              # lean_exe: parity/bench CLI driver
+│   ├── Certificates.lean
+│   ├── KnownAnswer.lean
+│   ├── Regression.lean
+│   └── Util.lean
 ├── parity/                    # pytest parity suite (Lean exe vs references)
 ├── benchmarks/                # performance harness
 ├── scripts/                   # dev/CI helper scripts
@@ -23,6 +30,13 @@ eig3x3-lean/
 ├── pyproject.toml             # Python env (non-packaged) + pytest/ruff config
 ├── uv.lock
 └── justfile                   # command runner
+```
+
+**`Eig3x3` Strict Module Dependency Flow**
+```
+Basic ──┬── Eigenvalues ───┐
+        ├── Eigenvectors ──┴── Eigendecomp
+        └── Certificates
 ```
 
 ## Known Issues
