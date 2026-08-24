@@ -74,7 +74,7 @@ def eigvecInPlane (A : SymmMat3) (v0 : Vec3) (lam : Float) : Vec3 :=
   let m11 := v.dot av - lam
   if m00.abs < m11.abs then
     -- Solve using row 1: m01·x0 + m11·x1 = 0
-    let maxAbs := Float.max m11.abs m01.abs
+    let maxAbs := max m11.abs m01.abs
     if maxAbs == 0.0 then u
     else if m11.abs < m01.abs then
       let t := m11 / m01
@@ -86,7 +86,7 @@ def eigvecInPlane (A : SymmMat3) (v0 : Vec3) (lam : Float) : Vec3 :=
       (u.scale n).sub (v.scale (t * n))        -- X = (1, −t)·n
   else
     -- Solve using row 0: m00·x0 + m01·x1 = 0
-    let maxAbs := Float.max m00.abs m01.abs
+    let maxAbs := max m00.abs m01.abs
     if maxAbs == 0.0 then u
     else if m00.abs < m01.abs then
       let t := m00 / m01

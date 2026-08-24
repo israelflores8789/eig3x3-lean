@@ -23,15 +23,15 @@ namespace Eig3x3
 def residual (A : SymmMat3) (lam : Float) (v : Vec3) : Float :=
   let av := A.mulVec v
   let r : Vec3 := ⟨av.x - lam * v.x, av.y - lam * v.y, av.z - lam * v.z⟩
-  Float.max r.x.abs (Float.max r.y.abs r.z.abs)
+  max3 r.x.abs r.y.abs r.z.abs
 
 /-- Orthonormality certificate: max |cᵢ·cⱼ − δᵢⱼ| over all pairs of columns
     of `Q`. -/
 def orthogonalityError (Q : Mat3) : Float :=
-  let m1 := Float.max (Q.c₁.dot Q.c₁ - 1.0).abs (Q.c₂.dot Q.c₂ - 1.0).abs
-  let m2 := Float.max (Q.c₃.dot Q.c₃ - 1.0).abs (Q.c₁.dot Q.c₂).abs
-  let m3 := Float.max (Q.c₁.dot Q.c₃).abs (Q.c₂.dot Q.c₃).abs
-  Float.max m1 (Float.max m2 m3)
+  let m1 := max (Q.c₁.dot Q.c₁ - 1.0).abs (Q.c₂.dot Q.c₂ - 1.0).abs
+  let m2 := max (Q.c₃.dot Q.c₃ - 1.0).abs (Q.c₁.dot Q.c₂).abs
+  let m3 := max (Q.c₁.dot Q.c₃).abs (Q.c₂.dot Q.c₃).abs
+  max3 m1 m2 m3
 
 /-- Reconstruct the matrix from a decomposition: A = Σᵢ λᵢ cᵢcᵢᵀ. -/
 def reconstruct (d : Decomposition) : SymmMat3 :=
@@ -51,10 +51,10 @@ def reconstruct (d : Decomposition) : SymmMat3 :=
 /-- Reconstruction certificate: max |entry| of QΛQᵀ − A. -/
 def reconstructionError (A : SymmMat3) (d : Decomposition) : Float :=
   let B := reconstruct d
-  let m1 := Float.max (B.a00 - A.a00).abs (B.a11 - A.a11).abs
-  let m2 := Float.max (B.a22 - A.a22).abs (B.a01 - A.a01).abs
-  let m3 := Float.max (B.a02 - A.a02).abs (B.a12 - A.a12).abs
-  Float.max m1 (Float.max m2 m3)
+  let m1 := max (B.a00 - A.a00).abs (B.a11 - A.a11).abs
+  let m2 := max (B.a22 - A.a22).abs (B.a01 - A.a01).abs
+  let m3 := max (B.a02 - A.a02).abs (B.a12 - A.a12).abs
+  max3 m1 m2 m3
 
 /-- All three certificates for a decomposition of `A`, bundled. -/
 public structure Certificates where
@@ -72,7 +72,7 @@ public def certify (A : SymmMat3) (d : Decomposition) : Certificates :=
   let r1 := residual A d.eigvals.l₁ d.eigvecs.c₁
   let r2 := residual A d.eigvals.l₂ d.eigvecs.c₂
   let r3 := residual A d.eigvals.l₃ d.eigvecs.c₃
-  { maxResidual := Float.max r1 (Float.max r2 r3),
+  { maxResidual := max3 r1 r2 r3,
     orthogonality := orthogonalityError d.eigvecs,
     reconstruction := reconstructionError A d }
 
