@@ -5,16 +5,14 @@ module
 
 Core types (`Vec3`, `Mat3`, `SymmMat3`, `Eigval3`, `Decomposition`), the
 public `Float` arithmetic vocabulary, typeclass instances for arithmetic
-notation, and scoped unicode notation. Everything downstream-facing lives in
-the public section; pipeline-internal helpers follow it and are reachable
-within the package via `import all`.
+notation, and scoped unicode notation.
 -/
 
 namespace Eig3x3
 
 public section
 
-/-- Vector in ℝ³. -/
+/-- Vector over `Float` in real (ℝ³) space. -/
 structure Vec3 where
   x : Float
   y : Float
@@ -23,8 +21,7 @@ structure Vec3 where
 
 /-- General 3×3 matrix over `Float`, stored by columns. The primary matrix
     this library produces is the eigenvector matrix Q, whose columns are
-    eigenvectors — column storage makes that the natural case and matches the
-    NumPy/SciPy/PyTorch convention that column `i` is eigenvector `i`. -/
+    eigenvectors matches conventional mathematics and NumPy/SciPy/PyTorch. -/
 structure Mat3 where
   c₁ : Vec3
   c₂ : Vec3
@@ -43,22 +40,27 @@ structure SymmMat3 where
 
 /-- Ordered eigenvalues `l₁ ≤ l₂ ≤ l₃`.
 
-    A distinct type rather than a bare `Vec3`, so the ordering guarantee and
-    the eigenvalue interpretation are carried by the type. Coerces to `Vec3`
-    for downstream arithmetic; the coercion is one-way, since after arbitrary
-    componentwise math the ordering guarantee no longer applies. -/
+    A distinct type rather than a bare `Vec3`, so ordering guarantees required
+    by Eberly's algorithm are carried by the type. Coerces to `Vec3` for
+    downstream arithmetic. The coercion is one-way, and ordering guarantees
+    do not hold after coercion. -/
 structure Eigval3 where
   l₁ : Float
   l₂ : Float
   l₃ : Float
   deriving Repr
 
-/-- Full eigendecomposition: `A = QΛQᵀ = Σᵢ λᵢ cᵢcᵢᵀ`. -/
+/-- Full eigendecomposition: `A = QΛQᵀ = Σᵢ λᵢ cᵢcᵢᵀ`.
+
+    `eigvals`:
+      Eigenvalues in increasing order: `l₁ ≤ l₂ ≤ l₃`.
+
+    `eigvecs`:
+      Eigenvector matrix Q; column `cᵢ` is a unit eigenvector for `lᵢ`.
+      Right-handed: `Q.det = 1`.
+-/
 structure Decomposition where
-  /-- Eigenvalues in increasing order: `l₁ ≤ l₂ ≤ l₃`. -/
   eigvals : Eigval3
-  /-- Eigenvector matrix Q; column `cᵢ` is a unit eigenvector for `lᵢ`.
-      Right-handed: `Q.det = 1`. -/
   eigvecs : Mat3
   deriving Repr
 
@@ -131,8 +133,7 @@ def Mat3.id : Mat3 :=
 @[inline] def Mat3.ofRows (r1 r2 r3 : Vec3) : Mat3 :=
   (⟨r1, r2, r3⟩ : Mat3).transpose
 
-/-- Embed a symmetric matrix (lossless — symmetry is a property, not a
-    layout). -/
+/-- Embed a symmetric matrix. -/
 def SymmMat3.toMat3 (A : SymmMat3) : Mat3 :=
   ⟨⟨A.a00, A.a01, A.a02⟩, ⟨A.a01, A.a11, A.a12⟩, ⟨A.a02, A.a12, A.a22⟩⟩
 
@@ -154,15 +155,19 @@ instance : HSMul Float Mat3 Mat3 := ⟨fun s M => M.scale s⟩
 
 end  -- public section
 
-/-- Transpose notation, matching Mathlib's `Matrix.transpose` convention
-    (postfix at max precedence, i.e. 1024). Activate with `open scoped Eig3x3`. -/
+/-- Transpose notation, matching Mathlib's `Matrix.transpose` and postfix
+    precedence convention. Activate with `open scoped Eig3x3`. -/
 public scoped postfix:max "ᵀ" => Mat3.transpose
 
-/-- Dot-product notation at Mathlib's precedence (`infixl:72`, just above
-    `*`). Activate with `open scoped Eig3x3`. -/
+/-- Dot-product notation at Mathlib's infixl precedence.
+    Activate with `open scoped Eig3x3`. -/
 public scoped infixl:72 " ⬝ " => Vec3.dot
 
-/-! ## Internal pipeline helpers (package-private; not downstream API) -/
+/-! ## Internal pipeline helpers (package-private) -/
+
+/-- Simple inline helper for computing the max of 3 values. -/
+@[inline] def max3 {α : Type} [Max α] (a b c : α) : α :=
+  max a (max b c)
 
 /-- Apply the symmetric matrix to a vector. -/
 @[inline] def SymmMat3.mulVec (A : SymmMat3) (v : Vec3) : Vec3 :=
@@ -175,10 +180,10 @@ public scoped infixl:72 " ⬝ " => Vec3.dot
 
 /-- Largest |entry|, used for preconditioning (Eberly's overflow guard). -/
 def SymmMat3.maxAbsEntry (A : SymmMat3) : Float :=
-  let m1 := Float.max A.a00.abs A.a01.abs
-  let m2 := Float.max A.a02.abs A.a11.abs
-  let m3 := Float.max A.a12.abs A.a22.abs
-  Float.max m1 (Float.max m2 m3)
+  let m1 := max A.a00.abs A.a01.abs
+  let m2 := max A.a02.abs A.a11.abs
+  let m3 := max A.a12.abs A.a22.abs
+  max3 m1 m2 m3
 
 /-- Scale eigenvalues by `s`. Requires `s > 0` to preserve ordering. -/
 @[inline] def Eigval3.scale (e : Eigval3) (s : Float) : Eigval3 :=
