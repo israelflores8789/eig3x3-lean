@@ -1,0 +1,63 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+type: software
+title: eig3x3-lean
+abstract: >-
+  A pure Lean 4 library for closed-form eigenvalue and eigenvector
+  decomposition of 3 x 3 real matrices. Eigenvalues follow the numerically
+  stabilized closed-form evaluation of Habera and Zilian; eigenvectors use
+  Eberly's null-space construction from known eigenvalues. No FFI and no
+  external dependencies.
+authors:
+  - family-names: Flores-Arbolay
+    given-names: Israel D.
+    orcid: https://orcid.org/0009-0009-6801-4103
+repository-code: https://github.com/israelflores8789/eig3x3-lean
+keywords:
+  - Lean 4
+  - eigenvalues
+  - eigenvectors
+  - eigendecomposition
+  - numerically stable
+license: Apache-2.0
+references:
+  - type: article
+    title: "Numerically stable evaluation of closed-form expressions for eigenvalues of 3×3 matrices"
+    authors:
+      - family-names: Habera
+        given-names: Michal
+        orchid: https://orcid.org/0000-0003-0604-8884
+      - family-names: Zilian
+        given-names: Andreas
+        orchid: https://orcid.org/0000-0002-4228-4465
+    year: 2025
+    journal: arXiv preprint
+    doi: 10.48550/arXiv.2511.00292
+    date-released: 2025-31-10
+    url: https://arxiv.org/abs/2511.00292
+  - type: software
+    title: "eig3x3: reference C implementation"
+    authors:
+      - family-names: Habera
+        given-names: Michal
+      - family-names: Zilian
+        given-names: Andreas
+    year: 2025
+    repository-code: https://github.com/michalhabera/eig3x3
+    license: MIT
+  - type: report
+    title: "A Robust Eigensolver for 3x3 Symmetric Matrices"
+    authors:
+      - family-names: Eberly
+        given-names: David H.
+    institution:
+      name: Geometric Tools, LLC
+    url: https://www.geometrictools.com/Documentation/RobustEigenSymmetric3x3.pdf
+    license: CC-BY-4.0
+  - type: software
+    title: Geometric Tools Engine
+    authors:
+      - family-names: Eberly
+        given-names: David H.
+    repository-code: https://github.com/davideberly/GeometricTools
+    license: BSL-1.0
