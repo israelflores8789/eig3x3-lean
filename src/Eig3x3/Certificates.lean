@@ -19,7 +19,7 @@ evidence:
 Deliberately uses only `mulVec`, `dot`, and subtraction — no eigenvalue
 machinery — so it is trustworthy independently of the solver's complexity.
 
-## Notation and Visibility
+## Visibility
 
 Exposes `Certificates` and `certify`. The component metrics are package-private.
 -/

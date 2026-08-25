@@ -40,7 +40,7 @@ Specifically, the non-iterative algorithm (§5):
 The gap comparison method replaces Eberly's sign method, which is equivalent
 in exact arithmetic but more direct.
 
-## Notation and Visbility
+## Visbility
 
 This is an internal, package-private module and not intended to be used directly.
 -/
@@ -148,7 +148,7 @@ def eigvecInPlane (A : SymmMat3) (v0 : Vec3) (lam : Float) : Vec3 :=
     direction remains; thus, it must be the remaining eigenvector, and the cross
     product picks the sign that makes the basis right-handed.
 
-    Contract (precondition): `e.l₁ ≤ e.l₂ ≤ e.l₃` must be the spectrum of `B`.
+    Precondition (contract): `e.l₁ ≤ e.l₂ ≤ e.l₃` must be the spectrum of `B`.
 
     References: Eberly §3; Habera-Zilian Eq. 2 for ordering. -/
 def eigvecs (B : SymmMat3) (e : Eigval3) : Mat3 :=

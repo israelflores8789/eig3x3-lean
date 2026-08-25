@@ -5,15 +5,29 @@ public import Eig3x3.Basic
 /-!
 # Eig3x3.Eigenvalues — the Habera–Zilian invariant pipeline
 
-Habera & Zilian, "Numerically stable evaluation of closed-form expressions
-for eigenvalues of 3×3 matrices", arXiv:2511.00292v2 (2025). Invariants I₁
-(Alg. 1), J₂ (Alg. 2), J₃ (Alg. 5), the Algorithm 8 sum-of-squares
-discriminant (factorization originating in Habera–Zilian 2021,
-arXiv:2111.02117), quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4),
-ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2). Reference C implementation:
-`eig3x3` (MIT license).
+Given a *real symmetric matrix* `A` to decompose, performs Habera-Zilian's
+method to compute an ordered vector of eigenvalues, `Eigval3`.
 
-Only `eigvals` is public API.
+## Provenance
+
+Habera & Zilian, "Numerically stable evaluation of closed-form expressions
+for eigenvalues of 3×3 matrices", arXiv:2511.00292v2 (2025).
+
+Specifically:
+* Invariants I₁ (Alg. 1), J₂ (Alg. 2), J₃ (Alg. 5),
+* the Algorithm 8 sum-of-squares discriminant
+  * verified through factorization of the original Habera-Zilian algorithm
+    (Habera–Zilian 2021, Eq. 29, arXiv:2111.02117)
+* quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4), and
+* ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
+
+Reference C implementation: `eig3x3` (MIT license).
+
+## Visibility
+
+Exposes `eigvals`.
+
+The rest of this module is internal, package-private.
 -/
 
 namespace Eig3x3
