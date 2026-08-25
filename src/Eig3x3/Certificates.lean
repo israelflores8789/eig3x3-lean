@@ -1,20 +1,27 @@
 module
 
-public import all Eig3x3.Basic
+public import Eig3x3.Basic
+import all Eig3x3.Basic
 
 /-!
 # Eig3x3.Certificates — runtime instance checking
 
-The checker half of the certifying-algorithm pair: given any claimed
-decomposition of `A` — produced by this library or any other solver —
-`certify` computes per-instance evidence (residual, orthonormality,
-reconstruction). The checker deliberately uses only `mulVec`, `dot`, and
-subtraction — no eigenvalue machinery — so it is trustworthy independently
-of the solver's complexity. Since this library intentionally proves no
-theorems about `Float`, these certificates are the trust mechanism.
+Runtime error validation of decomposition processes. Since this package
+intentionally proves no theorems about `Float`, these certificates are
+the trust mechanism for downstream computation assurances.
 
-Only `Certificates` and `certify` are public API; the component metrics are
-package-private.
+Given any claimed decomposition of `A`, `certify` computes per-instance
+evidence:
+* residual — how badly each claimed eigenpair violates `Av = λv`
+* orthonormality — how far the eigenvectors stray from perpendicular unit vectors
+* reconstruction — how closely `QΛQᵀ` reproduces the original `A`
+
+Deliberately uses only `mulVec`, `dot`, and subtraction — no eigenvalue
+machinery — so it is trustworthy independently of the solver's complexity.
+
+## Notation and Visibility
+
+Exposes `Certificates` and `certify`. The component metrics are package-private.
 -/
 
 namespace Eig3x3
