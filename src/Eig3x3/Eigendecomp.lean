@@ -1,17 +1,20 @@
 module
 
-public import all Eig3x3.Basic
+public import Eig3x3.Basic
+import all Eig3x3.Basic
 import Eig3x3.Eigenvalues
 import all Eig3x3.Eigenvectors
 
 /-!
 # Eig3x3.Eigendecomp — the pipeline driver
 
-`eigendecomp` is the library's primary entry point and the only module that
-knows both stages exist. It owns the pipeline policy: zero fast path,
-max-abs preconditioning (Eberly's overflow guard), ordered eigenvalues on
-the scaled matrix (Habera–Zilian), isolated-eigenvalue-first eigenvector
-assembly (Eberly), and eigenvalue rescaling.
+`eigendecomp` is the package's primary entry point. It owns all steps of
+the eigendecomposition pipeline:
+- zero fast path,
+- max-abs preconditioning (Eberly's overflow guard),
+- ordered eigenvalues on the scaled matrix (Habera–Zilian),
+- isolated-eigenvalue-first eigenvector assembly (Eberly),
+- and eigenvalue rescaling.
 -/
 
 namespace Eig3x3
