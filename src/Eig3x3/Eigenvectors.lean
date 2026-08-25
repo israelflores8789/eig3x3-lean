@@ -5,27 +5,59 @@ import all Eig3x3.Basic
 /-!
 # Eig3x3.Eigenvectors — the Eberly eigenvector assembly
 
-D. Eberly, "A Robust Eigensolver for 3×3 Symmetric Matrices", Geometric
-Tools (documentation: CC BY 4.0), specifically the non-iterative
-algorithm (§5):
-- isolated-first cross products (§5, Listing 4),
-- robust orthogonal complement (§5, Listing 5),
-- 2×2 reduction in the complement (§5, Listing 6),
-- right-handed completion.
+Given the eigenvalues from Habera-Zilian's method (see `Eig3x3.Eigenvalues`),
+this module performs Eberly's non-iterative method to compute the eigenvectors.
 
-This module is package-private and not re-exported.
+## Algorithm
+
+For an eigenvalue λ that is well-separated from its neighbors, the matrix A − λI
+has rank 2: its three rows lie in a plane, and the eigenvector is the one
+direction perpendicular to that plane computed directly as a cross product
+of two rows (`eigvecIsolated`). Cross products lose accuracy as eigenvalues
+cluster, so we first compare the gaps λ₂ − λ₁ and λ₃ − λ₂ and apply that
+construction only at the isolated end of the spectrum.
+
+Symmetry then does the rest. Eigenvectors of distinct eigenvalues of a symmetric
+matrix are orthogonal, so the second eigenvector lies in the plane perpendicular
+to the first, and the problem reduces to solving a 2×2 system (`eigvecInPlane`).
+
+Only one perpendicular direction remains, so it is automatically an eigenvector,
+unit-length, and right-handed. The third eigenvector is then just the cross
+product of the other two. When eigenvalues repeat, any perpendicular direction
+is valid, and the code falls back to the unit vector of the eigenbasis.
+
+## Provenance
+
+D. Eberly, "A Robust Eigensolver for 3×3 Symmetric Matrices", Geometric
+Tools, CC BY 4.0.
+
+Specifically, the non-iterative algorithm (§5):
+* isolated-eigenvector from cross products (§5, Listing 4),
+* robust orthogonal complement (§5, Listing 5),
+* 2×2 reduction in the complement (§5, Listing 6),
+* right-handed completion.
+
+The gap comparison method replaces Eberly's sign method, which is equivalent
+in exact arithmetic but more direct.
+
+## Notation and Visbility
+
+This is an internal, package-private module and not intended to be used directly.
 -/
 
 namespace Eig3x3
 
-/-- Eigenvector for the *isolated* eigenvalue λ: the largest cross product of
-    rows of (A − λI) (Eberly §5, Listing 4). Variables are kept almost
-    verbatim for ease of review against the paper.
+/-- Eigenvector for an *isolated* eigenvalue λ. When λ is well-separated from
+    the other eigenvalues, A − λI has rank 2: its three rows lie in a plane,
+    and the eigenvector is the one direction perpendicular to that plane. The
+    cross product of any two rows points along that perpendicular, so we
+    compute all three and keep the longest — in floating point, the longest
+    cross carries the most accuracy.
 
-    Defensive addition: if all crosses are exactly zero (A = λI up to
-    rounding, i.e. a triple eigenvalue), returns e₁ — any unit vector is an
-    eigenvector then, and the residual certificate stays tiny because
-    ‖A − λI‖ does. -/
+    Reference: Eberly §5, Listing 4.
+
+    Algorithmic Addition: If all crosses are exactly zero then A = λI, every
+    direction is an eigenvector, and we return the unit eigenbasis vector e₁. -/
 def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
   let r0 : Vec3 := ⟨A.a00 - lam, A.a01, A.a02⟩
   let r1 : Vec3 := ⟨A.a01, A.a11 - lam, A.a12⟩
@@ -44,8 +76,13 @@ def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
   if dmax == 0.0 then ⟨1.0, 0.0, 0.0⟩
   else best.scale (1.0 / dmax.sqrt)
 
-/-- Robustly compute U, V so that {U, V, w} is a right-handed orthonormal
-    set. Requires `w` unit-length (Eberly §5, Listing 5). -/
+/-- Complete a unit vector `w` to a right-handed orthonormal frame {u, v, w}.
+    A perpendicular to `w` can be considered `w × eᵢ` for some coordinate axis
+    `eᵢ`, and we cross with the axis `w` is least aligned with. The longest
+    cross product has the most accurate direction. The third vector is then
+    just `w × u`: automatically unit-length and perpendicular to both.
+
+    Reference: Eberly §5, Listing 5. -/
 def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
   let u :=
     if w.y.abs < w.x.abs then
@@ -56,12 +93,17 @@ def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
       ⟨0.0, w.z * inv, -w.y * inv⟩
   (u, w.cross u)
 
-/-- Eigenvector for λ in the plane ⊥ `v0`, where `v0` is the unit eigenvector
-    of an adjacent, well-separated eigenvalue. Restricts (A − λI) to the
-    plane via J = [U V], then solves the 2×2 null system M X = 0 by
-    largest-row selection with division-free normalization. If M ≈ 0
-    (repeated eigenvalue), any vector in the plane works, so U is returned
-    (Eberly §5, Listing 6). -/
+/-- Eigenvector for λ, exploiting that it must lie in the plane perpendicular
+    to `v0`, where `v0` is the unit eigenvector of an adjacent, well-separated
+    eigenvalue. Eigenvectors of a symmetric matrix for distinct eigenvalues are
+    orthogonal, and symmetry keeps that plane closed under A. Restricting A − λI
+    to the plane via [u v] turns the problem into a 2×2 null system M X = 0,
+    whose solution is just the perpendicular of the better-conditioned row, with
+    the division arranged so we always divide by the larger coefficient. If the
+    whole 2×2 vanishes, such that M ≈ 0, then λ is a repeated eigenvalue, any
+    vector in the plane is an eigenvector, and we return `u`.
+
+    Reference: Eberly §5, Listing 6. -/
 def eigvecInPlane (A : SymmMat3) (v0 : Vec3) (lam : Float) : Vec3 :=
   let (u, v) := orthonormalComplement v0
   let au := A.mulVec u
@@ -98,10 +140,17 @@ def eigvecInPlane (A : SymmMat3) (v0 : Vec3) (lam : Float) : Vec3 :=
     matrix `B` from `e`, its ordered eigenvalues as produced by `eigvals B`.
     Column `cᵢ` of the result is a unit eigenvector for `lᵢ`.
 
-    Contract (precondition): `e.l₁ ≤ e.l₂ ≤ e.l₃` must be the spectrum of
-    `B` (H–Z Eq. 2 ordering). Isolated-eigenvalue-first (Eberly); the gap
-    comparison on the ordered eigenvalues replaces Eberly's `sign(halfDet)`
-    branch. -/
+    The cross-product construction is only accurate for an eigenvalue far from
+    its neighbors, so we first compare the gaps `l₂ − l₁` and `l₃ − l₂` to find
+    the isolated end of the spectrum and compute that eigenvector directly; the
+    middle eigenvector then comes from the plane perpendicular to it. The third
+    is simply the cross product of the other two since only one perpendicular
+    direction remains; thus, it must be the remaining eigenvector, and the cross
+    product picks the sign that makes the basis right-handed.
+
+    Contract (precondition): `e.l₁ ≤ e.l₂ ≤ e.l₃` must be the spectrum of `B`.
+
+    References: Eberly §3; Habera-Zilian Eq. 2 for ordering. -/
 def eigvecs (B : SymmMat3) (e : Eigval3) : Mat3 :=
   let gapLo := e.l₂ - e.l₁
   let gapHi := e.l₃ - e.l₂
