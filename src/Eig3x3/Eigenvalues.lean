@@ -13,10 +13,7 @@ arXiv:2111.02117), quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4),
 ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2). Reference C implementation:
 `eig3x3` (MIT license).
 
-Only `eigvals` is public API. The invariants and the discriminant are
-package-private: they appear in the body of `eigvals`, not its type, and are
-reachable within the package (e.g. from the regression tests) via
-`import all`.
+Only `eigvals` is public API.
 -/
 
 namespace Eig3x3
@@ -31,8 +28,9 @@ def j2 (A : SymmMat3) : Float :=
   let d0 := A.a00 - A.a11
   let d1 := A.a00 - A.a22
   let d2 := A.a11 - A.a22
-  (d0 * d0 + d1 * d1 + d2 * d2) / 6.0
-    + (A.a01 * A.a01 + A.a02 * A.a02 + A.a12 * A.a12)
+  let diag := (d0 * d0 + d1 * d1 + d2 * d2) / 6.0
+  let offdiag := (A.a01 * A.a01 + A.a02 * A.a02 + A.a12 * A.a12)
+  diag + offdiag
 
 /-- Algorithm 5, symmetric case: J₃ = det(dev A) via diagonal differences. -/
 def j3 (A : SymmMat3) : Float :=
@@ -68,8 +66,7 @@ def deltaNaive (J2 J3 : Float) : Float :=
     minus sign there, the formula fails the exact identity Δ = 4J₂³ − 27J₃²
     (verified in exact rational arithmetic over 200 random symmetric
     matrices); the plus sign also agrees with the validated x₁₀ term of the
-    2021 paper (arXiv:2111.02117, Eq. 29). Double-check this sign against the
-    paper PDF before release.
+    2021 paper (arXiv:2111.02117, Eq. 29).
 
     Validated: exact identity with 4J₂³ − 27J₃² in exact rational arithmetic;
     machine precision on both 2025 benchmark paths (D1, D2), on adversarial
