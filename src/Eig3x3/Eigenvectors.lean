@@ -6,24 +6,21 @@ import all Eig3x3.Basic
 # Eig3x3.Eigenvectors — the Eberly eigenvector assembly
 
 D. Eberly, "A Robust Eigensolver for 3×3 Symmetric Matrices", Geometric
-Tools (documentation: CC BY 4.0; code: Boost Software License 1.0),
-specifically the non-iterative `NISymmetricEigensolver3x3` in
-`SymmetricEigensolver3x3.h`: isolated-first cross products
-(`ComputeEigenvector0`), robust orthogonal complement
-(`ComputeOrthogonalComplement`), 2×2 reduction in the complement
-(`ComputeEigenvector1`), right-handed completion.
+Tools (documentation: CC BY 4.0), specifically the non-iterative
+algorithm (§5):
+- isolated-first cross products (§5, Listing 4),
+- robust orthogonal complement (§5, Listing 5),
+- 2×2 reduction in the complement (§5, Listing 6),
+- right-handed completion.
 
-This module is internal: it is not re-exported by the `Eig3x3` facade, and
-everything here is package-private. Its consumers (`Eig3x3.Eigendecomp`,
-and the test suite) reach it via `import all`. The functions are only
-meaningful under the pipeline's preconditions — ordered eigenvalues of the
-preconditioned matrix — which `eigendecomp` establishes.
+This module is package-private and not re-exported.
 -/
 
 namespace Eig3x3
 
 /-- Eigenvector for the *isolated* eigenvalue λ: the largest cross product of
-    rows of (A − λI). GTE `ComputeEigenvector0`.
+    rows of (A − λI) (Eberly §5, Listing 4). Variables are kept almost
+    verbatim for ease of review against the paper.
 
     Defensive addition: if all crosses are exactly zero (A = λI up to
     rounding, i.e. a triple eigenvalue), returns e₁ — any unit vector is an
@@ -33,9 +30,9 @@ def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
   let r0 : Vec3 := ⟨A.a00 - lam, A.a01, A.a02⟩
   let r1 : Vec3 := ⟨A.a01, A.a11 - lam, A.a12⟩
   let r2 : Vec3 := ⟨A.a02, A.a12, A.a22 - lam⟩
-  let c0 := r1.cross r2
+  let c0 := r0.cross r1
   let c1 := r0.cross r2
-  let c2 := r0.cross r1
+  let c2 := r1.cross r2
   let d0 := c0.normSq
   let d1 := c1.normSq
   let d2 := c2.normSq
@@ -48,7 +45,7 @@ def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
   else best.scale (1.0 / dmax.sqrt)
 
 /-- Robustly compute U, V so that {U, V, w} is a right-handed orthonormal
-    set. Requires `w` unit-length. GTE `ComputeOrthogonalComplement`. -/
+    set. Requires `w` unit-length (Eberly §5, Listing 5). -/
 def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
   let u :=
     if w.y.abs < w.x.abs then
@@ -63,8 +60,8 @@ def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
     of an adjacent, well-separated eigenvalue. Restricts (A − λI) to the
     plane via J = [U V], then solves the 2×2 null system M X = 0 by
     largest-row selection with division-free normalization. If M ≈ 0
-    (repeated eigenvalue), any vector in the plane works, so U is returned.
-    GTE `ComputeEigenvector1`. -/
+    (repeated eigenvalue), any vector in the plane works, so U is returned
+    (Eberly §5, Listing 6). -/
 def eigvecInPlane (A : SymmMat3) (v0 : Vec3) (lam : Float) : Vec3 :=
   let (u, v) := orthonormalComplement v0
   let au := A.mulVec u
