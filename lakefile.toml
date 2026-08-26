@@ -1,12 +1,12 @@
 name = "Eig3x3"
 version = "0.1.0"
-defaultTargets = ["eig3x3"]
+defaultTargets = ["Eig3x3"]
 testDriver = "eig3x3-tests"
 
 [[lean_lib]]
 name = "Eig3x3"
 srcDir = "src"
-globs = ["Eig3x3.andSubmodules"]
+globs = ["Eig3x3.*"]
 
 [[lean_exe]]
 name = "eig3x3-tests"

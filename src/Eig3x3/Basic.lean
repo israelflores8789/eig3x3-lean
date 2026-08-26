@@ -157,11 +157,11 @@ end  -- public section
 
 /-- Transpose notation, matching Mathlib's `Matrix.transpose` and postfix
     precedence convention. Activate with `open scoped Eig3x3`. -/
-public scoped postfix:max "ᵀ" => Mat3.transpose
+scoped postfix:max "ᵀ" => Mat3.transpose
 
 /-- Dot-product notation at Mathlib's infixl precedence.
     Activate with `open scoped Eig3x3`. -/
-public scoped infixl:72 " ⬝ " => Vec3.dot
+scoped infixl:72 " ⬝ " => Vec3.dot
 
 /-! ## Internal pipeline helpers (package-private) -/
 
