@@ -8,10 +8,8 @@ import Tests.Util
 # Tests.Regression — pinned historical failures
 
 The r₁₀ transcription regression (exact discriminant value) and the
-near-double path that distinguishes the Algorithm 8 discriminant from the
-naive one. `delta`, `j2`, `j3`, and `deltaNaive` are package-private in
-`Eig3x3.Eigenvalues`; this suite reaches them via `import all`, the
-sanctioned mechanism for tests to access non-public internals.
+near-double path that distinguishes Habera-Zilian's Algorithm 8
+discriminant from the naive representation.
 -/
 
 namespace Eig3x3.Tests
@@ -25,7 +23,8 @@ def deltaNaive (J2 J3 : Float) : Float :=
   if d < 0.0 then 0.0 else d
 
 public def runRegression : IO Unit := do
-  -- Exact discriminant on the matrix that caught the r₁₀ sign error.
+  -- Exact discriminant on the matrix that caught the r₁₀ sign error
+  -- in Algorithm 8 (Habera-Zilian 2025).
   -- 13,021,520 < 2^53, so it is exactly representable in float64.
   assertClose "regression Δ" (delta regressionMatrix) 13021520.0 0.0
 

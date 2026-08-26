@@ -1,6 +1,7 @@
 module
 
 public import Eig3x3
+import all Eig3x3.Basic
 
 /-!
 # Tests.Util — assertion helpers, contract predicates, and the case zoo
@@ -14,6 +15,10 @@ zoo here gives all suites a single source of truth for test inputs.
 namespace Eig3x3
 
 /-! ## Approximate equality and contract predicates -/
+
+/-- Largest |component| of a vector. Test-side helper for scale-aware gates. -/
+public def Vec3.maxAbs (v : Vec3) : Float :=
+  max3 v.x.abs v.y.abs v.z.abs
 
 /-- Entrywise approximate equality for vectors. -/
 public def Vec3.approx (u v : Vec3) (tol : Float) : Bool :=
@@ -30,6 +35,20 @@ public def Eigval3.isOrdered (e : Eigval3) : Bool :=
   decide (e.l₁ ≤ e.l₂) && decide (e.l₂ ≤ e.l₃)
 
 namespace Tests
+
+/-! ## Machine Precision Constants -/
+
+/-- float64 machine epsilon, 2⁻⁵². -/
+-- 0x1p-52 in idomatic Lean
+public def Float.eps : Float := (1 : Float) / ((2 : Float) ^ 52)
+
+/-- The certificate standard for residual and reconstruction: 64ε scaled by
+    the matrix's max |entry|. See the Certificates suite's module docstring
+    for the budget derivation. -/
+public def certTol (A : SymmMat3) : Float := 64.0 * Float.eps * A.maxAbsEntry
+
+/-- The orthonormality standard: 16ε, dimensionless (unit vectors). -/
+public def orthoTol : Float := 16.0 * Float.eps
 
 /-! ## Assertions -/
 

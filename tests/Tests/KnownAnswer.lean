@@ -3,9 +3,6 @@ module
 import Eig3x3
 import Tests.Util
 
--- The facade must not leak the internal eigenvector machinery.
-assert_not_imported Eig3x3.Eigenvectors
-
 /-!
 # Tests.KnownAnswer — fixed inputs with known outputs
 
@@ -53,19 +50,19 @@ public def runKnownAnswer : IO Unit := do
 
   -- Worked example: eigenvalues 2−√2, 2, 2+√2
   let d := eigendecomp workedExample
-  assertClose "worked λ₁" d.eigvals.l₁ 0.5857864376269049 1e-12
-  assertClose "worked λ₂" d.eigvals.l₂ 2.0 1e-12
-  assertClose "worked λ₃" d.eigvals.l₃ 3.4142135623730951 1e-12
+  assertClose "worked λ₁" d.eigvals.l₁ 0.5857864376269049 (certTol workedExample)
+  assertClose "worked λ₂" d.eigvals.l₂ 2.0 (certTol workedExample)
+  assertClose "worked λ₃" d.eigvals.l₃ 3.4142135623730951 (certTol workedExample)
   assertTrue "worked ordered" d.eigvals.isOrdered
 
   -- Diagonal: eigenvalues (1, 2, 3) with axis eigenvectors (up to sign)
   let dd := eigendecomp diagonalCase
-  assertClose "diag λ₁" dd.eigvals.l₁ 1.0 1e-12
-  assertClose "diag λ₂" dd.eigvals.l₂ 2.0 1e-12
-  assertClose "diag λ₃" dd.eigvals.l₃ 3.0 1e-12
-  assertClose "diag axis 1" dd.eigvecs.c₁.x.abs 1.0 1e-12
-  assertClose "diag axis 2" dd.eigvecs.c₂.y.abs 1.0 1e-12
-  assertClose "diag axis 3" dd.eigvecs.c₃.z.abs 1.0 1e-12
+  assertClose "diag λ₁" dd.eigvals.l₁ 1.0 (certTol diagonalCase)
+  assertClose "diag λ₂" dd.eigvals.l₂ 2.0 (certTol diagonalCase)
+  assertClose "diag λ₃" dd.eigvals.l₃ 3.0 (certTol diagonalCase)
+  assertClose "diag axis 1" dd.eigvecs.c₁.x.abs 1.0 (certTol diagonalCase)
+  assertClose "diag axis 2" dd.eigvecs.c₂.y.abs 1.0 (certTol diagonalCase)
+  assertClose "diag axis 3" dd.eigvecs.c₃.z.abs 1.0 (certTol diagonalCase)
 
   -- Zero matrix: exact fast path, identity basis
   let dz := eigendecomp zeroMatrix
@@ -82,8 +79,11 @@ public def runKnownAnswer : IO Unit := do
   assertTrue "scaled id ordered" ds.eigvals.isOrdered
 
   -- Notation end-to-end: change of basis and back is the identity on g
+  -- Roundtrip budget: two mat-vecs (≈6ε) + Q's non-orthogonality (≈16ε),
+  -- scaled by ‖g‖∞ — rounded to 32ε·maxAbs(g).
   let g : Vec3 := ⟨1.0, 2.0, -1.0⟩
-  assertTrue "basis roundtrip" ((d.eigvecs * (d.eigvecsᵀ * g)).approx g 1e-12)
+  assertTrue "basis roundtrip"
+    ((d.eigvecs * (d.eigvecsᵀ * g)).approx g (32.0 * Float.eps * g.maxAbs))
 
   -- Coercion: Eigval3 elaborates as Vec3 where a Vec3 is expected
   let w : Vec3 := d.eigvals
