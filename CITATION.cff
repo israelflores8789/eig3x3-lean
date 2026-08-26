@@ -6,8 +6,8 @@ abstract: >-
   A pure Lean 4 library for closed-form eigenvalue and eigenvector
   decomposition of 3 x 3 real matrices. Eigenvalues follow the numerically
   stabilized closed-form evaluation of Habera and Zilian; eigenvectors use
-  Eberly's null-space construction from known eigenvalues. No FFI and no
-  external dependencies.
+  Eberly's null-space construction from known eigenvalues. Native Lean4 and 
+  no external dependencies.
 authors:
   - family-names: Flores-Arbolay
     given-names: Israel D.
@@ -38,16 +38,6 @@ references:
     license: CC-BY-4.0
     keywords:
       - math.NA
-  - type: software
-    title: "eig3x3: reference C implementation"
-    authors:
-      - family-names: Habera
-        given-names: Michal
-      - family-names: Zilian
-        given-names: Andreas
-    year: 2025
-    repository-code: https://github.com/michalhabera/eig3x3
-    license: MIT
   - type: article
     title: "Symbolic spectral decomposition of 3x3 matrices"
     authors:
@@ -74,10 +64,3 @@ references:
       name: Geometric Tools, LLC
     url: https://www.geometrictools.com/Documentation/RobustEigenSymmetric3x3.pdf
     license: CC-BY-4.0
-  - type: software
-    title: Geometric Tools Engine
-    authors:
-      - family-names: Eberly
-        given-names: David H.
-    repository-code: https://github.com/davideberly/GeometricTools
-    license: BSL-1.0

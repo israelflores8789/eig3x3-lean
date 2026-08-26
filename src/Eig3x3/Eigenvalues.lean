@@ -31,22 +31,21 @@ k = { 1, 2, 3 } (`eigvals`).
 ## Provenance
 
 Habera & Zilian, "Numerically stable evaluation of closed-form expressions
-for eigenvalues of 3×3 matrices", arXiv:2511.00292v2 (2025).
+for eigenvalues of 3×3 matrices", arXiv:2511.00292v2 (2025). CC BY 4.0.
 
 Specifically:
 * invariants I₁ (Alg. 1), J₂ (Alg. 2), J₃ (Alg. 5),
-* the Algorithm 8 sum-of-squares discriminant
-  * verified through factorization of the original Habera-Zilian algorithm
-    (Habera–Zilian 2021, Eq. 29, arXiv:2111.02117)
-* quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4), and
-* ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
-
-Reference C implementation: `eig3x3` (MIT license).
+* the Algorithm 8 sum-of-squares discriminant,
+* verified Algorithm 8 through factorization of the
+  original Habera-Zilian algorithm
+  (Habera–Zilian 2021, Eq. 29, arXiv:2111.02117),
+* quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4),
+* and ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
 
 Deviations:
 * Eq. 4's arctan of the ratio is realized as `atan2` of numerator and denominator,
   which is identical when J₃ > 0, quadrant-correct when J₃ < 0, and NaN-free at
-  J₃ = Δ = 0. Indeed, this matches the Habera-Zilian's own C implementation.
+  J₃ = Δ = 0.
 
 ## Visibility
 

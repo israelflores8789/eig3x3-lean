@@ -29,7 +29,7 @@ is valid, and the code falls back to the unit vector of the eigenbasis.
 ## Provenance
 
 D. Eberly, "A Robust Eigensolver for 3×3 Symmetric Matrices", Geometric
-Tools, CC BY 4.0.
+Tools, (2014). CC BY 4.0.
 
 Specifically, the non-iterative algorithm (§5):
 * isolated-eigenvector from cross products (§5, Listing 4),

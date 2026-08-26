@@ -36,18 +36,21 @@ precision while still carrying the speed and determinism of a closed-form soluti
 
 * **Eigenvalues** (`Eig3x3.Eigenvalues`) — Habera & Zilian, "Numerically
   stable evaluation of closed-form expressions for eigenvalues of 3×3
-  matrices", arXiv:2511.00292v2 (2025). Specifically, the invariants I₁ (Alg. 1),
-  J₂ (Alg. 2), J₃ (Alg. 5), the Algorithm 8 sum-of-squares discriminant
-  (factorization originating in Habera–Zilian 2021, arXiv:2111.02117), quadrant-safe
-  angle φ = atan2(√(27Δ), 27J₃) (Eq. 4), ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
-  Reference C implementation: `eig3x3` (MIT license).
+  matrices", arXiv:2511.00292v2 (2025). Specifically:
+  * the invariants I₁ (Alg. 1), J₂ (Alg. 2), J₃ (Alg. 5),
+  * the Algorithm 8 sum-of-squares discriminant (factorization originating in
+    Habera–Zilian 2021, arXiv:2111.02117),
+  * quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4),
+  * ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
 
 * **Eigenvectors** (`Eig3x3.Eigenvectors`, internal) — D. Eberly, "A Robust
   Eigensolver for 3×3 Symmetric Matrices", Geometric Tools, CC BY 4.0).
-  Specifically the non-iterative algorithms drescribed in §5 inlcluding
-  max-abs preconditioning, isolated-eigenvector from cross products,
-  robust orthogonal complement, 2×2 reduction in the complement,
-  right-handed completion.
+  Specifically, the non-iterative algorithms drescribed in §5, inlcluding:
+  * max-abs preconditioning,
+  * isolated-eigenvector from cross products (§5, Listing 4),
+  * robust orthogonal complement (§5, Listing 5),
+  * 2×2 reduction in the complement (§5, Listing 6),
+  * right-handed completion.
 
 ## Deviations from the sources
 
