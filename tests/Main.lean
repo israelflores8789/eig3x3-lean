@@ -1,5 +1,3 @@
-module
-
 import Tests.KnownAnswer
 import Tests.Regression
 import Tests.Certificates

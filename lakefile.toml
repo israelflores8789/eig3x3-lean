@@ -8,7 +8,12 @@ name = "Eig3x3"
 srcDir = "src"
 globs = ["Eig3x3.*"]
 
+[[lean_lib]]
+name = "Tests"
+srcDir = "tests"
+globs = ["Tests.*"]
+
 [[lean_exe]]
 name = "eig3x3-tests"
-root = "Tests.Main"
-srcDir = "src"
+root = "Main"
+srcDir = "tests"
