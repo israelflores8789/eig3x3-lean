@@ -28,24 +28,6 @@ be expressed as the arctan2 leveraging its numerical stability near zero. Finall
 the eigenvalues are computed λₖ = (I₁ + 2√(3J₂)·cos(φ/3 + 2πk/3))/3 for
 k = { 1, 2, 3 } (`eigvals`).
 
-### Why Habera-Zilian's Method?
-
-The algorithms in practical use for this problem are iterative. For example,
-LAPACK's symmetric eigensolvers (what NumPy, SciPy, and PyTorch call)
-tridiagonalize the matrix and iterate QR steps to convergence, which means
-loops, convergence tests, and running time dependent on input random variables.
-
-The pre-existing closed-form alternatives, such as Cardano and Viète’s methods,
-avoid this computational cost but suffer in accuracy by evaluating the classical
-trigonometric cubic formula whose arccos near ±1 and subtractive discriminant
-lose precision exactly when two eigenvalues are close.
-
-Habera–Zilian remove this trade-off by proposing a *closed-form* alternative where
-numerically dangerous steps — using invariants from diagonal differences, computing
-the discriminant as a sum of squares, representing the angle as the arctan — are
-re-engineered. Performance is demonstrated to match iterative solvers at machine
-precision while still carrying the speed and determinism of a closed-form solution.
-
 ## Provenance
 
 Habera & Zilian, "Numerically stable evaluation of closed-form expressions
