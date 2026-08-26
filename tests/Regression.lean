@@ -16,6 +16,14 @@ sanctioned mechanism for tests to access non-public internals.
 
 namespace Eig3x3.Tests
 
+/-- Naive discriminant Δ = 4J₂³ − 27J₃², clamped to [0, ∞). Kept for
+    benchmarking only (reproduces the paper's naive-vs-present comparisons);
+    suffers catastrophic cancellation near double eigenvalues with finite J₂
+    (observed ≈5e-9 absolute eigenvalue error on the D2 path). -/
+def deltaNaive (J2 J3 : Float) : Float :=
+  let d := 4.0 * J2 * J2 * J2 - 27.0 * J3 * J3
+  if d < 0.0 then 0.0 else d
+
 public def runRegression : IO Unit := do
   -- Exact discriminant on the matrix that caught the r₁₀ sign error.
   -- 13,021,520 < 2^53, so it is exactly representable in float64.

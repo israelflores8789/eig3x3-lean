@@ -8,13 +8,51 @@ public import Eig3x3.Basic
 Given a *real symmetric matrix* `A` to decompose, performs Habera-Zilian's
 method to compute an ordered vector of eigenvalues, `Eigval3`.
 
+## Algorithm
+
+The eigenvalues of `A` are the roots of its cubic characteristic polynomial.
+While cubics have a closed-form trigonometric solution, evaluating it naively
+loses accuracy exactly when two eigenvalues are close.
+
+The solution is to sidestep approaching the polynomial directly, and instead
+recenter by the mean of the eigenvalues, which the trace `i1` provides trivially,
+so the remaining unknowns sum to zero. Then, measure the spread of the recentered
+eigenvalues with two moments — `j2`, roughly their variance, and `j3`,
+roughly their skewness — computed from *differences* of diagonal entries so
+that nearly-equal eigenvalues do not cancel away.
+
+The discriminant, Δ = 4J₂³ − 27J₃², (`delta`) is evaluated as a sum of squares so
+no subtraction of nearly-equal eigenvalues can occur and cause float-point
+instability. While the classical formula uses the arccos, the required angle can
+be expressed as the arctan2 leveraging its numerical stability near zero. Finally,
+the eigenvalues are computed λₖ = (I₁ + 2√(3J₂)·cos(φ/3 + 2πk/3))/3 for
+k = { 1, 2, 3 } (`eigvals`).
+
+### Why Habera-Zilian's Method?
+
+The algorithms in practical use for this problem are iterative. For example,
+LAPACK's symmetric eigensolvers (what NumPy, SciPy, and PyTorch call)
+tridiagonalize the matrix and iterate QR steps to convergence, which means
+loops, convergence tests, and running time dependent on input random variables.
+
+The pre-existing closed-form alternatives, such as Cardano and Viète’s methods,
+avoid this computational cost but suffer in accuracy by evaluating the classical
+trigonometric cubic formula whose arccos near ±1 and subtractive discriminant
+lose precision exactly when two eigenvalues are close.
+
+Habera–Zilian remove this trade-off by proposing a *closed-form* alternative where
+numerically dangerous steps — using invariants from diagonal differences, computing
+the discriminant as a sum of squares, representing the angle as the arctan — are
+re-engineered. Performance is demonstrated to match iterative solvers at machine
+precision while still carrying the speed and determinism of a closed-form solution.
+
 ## Provenance
 
 Habera & Zilian, "Numerically stable evaluation of closed-form expressions
 for eigenvalues of 3×3 matrices", arXiv:2511.00292v2 (2025).
 
 Specifically:
-* Invariants I₁ (Alg. 1), J₂ (Alg. 2), J₃ (Alg. 5),
+* invariants I₁ (Alg. 1), J₂ (Alg. 2), J₃ (Alg. 5),
 * the Algorithm 8 sum-of-squares discriminant
   * verified through factorization of the original Habera-Zilian algorithm
     (Habera–Zilian 2021, Eq. 29, arXiv:2111.02117)
@@ -22,6 +60,11 @@ Specifically:
 * ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
 
 Reference C implementation: `eig3x3` (MIT license).
+
+Deviations:
+* Eq. 4's arctan of the ratio is realized as `atan2` of numerator and denominator,
+  which is identical when J₃ > 0, quadrant-correct when J₃ < 0, and NaN-free at
+  J₃ = Δ = 0. Indeed, this matches the Habera-Zilian's own C implementation.
 
 ## Visibility
 
@@ -58,14 +101,6 @@ def j3 (A : SymmMat3) : Float :=
   let mixed := (A.a01 * A.a01 * t1 + A.a02 * A.a02 * t2 + A.a12 * A.a12 * t3) / 3.0
   let diag := t1 * t2 * t3 / 27.0
   offdiag + mixed - diag
-
-/-- Naive discriminant Δ = 4J₂³ − 27J₃², clamped to [0, ∞). Kept for
-    benchmarking only (reproduces the paper's naive-vs-present comparisons);
-    suffers catastrophic cancellation near double eigenvalues with finite J₂
-    (observed ≈5e-9 absolute eigenvalue error on the D2 path). -/
-def deltaNaive (J2 J3 : Float) : Float :=
-  let d := 4.0 * J2 * J2 * J2 - 27.0 * J3 * J3
-  if d < 0.0 then 0.0 else d
 
 /-- Discriminant Δ = 4J₂³ − 27J₃² = ∏_{i<j}(λᵢ − λⱼ)².
 
