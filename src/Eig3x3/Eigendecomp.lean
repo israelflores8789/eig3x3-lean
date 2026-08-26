@@ -31,11 +31,18 @@ public def eigendecomp (A : SymmMat3) : Decomposition :=
   if maxAbs == 0.0 then
     { eigvals := ⟨0.0, 0.0, 0.0⟩, eigvecs := Mat3.id }
   else
-    let s := 1.0 / maxAbs
-    let B := A.scale s
+    -- Bit-transparent preconditioning: `frExp` gives `maxAbs = m · 2^e` with
+    -- m ∈ [0.5, 1) exactly, so `m / maxAbs` is exactly 2^(-e) — the true
+    -- quotient is a power of two and IEEE division is correctly rounded.
+    -- Scaling by a power of two moves only exponents, so the whole pipeline
+    -- is bit-identical to running unpreconditioned, and the guard costs zero
+    -- rounding.
+    -- Contrast: `1.0 / maxAbs` only perturbs ~96% of inputs by ~1 ULP.
+    let (m, _) := maxAbs.frExp
+    let B := A.scale (m / maxAbs)
     let e := eigvals B
     let Q := eigvecs B e
-    -- maxAbs > 0 here, so rescaling preserves the l₁ ≤ l₂ ≤ l₃ ordering.
-    { eigvals := e.scale maxAbs, eigvecs := Q }
+    -- `maxAbs / m` is exactly 2^e > 0, so rescaling is exact and order-preserving.
+    { eigvals := e.scale (maxAbs / m), eigvecs := Q }
 
 end Eig3x3

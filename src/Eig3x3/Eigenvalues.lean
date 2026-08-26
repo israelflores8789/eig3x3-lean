@@ -140,11 +140,17 @@ def twoPiOver3 : Float := 2.0943951023931953
 public def eigvals (A : SymmMat3) : Eigval3 :=
   let I1 := i1 A
   let J2 := j2 A
-  let J3 := j3 A
-  let d  := delta A
-  let phi := Float.atan2 (Float.sqrt (27.0 * d)) (27.0 * J3)
-  let c  := 2.0 * Float.sqrt (3.0 * J2)
-  let lam := fun k : Float => (I1 + c * Float.cos (phi / 3.0 + twoPiOver3 * k)) / 3.0
-  { l₁ := lam 1.0, l₂ := lam 2.0, l₃ := lam 3.0 }
+  -- Exact scaled identity (H–Z Eq. 62): J₂ is a sum of squares, so it is
+  -- exactly zero iff A = cI, and then all three eigenvalues are exactly the
+  -- common diagonal entry.
+  if J2 == 0.0 then
+    ⟨A.a00, A.a00, A.a00⟩
+  else
+    let J3 := j3 A
+    let d  := delta A
+    let phi := Float.atan2 (Float.sqrt (27.0 * d)) (27.0 * J3)
+    let c  := 2.0 * Float.sqrt (3.0 * J2)
+    let lam := fun k : Float => (I1 + c * Float.cos (phi / 3.0 + twoPiOver3 * k)) / 3.0
+    { l₁ := lam 1.0, l₂ := lam 2.0, l₃ := lam 3.0 }
 
 end Eig3x3

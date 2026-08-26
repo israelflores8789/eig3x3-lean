@@ -29,8 +29,8 @@ public def runRegression : IO Unit := do
   -- 13,021,520 < 2^53, so it is exactly representable in float64.
   assertClose "regression Δ" (delta regressionMatrix) 13021520.0 0.0
 
-  -- Near-double eigenvalues at machine precision (the naive Δ gave ≈2.5e-9
-  -- absolute eigenvalue error here).
+  -- Near-double eigenvalues at machine precision.
+  -- (the naive Δ gave ≈2.5e-9 absolute eigenvalue error here)
   let d := eigendecomp nearDouble
   assertClose "nearDouble λ₁" d.eigvals.l₁ (-1.0) 1e-12
   assertClose "nearDouble λ₂" d.eigvals.l₂ 0.99999999 1e-12

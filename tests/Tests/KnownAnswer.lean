@@ -43,8 +43,8 @@ public def runKnownAnswer : IO Unit := do
   assertClose "mat trace" M.trace 16.0 0.0
   assertTrue "mat transpose" (Mᵀ.approx
     (Mat3.ofRows ⟨1.0, 2.0, 3.0⟩ ⟨4.0, 5.0, 6.0⟩ ⟨7.0, 8.0, 10.0⟩) 0.0)
-  assertTrue "mat mulVec" ((M * (⟨1.0, 1.0, 1.0⟩ : Vec3)).approx ⟨12.0, 15.0, 21.0⟩ 0.0)
-  assertTrue "mat transposeMulVec" ((Mᵀ * (⟨1.0, 1.0, 1.0⟩ : Vec3)).approx ⟨6.0, 15.0, 24.0⟩ 0.0)
+  assertTrue "mat mulVec" ((M * (⟨1.0, 1.0, 1.0⟩ : Vec3)).approx ⟨12.0, 15.0, 19.0⟩ 0.0)
+  assertTrue "mat transposeMulVec" ((Mᵀ * (⟨1.0, 1.0, 1.0⟩ : Vec3)).approx ⟨6.0, 15.0, 25.0⟩ 0.0)
   assertTrue "mat mul" ((M * M).approx
     ⟨⟨30.0, 36.0, 45.0⟩, ⟨66.0, 81.0, 102.0⟩, ⟨109.0, 134.0, 169.0⟩⟩ 0.0)
   assertTrue "mat id" ((Mat3.id * M).approx M 0.0)
