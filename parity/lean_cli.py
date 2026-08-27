@@ -35,7 +35,8 @@ import json
 import os
 import subprocess
 
-DEFAULT_BINARY = os.path.join(".lake", "build", "bin", "eig3x3_cli")
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_BINARY = os.path.join(REPO_ROOT, ".lake", "build", "bin", "eig3x3_cli")
 
 
 def available(binary: str = DEFAULT_BINARY) -> bool:

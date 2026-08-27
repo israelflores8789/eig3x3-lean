@@ -37,7 +37,7 @@ def to_dense(A) -> np.ndarray:
 def numpy_decomposition(A) -> tuple:
     """LAPACK via numpy: w ascending, columns of V are the eigenvectors."""
     M = to_dense(A)
-    w, V = np.linalg.eigvalsh(M)
+    w, V = np.linalg.eigh(M)
     res = max(float(np.max(np.abs(M @ V[:, i] - w[i] * V[:, i]))) for i in range(3))
     ort = float(np.max(np.abs(V.T @ V - np.eye(3))))
     rec = float(np.max(np.abs(V @ np.diag(w) @ V.T - M)))
