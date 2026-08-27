@@ -2,11 +2,11 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""Case generation: the zoo, random matrices across scales, the paper's
-adversarial paths, and frontier cases.
+"""Case generation: the zoo, random matrices across scales, Habera-Zilian's
+proposed adversarial paths, and frontier cases.
 
 Everything is seeded; the seed travels in every report header. Matrices are
-6-tuples (a00, a11, a22, a01, a02, a12), matching Eig3x3.SymmMat3.
+6-tuples (a00, a11, a22, a01, a02, a12), matching Lean's Eig3x3.SymmMat3.
 """
 
 import numpy as np
@@ -18,7 +18,7 @@ ZOO = {
     "scaled-id": (3.7, 3.7, 3.7, 0.0, 0.0, 0.0),
     "zero": (0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
     "near-double": (1.0, 1.0, -1.0, 1.0e-8, 0.0, 0.0),
-    "near-triple": (1.0, 1.0, 1.0 + 1e-8, 0.0, 0.0, 0.0),
+    "near-triple": (1.0, 1.0, 1.0 + 1.0e-8, 0.0, 0.0, 0.0),
     "regression": (-2.0, 2.0, -9.0, 9.0, 8.0, 6.0),  # the r10 matrix
 }
 

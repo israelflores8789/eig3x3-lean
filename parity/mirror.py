@@ -6,12 +6,9 @@
 
 Ports Eigendecomp.lean / Eigenvalues.lean / Eigenvectors.lean /
 Certificates.lean line for line, in the same operation order, so on the same
-platform its results should be bit-identical to the Lean binary. The harness
-uses it in two roles:
+platform its results should be bit-identical to the Lean binary.
 
-  1. stand-in for the CLI until eig3x3_cli exists (run everything today);
-  2. cross-check thereafter: mirror and CLI must agree bitwise, and any
-     disagreement is a serialization bug, not numerics.
+The Python test suite uses this to cross-check serialization 
 
 `delta_naive` lives here (not in the library) for the naive-vs-present
 benchmark study in bench.py.

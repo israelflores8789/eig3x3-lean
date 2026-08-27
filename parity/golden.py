@@ -4,17 +4,16 @@
 
 """Golden vectors: 50-digit references via mpmath.
 
-A small curated set (the zoo plus a few nasties) is solved at 50-digit
+A small curated set (the zoo plus a few edge cases) is solved at 50-digit
 precision and emitted as 17-significant-digit decimals, which round-trip
-exactly to the correct float64. Two consumers:
+exactly to the correct float64. Writes golden.json with two consumers:
 
-  * this harness (--check) validates an implementation against them;
-  * the Golden.lean task checks a subset into Tests/Golden.lean, giving the
-    Lean suite high-precision anchors with no Python at test time.
+  * this harness (--check) validates against mirror.py;
+  * Lean's test suite in Tests/Golden.lean
 
 Usage:
-    python golden.py                # write golden.json
-    python golden.py --check        # validate the mirror against golden.json
+    python golden.py                # writes golden.json
+    python golden.py --check        # validates mirror.py against golden.json
 """
 
 import json

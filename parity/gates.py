@@ -2,11 +2,12 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""The shared numerical standard: one epsilon, scale-aware gates.
+"""Shared numerical test standard.
+
+Implements one machine epsilon with scale-aware gates.
 
 These formulas mirror Tests/Util.lean exactly — the Lean test suite and this
-harness enforce the same standard in the same units, so a number reported
-here means the same thing there.
+harness enforce the same standard in the same units.
 
 Gate classes (budget x eps x the quantity's own scale):
   * residual / reconstruction / eigenvalue error: 64 eps * maxAbsEntry(A)
@@ -15,7 +16,7 @@ Gate classes (budget x eps x the quantity's own scale):
 The constants come from the algorithm's rounding budget: the eigenvalue
 error (<= ~36 eps * maxAbs in validation) dominates, the certificate
 evaluation itself contributes <= 5 eps, and <= 4 eps covers platform libm
-variation (cos/atan2 are not correctly rounded by IEEE 754; sqrt is).
+variation (cos/atan2 are exempt from IEEE 754 1/2 ULP rounding constraint).
 """
 
 EPS = 2.0**-52  # float64 machine epsilon
@@ -37,7 +38,7 @@ def cert_tol(A: Symm) -> float:
     """Residual/reconstruction standard: 64 eps scaled by max |entry|.
 
     Note: cert_tol of the zero matrix is exactly 0.0, so degenerate cases
-    are gated exactly, for free.
+    are gated exactly.
     """
     return 64.0 * EPS * max_abs_entry(A)
 

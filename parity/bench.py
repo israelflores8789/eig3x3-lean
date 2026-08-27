@@ -4,16 +4,21 @@
 
 """Benchmarks and the naive-vs-present discriminant study.
 
-Timing caveat: the mirror is pure Python and is not the artifact under
-test — its per-matrix time says nothing about the Lean binary. The
-meaningful timing comparison (eig3x3_cli, which should be flat constant
-time, vs numpy/LAPACK, which is O(n^3) with an input-dependent iteration
-count) lands with the CLI. The accuracy study below is the point today.
+IMPORTANT: mirror.py is a pure Python replica of the Lean source package
+and is not meant to be a benchmark target. Its per-matrix time says nothing
+about the Lean binary. Timing comparisons such as
 
-The accuracy study reproduces the paper's naive-vs-present comparison:
-the same pipeline run with the Algorithm 8 discriminant vs the clamped
-naive discriminant, on the adversarial paths whose exact eigenvalues are
-known in closed form.
+* eig3x3_cli, which should be constant time,
+* vs numpy/LAPACK, which is O(n^3) with an input-dependent iteration count,
+
+is only meaningful when tested against the Lean CLI.
+
+However, an accuracy study that models what Habera-Zilian (2025) proposed
+can be performed against mirror.py. The accuracy study implemented in this
+modulevreproduces the Habera-Zilian's naive-vs-present comparison: the same
+pipeline run with the Algorithm 8 discriminant vs the clamped naive
+discriminant, on the adversarial paths whose exact eigenvalues are known
+in closed form.
 """
 
 import sys

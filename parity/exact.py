@@ -2,20 +2,26 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""Exact rational-arithmetic identity checks — the standing guard against
-transcription errors (the r10 sign class).
+"""Exact rational-arithmetic identity checks.
 
-No floats, no tolerances: every check here is an exact equality of Fractions.
-The headline identity is
+Acts as a guard against transcription errors (e.g. the r10 sign error in
+Algorithm 8). No floats, no tolerances. Every check here is an exact equality
+of Fractions with integer-valued inputs.
+
+Notable checks:
+
+* The headline identity
 
     delta(A) == 4*J2^3 - 27*J3^2
 
-computed with the Algorithm 8 sum-of-squares on the left — this is precisely
-the identity that caught the r10 transcription error during the port. Also
-checked: the diagonal-difference forms of J2 and J3 against their direct
-deviatoric definitions (J2 = tr(dev A)^2 / 2, J3 = det(dev A)).
+is computed with the Algorithm 8 sum-of-squares on the left. This is precisely
+the identity that caught the r10 transcription error implementation of
+Habera-Zilian's Algorithm 8 and has been verified against their 2021 publishing.
 
-Integer-valued inputs keep everything exactly representable as Fractions.
+* The diagonal-difference forms of J2 and J3 against their direct deviatoric
+definitions
+
+    J2 = tr(dev A)^2 / 2, J3 = det(dev A).
 """
 
 import sys
@@ -43,7 +49,7 @@ def j3_frac(A) -> Fraction:
 
 
 def delta_frac(A) -> Fraction:
-    """Algorithm 8, verbatim, in exact arithmetic."""
+    """Habera-Zilian's Algorithm 8 (2025) with r10 correction."""
     a00, a11, a22, p, q, r = A
     d0, d1, d2 = a00 - a11, a00 - a22, a11 - a22
     r1 = p * r * q - q * p * r
@@ -70,20 +76,20 @@ def delta_frac(A) -> Fraction:
 
 
 def dev(A):
-    """The deviatoric matrix A - (tr A / 3) I, exactly."""
+    """The deviatoric matrix A - (tr A / 3) I."""
     a00, a11, a22, a01, a02, a12 = A
     t = (a00 + a11 + a22) / 3
     return ((a00 - t, a01, a02), (a01, a11 - t, a12), (a02, a12, a22 - t))
 
 
 def j2_dev(A) -> Fraction:
-    """J2 = tr((dev A)^2) / 2, computed directly from the definition."""
+    """J2 = tr((dev A)^2) / 2"""
     D = dev(A)
     return sum((D[i][j] * D[j][i] for i in range(3) for j in range(3)), Fraction(0)) / 2
 
 
 def j3_dev(A) -> Fraction:
-    """J3 = det(dev A), computed directly from the definition."""
+    """J3 = det(dev A)."""
     (x, p, q), (_, y, r), (_, _, z) = dev(A)
     return x * (y * z - r * r) - p * (p * z - r * q) + q * (p * r - y * q)
 

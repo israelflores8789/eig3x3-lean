@@ -2,18 +2,20 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""Parity against numpy.linalg.eigvalsh.
+"""Parity against numpy.linalg.eigh.
 
-Policy: eigenvalues are compared directly (well-posed, ordered on both
-sides — LAPACK returns them ascending, so do we). Eigenvectors are NEVER
-compared entrywise: they are sign-ambiguous, and individually ill-posed
-inside clusters. The certificate metrics are the vector-level evidence, and
-BOTH sides (this library and LAPACK) must meet the same gates — one
-standard, both implementations.
+Policy:
+Eigenvalues are compared directly (well-posed, ordered on both sides —
+LAPACK returns them ascending, so do we).
+
+Eigenvectors are NEVER compared entrywise. They are sign-ambiguous, and
+individually ill-posed inside clusters. The certificate metrics are the
+vector-level evidence, and BOTH sides (this library and LAPACK) must meet
+the same test gates.
 
 Usage:
-    python compare.py --impl mirror            # today
-    python compare.py --impl lean              # once eig3x3_cli exists
+    python compare.py --impl mirror        # against the python replica
+    python compare.py --impl lean          # against the Lean source
 """
 
 import argparse

@@ -98,7 +98,7 @@ public def nearDouble : SymmMat3 := ⟨1.0, 1.0, -1.0, 1.0e-8, 0.0, 0.0⟩
 /-- Near-triple eigenvalue path (an H–Z benchmark path): `diag(1, 1, 1 + δ)`
     with δ = 1e-8 — an exact double eigenvalue plus a close third, driving
     the angle φ → 0 (J₃ > 0). -/
-public def nearTriple : SymmMat3 := ⟨1.0, 1.0, 1.000000000000001, 0.0, 0.0, 0.0⟩
+public def nearTriple : SymmMat3 := ⟨1.0, 1.0, 1.0 + 1.0e-8, 0.0, 0.0, 0.0⟩
 
 /-- The matrix that caught the r₁₀ transcription error during porting:
     exact Δ = 13,021,520 (exactly representable in float64). -/

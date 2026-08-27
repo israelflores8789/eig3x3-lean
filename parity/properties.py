@@ -4,11 +4,10 @@
 
 """Property checks: algebraic invariants that must hold on every input.
 
-These run against the mirror (or, later, the CLI) — never against numpy.
-The bit-exact scale-invariance property in particular is ours alone: the
-power-of-two preconditioner makes eigendecomp(2^k A) bit-identical in
-significand to 2^k eigendecomp(A), so that check is an exact equality, not
-a tolerance.
+These run against mirror.py and the Lean CLI binary, not against numpy.
+Notably, a unique bit-exact scale-invariance property is tested. The
+power-of-two preconditioner checks eigendecomp(2^k A) is bit-identical in
+significand to 2^k eigendecomp(A) as an exact equality.
 
 Usage: python properties.py [n] [seed]
 """
