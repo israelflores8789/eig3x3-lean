@@ -79,7 +79,7 @@ def dev(A):
 def j2_dev(A) -> Fraction:
     """J2 = tr((dev A)^2) / 2, computed directly from the definition."""
     D = dev(A)
-    return sum(D[i][j] * D[j][i] for i in range(3) for j in range(3)) / 2
+    return sum((D[i][j] * D[j][i] for i in range(3) for j in range(3)), Fraction(0)) / 2
 
 
 def j3_dev(A) -> Fraction:
