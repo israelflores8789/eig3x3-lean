@@ -80,6 +80,7 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 | `just bench` | timing + naive-vs-present discriminant study | informational only |
 | `just ci` | all of the above plus ruff and pyrefly | all green |
 
+- USE `uv run pytest parity -k <expr>` to run a subset of parity tests
 - **CLI Smoke Test**: After running `just cli --impl lean`, RUN `echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3-cli` and EXPECT eigenvalues 0.58578643762690497, 2.0, 3.4142135623730949 with certificates ≈ 1e-16. IF the result does NOT match expectations, STOP and REPORT the failure.
 
 ### Rules
