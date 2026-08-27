@@ -1,0 +1,18 @@
+{
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.ruff": "always",
+      "source.fixAll.ruff": "always"
+    }
+  },
+  "evenBetterToml.schema.associations": {
+    "lakefile.toml": "https://schemastore.org",
+    "pyproject.toml": "https://json.schemastore.org/pyproject.json"
+  },
+  "python-envs.workspaceSearchPaths": [
+    ".venv",
+    "*/.venv"
+  ]
+}

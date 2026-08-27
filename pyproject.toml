@@ -1,18 +1,43 @@
+#:schema https://json.schemastore.org/pyproject.json
+
 [project]
-name = "eig3x3-verification"
+name = "eig3x3-parity"
 version = "0.1.0"
+description = "Parity and validation harness for the eig3x3 Lean library"
 requires-python = ">=3.12"
-dependencies = [
-    "numpy", 
-    "mpmath", 
-    "pytest"
-]
+dependencies = ["numpy", "mpmath"]
+
+[dependency-groups]
+dev = ["pytest", "ruff", "pyrefly"]
 
 [tool.uv]
 package = false
 
 [tool.pytest.ini_options]
-testpaths = ["parity"]
+pythonpath = ["."]
+testpaths = ["parity/tests"]
 
 [tool.ruff]
-# lint config here
+line-length = 88
+target-version = "py312"
+src = ["parity"]
+
+[tool.ruff.lint]
+# E: Pycodestyle errors, F: Pyflakes, I: Isort (import organization), B: Bugbear
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pyrefly]
+type-checking-mode = "default" 
+python-interpreter-path = ".venv/bin/python"
+search-path = ["."]
+project-includes = ["parity/**/*.py"]
+project-excludes = [
+    "**/node_modules",
+    "**/.venv",
+    "**/build",
+    "**/dist"
+]
