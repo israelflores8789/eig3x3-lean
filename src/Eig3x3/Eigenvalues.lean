@@ -140,7 +140,8 @@ def twoPiOver3 : Float := 2.0943951023931953
     For a scaled identity, J₂ = J₃ = Δ = 0, φ = atan2(0,0) = 0, and all three
     eigenvalues come out as exactly I₁/3.
 
-    Postcondition (contract): the result satisfies `l₁ ≤ l₂ ≤ l₃`. -/
+    Postcondition (contract): the result satisfies `l₁ ≤ l₂ ≤ l₃` enforced by
+    the final sort. -/
 public def eigvals (A : SymmMat3) : Eigval3 :=
   let I1 := i1 A
   let J2 := j2 A
@@ -155,6 +156,18 @@ public def eigvals (A : SymmMat3) : Eigval3 :=
     let phi := Float.atan2 (Float.sqrt (27.0 * d)) (27.0 * J3)
     let c  := 2.0 * Float.sqrt (3.0 * J2)
     let lam := fun k : Float => (I1 + c * Float.cos (phi / 3.0 + twoPiOver3 * k)) / 3.0
-    { l₁ := lam 1.0, l₂ := lam 2.0, l₃ := lam 3.0 }
+    let x := lam 1.0
+    let y := lam 2.0
+    let z := lam 3.0
+    -- Exact-arithmetic ordering of Habera-Zilian's Eq. 2 holds only up to
+    -- float cosine evaluation at degenerate angles.
+    -- Since cosine is a transcendental function, it is exempt from IEEE 754,
+    -- and when near Δ = 0 a tied eigenvalue pair can come out ~1 ulp apart
+    -- and inverted (caught by the property parity test suite).
+    -- A 3-element compare-exchange sort guards the postcondition.
+    let (a, b) := if y < x then (y, x) else (x, y)
+    let (b, c) := if z < b then (z, b) else (b, z)
+    let (a, b) := if b < a then (b, a) else (a, b)
+    { l₁ := a, l₂ := b, l₃ := c }
 
 end Eig3x3

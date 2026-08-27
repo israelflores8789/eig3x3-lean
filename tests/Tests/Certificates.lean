@@ -46,6 +46,7 @@ public def runCertificates : IO Unit := do
      ("scaled-id", scaledIdentity),
      ("zero", zeroMatrix),
      ("near-double", nearDouble),
+     ("near-triple", nearTriple),
      ("regression", regressionMatrix)]
   for (name, A) in cases do
     let d := eigendecomp A

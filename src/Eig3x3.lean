@@ -64,8 +64,12 @@ precision while still carrying the speed and determinism of a closed-form soluti
   eigenvalues, and their arctan form is preferred).
 * Eberly's sign half-determinant method is replaced by a direct gap comparison
   on the ordered eigenvalues — equivalent in exact arithmetic and more direct.
-* No sorting stage: Habera–Zilian returns λ₁ ≤ λ₂ ≤ λ₃, and the eigenvector assembly
-  is right-handed by construction (the third vector is always a cross product).
+* Adds a final 3-element sort of the computed eigenvalues: H–Z's ordering
+  guarantee (Eq. 2) is exact-arithmetic. Since cosine is a transcendental
+  function and exempt from IEEE 754, floating point evaluations of the cosine
+  at a degenerate angle can disagree by ~1 ulp. The sort is a pure permutation,
+  runs before eigenvector assembly, and the assembly remains right-handed by
+  construction (the third vector is always a cross product).
 * `eigvecIsolated` adds a defensive exact-zero fallback; Eberly relies on
   exact-arithmetic rank 2 and has no such guard.
 

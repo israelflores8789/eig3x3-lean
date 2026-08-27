@@ -41,6 +41,26 @@ public def runRegression : IO Unit := do
   assertClose "nearDouble λ₃" d.eigvals.l₃ 1.00000001 1e-12
   assertTrue "nearDouble ordered" d.eigvals.isOrdered
 
+  -- Ordering contract at the degenerate angles (caught by the property suite
+  -- on its first run). At a double eigenvalue, the tied pair is computed by
+  -- two independent cosine evaluations, which can disagree by ~1 ulp and come
+  -- out inverted; the final sort in `eigvals` enforces `l₁ ≤ l₂ ≤ l₃`. The
+  -- sweeps pin both angle boundaries: a cluster at the bottom of the spectrum
+  -- drives φ → 0 (J₃ > 0), a cluster at the top drives φ → π ( J₃ < 0).
+  -- Several of these provably invert without the sort on reference libm; if
+  -- one ever passes unsorted on some platform, that's libm luck, not
+  -- correctness — the sort stays.
+  for d in [1.0e-16, 1.0e-15, 1.0e-14, 1.0e-13] do
+    let nearTriple : SymmMat3 := ⟨1.0, 1.0, 1.0 + d, 0.0, 0.0, 0.0⟩
+    assertTrue s!"ordering φ→0 triple δ={d}"
+      (eigendecomp nearTriple).eigvals.isOrdered
+    let nearDoubleTop : SymmMat3 := ⟨-1.0, 1.0, 1.0 + d, 0.0, 0.0, 0.0⟩
+    assertTrue s!"ordering φ→π top δ={d}"
+      (eigendecomp nearDoubleTop).eigvals.isOrdered
+    let nearDoubleBot : SymmMat3 := ⟨-1.0 - d, -1.0, 1.0, 0.0, 0.0, 0.0⟩
+    assertTrue s!"ordering φ→0 bottom δ={d}"
+      (eigendecomp nearDoubleBot).eigvals.isOrdered
+
   -- Informational: present vs naive discriminant on the near-double path.
   IO.println s!"info nearDouble Δ (Alg. 8): {delta nearDouble}"
   IO.println s!"info nearDouble Δ (naive):  {deltaNaive (j2 nearDouble) (j3 nearDouble)}"

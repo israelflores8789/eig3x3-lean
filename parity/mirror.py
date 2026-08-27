@@ -140,7 +140,9 @@ def eigvals(A: Symm, use_naive: bool = False) -> Vec3:
     phi = math.atan2(math.sqrt(27.0 * d), 27.0 * J3)
     c = 2.0 * math.sqrt(3.0 * J2)
     lam = lambda k: (I1 + c * math.cos(phi / 3.0 + TWO_PI_OVER_3 * k)) / 3.0
-    return (lam(1.0), lam(2.0), lam(3.0))
+    # Bit-faithful with Eigenvalues.lean: final 3-element sort — float cosine
+    # at degenerate angles can invert a tied pair by ~1 ulp.
+    return tuple(sorted((lam(1.0), lam(2.0), lam(3.0))))
 
 
 # ---- Eigenvectors (Eigenvectors.lean) ----
