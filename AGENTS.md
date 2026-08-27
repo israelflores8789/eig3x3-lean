@@ -85,12 +85,12 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 
 ### Rules
 - NEVER loosen a tolerance or edit an expected value to make a failure pass. STOP and REPORT the failure.
-- `golden.json` and the literals in `Tests/Golden.lean` are generated artifacts. NEVER hand-edit. Regenerate via `just golden` to keep `golden.py`'s curated set and `Tests/Golden.lean` in sync.
+- Numerical literals are INTENTIONALLY close (e.g. 1 ULP apart). Do NOT modify these figures; their purpose is to test mathematic float-point execution.
+- `golden.json` and the literals in `Tests/Golden.lean` are generated artifacts. NEVER hand-edit. Regenerate via `just golden` to keep `golden.py`'s curated set and `Tests/Golden.lean` in sync. IF `golden.json` is missing, RUN `just golden` to generate the file.
 - The parity harness runs against the Python mirror by default. USE the `--impl lean` flag on `just cli` to perform the parity comparison against Lean. This is REQUIRED before release.
 
 ## Known Issues
-- The Habera–Zilian reference paper contains a typo in: §7, Algorithm 8, `r₁₀`. The corrected form
-  is implemented in `src/Eig3x3/Eigenvalues.lean`. Do NOT "fix" it back.
+- The Habera–Zilian reference paper contains a typo in: §7, Algorithm 8, `r₁₀`. The corrected form is implemented in `src/Eig3x3/Eigenvalues.lean`. Do NOT "fix" it back.
 
 ## Boundaries
 - Do NOT add Lake dependencies unless explicitly asked.
