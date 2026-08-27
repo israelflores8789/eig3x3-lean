@@ -29,8 +29,7 @@ import gen_cases
 def j2_frac(A) -> Fraction:
     a00, a11, a22, a01, a02, a12 = A
     d0, d1, d2 = a00 - a11, a00 - a22, a11 - a22
-    return ((d0 * d0 + d1 * d1 + d2 * d2) / 6
-            + (a01 * a01 + a02 * a02 + a12 * a12))
+    return (d0 * d0 + d1 * d1 + d2 * d2) / 6 + (a01 * a01 + a02 * a02 + a12 * a12)
 
 
 def j3_frac(A) -> Fraction:
@@ -47,25 +46,27 @@ def delta_frac(A) -> Fraction:
     """Algorithm 8, verbatim, in exact arithmetic."""
     a00, a11, a22, p, q, r = A
     d0, d1, d2 = a00 - a11, a00 - a22, a11 - a22
-    r1  = p * r * q - q * p * r
-    r2  = -p * q * d2 + p * p * r - q * q * r
-    r3  = p * r * d1 - p * p * q + q * r * r
-    r4  = q * r * d0 + p * r * r - q * q * p
-    r5  = p * r * d1 - p * q * p + q * r * r
-    r6  = q * r * d0 - p * q * q + p * r * r
-    r7  = -q * p * d2 + p * p * r - q * r * q
-    r8  = r * d0 * d1 - q * p * d1 + p * p * r - r * r * r
-    r9  = r * d0 * d1 - q * p * d0 + q * r * q - r * r * r
+    r1 = p * r * q - q * p * r
+    r2 = -p * q * d2 + p * p * r - q * q * r
+    r3 = p * r * d1 - p * p * q + q * r * r
+    r4 = q * r * d0 + p * r * r - q * q * p
+    r5 = p * r * d1 - p * q * p + q * r * r
+    r6 = q * r * d0 - p * q * q + p * r * r
+    r7 = -q * p * d2 + p * p * r - q * r * q
+    r8 = r * d0 * d1 - q * p * d1 + p * p * r - r * r * r
+    r9 = r * d0 * d1 - q * p * d0 + q * r * q - r * r * r
     r10 = p * d1 * d2 + q * r * d2 + p * q * q - p * p * p
     r11 = p * d1 * d2 + q * r * d1 + p * r * r - p * p * p
     r12 = -q * d0 * d2 + p * r * d0 + q * r * r - q * q * q
     r13 = q * d0 * d2 + p * r * d2 - p * q * p + q * q * q
     r14 = d0 * d1 * d2 - p * p * d0 + q * q * d1 - r * r * d2
-    return (9 * r1 * r1 + 6 * (r2 * r2 + r3 * r3 + r4 * r4)
-            + 8 * (r5 * r5 + r6 * r6 + r7 * r7)
-            + 2 * (r8 * r8 + r9 * r9 + r10 * r10 + r11 * r11
-                   + r12 * r12 + r13 * r13)
-            + r14 * r14)
+    return (
+        9 * r1 * r1
+        + 6 * (r2 * r2 + r3 * r3 + r4 * r4)
+        + 8 * (r5 * r5 + r6 * r6 + r7 * r7)
+        + 2 * (r8 * r8 + r9 * r9 + r10 * r10 + r11 * r11 + r12 * r12 + r13 * r13)
+        + r14 * r14
+    )
 
 
 def dev(A):
@@ -93,11 +94,13 @@ def check(n: int, seed: int) -> int:
     for A in gen_cases.integer_matrices(rng, n):
         A = tuple(Fraction(x) for x in A)
         J2, J3 = j2_frac(A), j3_frac(A)
-        lhs = 4 * J2 ** 3 - 27 * J3 ** 2
+        lhs = 4 * J2**3 - 27 * J3**2
         rhs = delta_frac(A)
         if lhs != rhs:
-            print(f"FAIL discriminant identity on {A}: "
-                  f"4J2^3-27J3^2 = {lhs}, delta = {rhs}")
+            print(
+                f"FAIL discriminant identity on {A}: "
+                f"4J2^3-27J3^2 = {lhs}, delta = {rhs}"
+            )
             failures += 1
         if J2 != j2_dev(A):
             print(f"FAIL J2 identity on {A}")
@@ -105,8 +108,10 @@ def check(n: int, seed: int) -> int:
         if J3 != j3_dev(A):
             print(f"FAIL J3 identity on {A}")
             failures += 1
-    print(f"exact: {n} integer matrices, {failures} failure(s) "
-          f"(discriminant identity, J2 identity, J3 identity)")
+    print(
+        f"exact: {n} integer matrices, {failures} failure(s) "
+        f"(discriminant identity, J2 identity, J3 identity)"
+    )
     return 1 if failures else 0
 
 

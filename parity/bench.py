@@ -46,12 +46,13 @@ def naive_vs_present() -> None:
     print(f"{'delta':>10} {'path':<18} {'err (Alg. 8)':>14} {'err (naive)':>14}")
     for d in gen_cases.DELTAS:
         paths = [
-            ("near-double-top", (-1.0, 1.0, 1.0 + d, 0.0, 0.0, 0.0),
-             (-1.0, 1.0, 1.0 + d)),
-            ("near-triple", (1.0, 1.0, 1.0 + d, 0.0, 0.0, 0.0),
-             (1.0, 1.0, 1.0 + d)),
-            ("offdiag-double", (1.0, 1.0, -1.0, d, 0.0, 0.0),
-             (-1.0, 1.0 - d, 1.0 + d)),
+            (
+                "near-double-top",
+                (-1.0, 1.0, 1.0 + d, 0.0, 0.0, 0.0),
+                (-1.0, 1.0, 1.0 + d),
+            ),
+            ("near-triple", (1.0, 1.0, 1.0 + d, 0.0, 0.0, 0.0), (1.0, 1.0, 1.0 + d)),
+            ("offdiag-double", (1.0, 1.0, -1.0, d, 0.0, 0.0), (-1.0, 1.0 - d, 1.0 + d)),
         ]
         for label, A, ref in paths:
             e_p = mirror.eigendecomp(A)[0]

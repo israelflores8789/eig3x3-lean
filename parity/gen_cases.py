@@ -13,10 +13,10 @@ import numpy as np
 
 # The same six matrices as Tests/Util.lean. Keep in sync.
 ZOO = {
-    "worked":     (2.0, 2.0, 2.0, 1.0, 0.0, 1.0),    # eigenvalues 2±√2, 2
-    "diagonal":   (1.0, 2.0, 3.0, 0.0, 0.0, 0.0),
-    "scaled-id":  (3.7, 3.7, 3.7, 0.0, 0.0, 0.0),
-    "zero":       (0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+    "worked": (2.0, 2.0, 2.0, 1.0, 0.0, 1.0),  # eigenvalues 2±√2, 2
+    "diagonal": (1.0, 2.0, 3.0, 0.0, 0.0, 0.0),
+    "scaled-id": (3.7, 3.7, 3.7, 0.0, 0.0, 0.0),
+    "zero": (0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
     "near-double": (1.0, 1.0, -1.0, 1.0e-8, 0.0, 0.0),
     "regression": (-2.0, 2.0, -9.0, 9.0, 8.0, 6.0),  # the r10 matrix
 }
@@ -30,8 +30,9 @@ def random_uniform(rng: np.random.Generator, n: int) -> list:
     return [tuple(float(x) for x in rng.uniform(-1.0, 1.0, 6)) for _ in range(n)]
 
 
-def random_logscale(rng: np.random.Generator, n: int,
-                    emin: float = -300.0, emax: float = 300.0) -> list:
+def random_logscale(
+    rng: np.random.Generator, n: int, emin: float = -300.0, emax: float = 300.0
+) -> list:
     """Entries uniform in [-1, 1] times 10^k, k log-uniform in [emin, emax].
 
     Scale coverage is what exercises the preconditioner: 600 orders of
@@ -64,22 +65,25 @@ def adversarial_paths() -> list:
 def double_at_small_scale() -> list:
     """Exact double eigenvalue (s, s, 2s) at vanishing scale — the boundary
     adversarial family from the validation report."""
-    return [tuple(float(s) * x for x in (1.0, 1.0, 2.0, 0.0, 0.0, 0.0))
-            for s in np.logspace(-300, -1, 25)]
+    return [
+        tuple(float(s) * x for x in (1.0, 1.0, 2.0, 0.0, 0.0, 0.0))
+        for s in np.logspace(-300, -1, 25)
+    ]
 
 
 def frontier_cases() -> list:
     """The edge of the working range. The scale factors here (2^±997-ish)
     are representable, so all of these must succeed bit-cleanly."""
     return [
-        (1e300, 1e300, 1e300, 0.0, 0.0, 0.0),      # scaled identity, huge
-        (1e-300, 1e-300, 1e-300, 0.0, 0.0, 0.0),   # scaled identity, tiny
-        (1e300, 1.0, 1e-300, 0.0, 0.0, 0.0),       # extreme dynamic range
+        (1e300, 1e300, 1e300, 0.0, 0.0, 0.0),  # scaled identity, huge
+        (1e-300, 1e-300, 1e-300, 0.0, 0.0, 0.0),  # scaled identity, tiny
+        (1e300, 1.0, 1e-300, 0.0, 0.0, 0.0),  # extreme dynamic range
     ]
 
 
-def integer_matrices(rng: np.random.Generator, n: int,
-                     lo: int = -9, hi: int = 9) -> list:
+def integer_matrices(
+    rng: np.random.Generator, n: int, lo: int = -9, hi: int = 9
+) -> list:
     """Small integer-valued matrices — the inputs for exact.py's rational
     identity checks."""
     return [tuple(int(x) for x in rng.integers(lo, hi + 1, 6)) for _ in range(n)]

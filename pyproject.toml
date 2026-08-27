@@ -15,7 +15,7 @@ package = false
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ["parity/tests"]
+testpaths = ["parity"]
 
 [tool.ruff]
 line-length = 88
@@ -25,6 +25,7 @@ src = ["parity"]
 [tool.ruff.lint]
 # E: Pycodestyle errors, F: Pyflakes, I: Isort (import organization), B: Bugbear
 select = ["E", "F", "I", "B", "UP"]
+ignore = ["E731"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -33,7 +34,7 @@ indent-style = "space"
 [tool.pyrefly]
 type-checking-mode = "default" 
 python-interpreter-path = ".venv/bin/python"
-search-path = ["."]
+search-path = ["parity"]
 project-includes = ["parity/**/*.py"]
 project-excludes = [
     "**/node_modules",
@@ -41,3 +42,6 @@ project-excludes = [
     "**/build",
     "**/dist"
 ]
+
+[tool.pyrefly.errors]
+unnecessary-type-conversion = "ignore"

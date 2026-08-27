@@ -22,9 +22,9 @@ import sys
 
 import mpmath as mp
 
-from gates import cert_tol
 import gen_cases
 import mirror
+from gates import cert_tol
 
 mp.mp.dps = 50
 
@@ -56,12 +56,14 @@ def generate(path: str = GOLDEN_JSON) -> None:
     out = []
     for name, A in curated_cases().items():
         vals = golden_eigvals(A)
-        out.append({
-            "name": name,
-            "matrix": [float(x) for x in A],
-            # 17 significant digits round-trip exactly to the same float64.
-            "eigvals": [format(v, ".17g") for v in vals],
-        })
+        out.append(
+            {
+                "name": name,
+                "matrix": [float(x) for x in A],
+                # 17 significant digits round-trip exactly to the same float64.
+                "eigvals": [format(v, ".17g") for v in vals],
+            }
+        )
         print(f"  {name:<18} {vals[0]:.17g}  {vals[1]:.17g}  {vals[2]:.17g}")
     with open(path, "w") as f:
         json.dump(out, f, indent=2)
@@ -81,8 +83,7 @@ def check(path: str = GOLDEN_JSON) -> int:
         status = "ok" if err <= tol else "FAIL"
         if err > tol:
             failures += 1
-        print(f"  {status:<4} {case['name']:<18} max|err| {err:.3e} "
-              f"(gate {tol:.3e})")
+        print(f"  {status:<4} {case['name']:<18} max|err| {err:.3e} (gate {tol:.3e})")
     print(f"golden: {failures} failure(s)")
     return 1 if failures else 0
 

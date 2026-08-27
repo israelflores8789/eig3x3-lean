@@ -47,13 +47,16 @@ def run(matrices: list, binary: str = DEFAULT_BINARY) -> list:
     if not available(binary):
         raise FileNotFoundError(
             f"eig3x3-cli not found at {binary!r}; build it with "
-            "`lake build eig3x3-cli` (the CLI task)")
+            "`lake build eig3x3-cli` (the CLI task)"
+        )
     payload = {"matrices": [[float(x) for x in A] for A in matrices]}
-    proc = subprocess.run([binary], input=json.dumps(payload),
-                          text=True, capture_output=True)
+    proc = subprocess.run(
+        [binary], input=json.dumps(payload), text=True, capture_output=True
+    )
     if proc.returncode != 0:
-        raise RuntimeError(f"eig3x3-cli exited {proc.returncode}: "
-                           f"{proc.stderr.strip()}")
+        raise RuntimeError(
+            f"eig3x3-cli exited {proc.returncode}: {proc.stderr.strip()}"
+        )
     data = json.loads(proc.stdout)
     out = []
     for r in data["results"]:

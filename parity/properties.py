@@ -18,16 +18,18 @@ import sys
 
 import numpy as np
 
-from gates import EPS, ORTHO_TOL, cert_tol, max_abs_entry
 import gen_cases
 import mirror
+from gates import EPS, ORTHO_TOL, cert_tol, max_abs_entry
 
 
 def det3(A) -> float:
     a00, a11, a22, a01, a02, a12 = A
-    return (a00 * (a11 * a22 - a12 * a12)
-            - a01 * (a01 * a22 - a02 * a12)
-            + a02 * (a01 * a12 - a02 * a11))
+    return (
+        a00 * (a11 * a22 - a12 * a12)
+        - a01 * (a01 * a22 - a02 * a12)
+        + a02 * (a01 * a12 - a02 * a11)
+    )
 
 
 def check_case(A, dec, failures) -> None:
@@ -85,9 +87,11 @@ def check_scale_invariance(A, dec, failures) -> None:
 
 def run(n: int, seed: int) -> int:
     rng = np.random.default_rng(seed)
-    cases = (list(gen_cases.ZOO.values())
-             + gen_cases.random_uniform(rng, n)
-             + gen_cases.adversarial_paths())
+    cases = (
+        list(gen_cases.ZOO.values())
+        + gen_cases.random_uniform(rng, n)
+        + gen_cases.adversarial_paths()
+    )
     failures = []
     for A in cases:
         dec = mirror.decomposition(A)
@@ -96,8 +100,10 @@ def run(n: int, seed: int) -> int:
     by_kind = {}
     for f in failures:
         by_kind[f[0]] = by_kind.get(f[0], 0) + 1
-    print(f"properties: {len(cases)} cases, failures by kind: "
-          f"{by_kind if by_kind else 'none'}")
+    print(
+        f"properties: {len(cases)} cases, failures by kind: "
+        f"{by_kind if by_kind else 'none'}"
+    )
     for f in failures[:5]:
         print("  FAIL", f)
     return 1 if failures else 0

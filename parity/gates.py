@@ -18,7 +18,7 @@ evaluation itself contributes <= 5 eps, and <= 4 eps covers platform libm
 variation (cos/atan2 are not correctly rounded by IEEE 754; sqrt is).
 """
 
-EPS = 2.0 ** -52  # float64 machine epsilon
+EPS = 2.0**-52  # float64 machine epsilon
 
 # A symmetric 3x3 matrix is represented as (a00, a11, a22, a01, a02, a12),
 # matching the field order of Eig3x3.SymmMat3.
@@ -28,8 +28,9 @@ Symm = tuple
 def max_abs_entry(A: Symm) -> float:
     """Largest |entry|; the scale the library preconditions against."""
     a00, a11, a22, a01, a02, a12 = A
-    return max(max(abs(a00), abs(a01)),
-               max(max(abs(a02), abs(a11)), max(abs(a12), abs(a22))))
+    return max(
+        max(abs(a00), abs(a01)), max(max(abs(a02), abs(a11)), max(abs(a12), abs(a22)))
+    )
 
 
 def cert_tol(A: Symm) -> float:
