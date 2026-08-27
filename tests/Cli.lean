@@ -66,8 +66,8 @@ def exactDecimal (x : Float) : String :=
         let num := toString (sig * 5 ^ k)
         let len := num.length
         if len > k then
-          let frac := dropTrailingZeros (num.drop (len - k))
-          num.take (len - k) ++ "." ++ (if frac.isEmpty then "0" else frac)
+          let frac := dropTrailingZeros (num.drop (len - k)).toString
+          (num.take (len - k)).toString ++ "." ++ (if frac.isEmpty then "0" else frac)
         else
           "0." ++ String.ofList (List.replicate (k - len) '0')
                 ++ dropTrailingZeros num
@@ -112,13 +112,13 @@ def takeNumTok : List Char → List Char → List Char × List Char
     conditioned. -/
 def parseDecimal (s : String) : Option Float := do
   let (mant, expStr) ←
-    match s.splitOn "e" with
+    match (s.replace "E" "e").splitOn "e" with
     | [m] => some (m, "0")
     | [m, e] => some (m, e)
     | _ => none
-  let expStr := if expStr.startsWith "+" then expStr.drop 1 else expStr
+  let expStr := if expStr.startsWith "+" then (expStr.drop 1).toString else expStr
   let neg := mant.startsWith "-"
-  let mantAbs := if neg then mant.drop 1 else mant
+  let mantAbs := if neg then (mant.drop 1).toString else mant
   let (intPart, fracPart) ←
     match mantAbs.splitOn "." with
     | [i] => some (i, "")
@@ -171,7 +171,9 @@ def parseInput (s : String) : Option (List SymmMat3) := do
   let cs ← expectChar '{' s.toList
   let cs ← expectString "matrices" cs
   let cs ← expectChar ':' cs
-  let (ms, _) ← parseRows [] cs
+  let cs ← expectChar '[' cs
+  let (ms, cs) ← parseRows [] cs
+  let _ ← expectChar '}' cs
   pure ms
 
 /-! ## Output -/
@@ -192,14 +194,9 @@ def resultJson (A : SymmMat3) : String :=
     ++ ",\"orthogonality\":" ++ exactDecimal c.orthogonality
     ++ ",\"reconstruction\":" ++ exactDecimal c.reconstruction ++ "}}"
 
-partial def readAll (s : IO.FS.Stream) (acc : String) : IO String := do
-  match ← s.getLine with
-  | some line => readAll s (acc ++ line)
-  | none => pure acc
-
 def run : IO UInt32 := do
   let stdin ← IO.getStdin
-  let input ← readAll stdin ""
+  let input ← stdin.readToEnd
   match parseInput input with
   | none =>
     IO.eprintln "eig3x3-cli: expected {\"matrices\": [[a00,a11,a22,a01,a02,a12], ...]} on stdin"
