@@ -17,3 +17,8 @@ globs = ["Tests.*"]
 name = "eig3x3-tests"
 root = "Main"
 srcDir = "tests"
+
+[[lean_exe]]
+name = "eig3x3-cli"
+root = "Cli"
+srcDir = "tests"
