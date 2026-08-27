@@ -14,7 +14,7 @@ test:
     lake test
 
 cli:
-    lake build eig3x3-cli
+    lake build eig3x3_cli
 
 # ---- Python parity harness ----
 # (after the pytest migration, these become: pytest parity/tests -q)

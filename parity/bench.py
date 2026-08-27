@@ -6,7 +6,7 @@
 
 Timing caveat: the mirror is pure Python and is not the artifact under
 test — its per-matrix time says nothing about the Lean binary. The
-meaningful timing comparison (eig3x3-cli, which should be flat constant
+meaningful timing comparison (eig3x3_cli, which should be flat constant
 time, vs numpy/LAPACK, which is O(n^3) with an input-dependent iteration
 count) lands with the CLI. The accuracy study below is the point today.
 

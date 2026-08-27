@@ -1,7 +1,7 @@
 name = "Eig3x3"
 version = "0.1.0"
 defaultTargets = ["Eig3x3"]
-testDriver = "eig3x3-tests"
+testDriver = "eig3x3_tests"
 
 [[lean_lib]]
 name = "Eig3x3"
@@ -14,11 +14,11 @@ srcDir = "tests"
 globs = ["Tests.*"]
 
 [[lean_exe]]
-name = "eig3x3-tests"
+name = "eig3x3_tests"
 root = "Main"
 srcDir = "tests"
 
 [[lean_exe]]
-name = "eig3x3-cli"
+name = "eig3x3_cli"
 root = "Cli"
 srcDir = "tests"

@@ -13,7 +13,7 @@ standard, both implementations.
 
 Usage:
     python compare.py --impl mirror            # today
-    python compare.py --impl lean              # once eig3x3-cli exists
+    python compare.py --impl lean              # once eig3x3_cli exists
 """
 
 import argparse
@@ -113,7 +113,7 @@ def main() -> int:
     if args.impl == "lean" and not lean_cli.available(args.lean_binary):
         p.error(
             f"Lean binary not found at {args.lean_binary!r}; "
-            "build eig3x3-cli first (the CLI task)"
+            "build eig3x3_cli first (the CLI task)"
         )
     impl_batch = mirror_batch if args.impl == "mirror" else lean_batch(args.lean_binary)
 

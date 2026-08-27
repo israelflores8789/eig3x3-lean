@@ -2,7 +2,7 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""Subprocess bridge to the eig3x3-cli Lean binary.
+"""Subprocess bridge to the eig3x3_cli Lean binary.
 
 This module defines the contract the Lean side implements (the spec for the
 CLI task). One process invocation per batch, never per matrix.
@@ -35,7 +35,7 @@ import json
 import os
 import subprocess
 
-DEFAULT_BINARY = os.path.join(".lake", "build", "bin", "eig3x3-cli")
+DEFAULT_BINARY = os.path.join(".lake", "build", "bin", "eig3x3_cli")
 
 
 def available(binary: str = DEFAULT_BINARY) -> bool:
@@ -46,8 +46,8 @@ def run(matrices: list, binary: str = DEFAULT_BINARY) -> list:
     """Run the CLI on a batch; returns [(eigvals, eigvec columns, certs)]."""
     if not available(binary):
         raise FileNotFoundError(
-            f"eig3x3-cli not found at {binary!r}; build it with "
-            "`lake build eig3x3-cli` (the CLI task)"
+            f"eig3x3_cli not found at {binary!r}; build it with "
+            "`lake build eig3x3_cli` (the CLI task)"
         )
     payload = {"matrices": [[float(x) for x in A] for A in matrices]}
     proc = subprocess.run(
@@ -55,7 +55,7 @@ def run(matrices: list, binary: str = DEFAULT_BINARY) -> list:
     )
     if proc.returncode != 0:
         raise RuntimeError(
-            f"eig3x3-cli exited {proc.returncode}: {proc.stderr.strip()}"
+            f"eig3x3_cli exited {proc.returncode}: {proc.stderr.strip()}"
         )
     data = json.loads(proc.stdout)
     out = []

@@ -27,7 +27,7 @@ eig3x3-lean/
 │   ├── gates.py               # shared numerical standard; mirrors Tests/Util.lean
 │   ├── gen_cases.py           # case generation
 │   ├── mirror.py              # op-for-op bit-exact float64 cross-check port of the Lean Eig3x3 package
-│   ├── lean_cli.py            # subprocess bridge to eig3x3-cli; owns JSON schema
+│   ├── lean_cli.py            # subprocess bridge to eig3x3_cli; owns JSON schema
 │   ├── compare.py             # numpy.linalg.eigvalsh parity plus certificates
 │   ├── exact.py               # exact rat-math checks
 │   ├── golden.py              # 50-digit mpmath golden vectors; writes golden.json
@@ -58,11 +58,11 @@ layer 1:                     exact        → gen_cases
                              properties   → gates, gen_cases, mirror
 layer 2:                     compare      → gates, gen_cases, mirror, lean_cli
                              bench        → compare, gen_cases, mirror
-external boundary:  lean_cli ──JSON on stdin/stdout──> eig3x3-cli ──imports──> Eig3x3
+external boundary:  lean_cli ──JSON on stdin/stdout──> eig3x3_cli ──imports──> Eig3x3
 artifact flow:      golden.py ──writes──> golden.json ──embedded──> Tests/Golden.lean
 ```
 
-Data flow: `gen_cases` produces matrices; an implementation (`mirror` now, `lean_cli`→`eig3x3-cli` later) produces decompositions plus certificates; `gates` judges everything in eps·maxAbs units; the four check modules are pass/fail suites; `bench.py` reports and never gates.
+Data flow: `gen_cases` produces matrices; an implementation (`mirror` now, `lean_cli`→`eig3x3_cli` later) produces decompositions plus certificates; `gates` judges everything in eps·maxAbs units; the four check modules are pass/fail suites; `bench.py` reports and never gates.
 
 Flat by design: nine single-purpose modules, each runnable as a script with a nonzero exit code on failure. Do not restructure into packages or split out a tests/ directory — the layout is documented here and is deliberate.
 
@@ -81,7 +81,7 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 | `just ci` | all of the above plus ruff and pyrefly | all green |
 
 - USE `uv run pytest parity -k <expr>` to run a subset of parity tests
-- **CLI Smoke Test**: After running `just cli --impl lean`, RUN `echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3-cli` and EXPECT eigenvalues 0.58578643762690497, 2.0, 3.4142135623730949 with certificates ≈ 1e-16. IF the result does NOT match expectations, STOP and REPORT the failure.
+- **CLI Smoke Test**: After running `just cli --impl lean`, RUN `echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3_cli` and EXPECT eigenvalues 0.58578643762690497, 2.0, 3.4142135623730949 with certificates ≈ 1e-16. IF the result does NOT match expectations, STOP and REPORT the failure.
 
 ### Rules
 - NEVER loosen a tolerance or edit an expected value to make a failure pass. STOP and REPORT the failure.

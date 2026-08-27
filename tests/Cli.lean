@@ -3,12 +3,10 @@ Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Israel Flores-Arbolay
 -/
-module
-
 import Eig3x3
 
 /-!
-# Cli.Main — `eig3x3-cli`: a JSON batch interface to the library
+# Cli.Main — `eig3x3_cli`: a JSON batch interface to the library
 
 Contract (consumed by `parity/lean_cli.py`; one process per batch, never
 per matrix):
@@ -199,7 +197,7 @@ def run : IO UInt32 := do
   let input ← stdin.readToEnd
   match parseInput input with
   | none =>
-    IO.eprintln "eig3x3-cli: expected {\"matrices\": [[a00,a11,a22,a01,a02,a12], ...]} on stdin"
+    IO.eprintln "eig3x3_cli: expected {\"matrices\": [[a00,a11,a22,a01,a02,a12], ...]} on stdin"
     return 1
   | some matrices =>
     IO.print "{\"results\":["

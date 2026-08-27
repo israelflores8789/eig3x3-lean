@@ -9,7 +9,7 @@ Certificates.lean line for line, in the same operation order, so on the same
 platform its results should be bit-identical to the Lean binary. The harness
 uses it in two roles:
 
-  1. stand-in for the CLI until eig3x3-cli exists (run everything today);
+  1. stand-in for the CLI until eig3x3_cli exists (run everything today);
   2. cross-check thereafter: mirror and CLI must agree bitwise, and any
      disagreement is a serialization bug, not numerics.
 
