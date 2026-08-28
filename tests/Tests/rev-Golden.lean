@@ -1,30 +1,33 @@
+/-
+Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Israel Flores-Arbolay
+-/
 module
 
 import Eig3x3
 import Tests.Util
-import JsonMini
+import JsonMiniReader
 
 /-!
 # Tests.Golden — high-precision golden vectors
 
-Reads `golden.json` (repo root; generated at 50-digit mpmath precision by
-`parity/golden.py`, versioned in git, regenerated with `just golden`). Each
-reference eigenvalue travels as an exact dyadic pair `[sig, exp]` with value
-`sig · 2^exp`, so the transfer from Python to Lean is bit-exact — no decimal
-parser rounding anywhere in the path. The JSON file is the single source of
-truth; this module contains logic, not literals. Running the suite needs no
-Python: the file is versioned.
+Reads `generated/golden.json` (generated eigenvalue "golden vectors" at
+50-digit mpmath precision by `parity/golden.py`, git versioned, regenerated
+with `just golden`). Each reference eigenvalue travels as an exact dyadic pair
+`[sig, exp]` with value `sig · 2^exp`, so the transfer from Python to Lean is
+bit-exact without decimal parser rounding.
 -/
 
 namespace Eig3x3.Tests
 
-open JsonMini
+open JsonMiniReader
 
 /-- Reconstruct a float from its exact dyadic pair. `ofInt` is exact below
-    2⁵³ and `scaleB` (C `scalbn`) is exact by construction — so this
-    transfer is bit-exact, immune to decimal-parser rounding. If a toolchain
+    2⁵³ and `scaleB` (C `scalbn`) is exact by construction, so this transfer
+    is bit-exact and immune to decimal-parser rounding. If a toolchain
     lacks `Float.scaleB`, `Float.ofInt sig * Float.pow 2.0 exp.toFloat` is
-    exact for integer powers of two in every real libm (and the gates would
+    exact for integer powers of two in every real libm (the test gates would
     catch a violation regardless). -/
 def ofDyadic (sig : Int) (exp : Int) : Float :=
   Float.scaleB (Float.ofInt sig) exp
@@ -53,7 +56,7 @@ def parseRefs (cs : List Char) : Option (Eigval3 × List Char) := do
   let cs ← expectChar ']' cs
   pure (⟨a, b, c⟩, cs)
 
-/-- The display strings are for humans; skip them (schema-fixed at 3). -/
+/-- Skip human-readble display strings. -/
 def skipStringArray (cs : List Char) : Option (List Char) := do
   let cs ← expectChar '[' cs
   let (_, cs) ← parseStringLit cs
@@ -86,7 +89,7 @@ def parseCase (cs : List Char) : Option (GoldenCase × List Char) := do
 
 /-- `partial`: a hand-rolled recursive-descent loop whose termination the
     compiler cannot see; the input is machine-generated, so failure returns
-    `none`, never a crash. -/
+    `none`. -/
 partial def parseCases (acc : List GoldenCase) (cs : List Char)
     : Option (List GoldenCase) :=
   match skipWs cs with
@@ -100,8 +103,8 @@ partial def parseCases (acc : List GoldenCase) (cs : List Char)
       | ']' :: _ => some (gc :: acc).reverse
       | _ => none
 
-/-- The generator writes "cases" first and "provenance" second; we parse
-    the former and ignore the latter. -/
+/-- The generator writes "cases" first and "provenance" metadata second;
+    we parse the former and ignore the latter. -/
 def parseGolden (s : String) : Option (List GoldenCase) := do
   let cs ← expectChar '{' s.toList
   let cs ← expectString "cases" cs

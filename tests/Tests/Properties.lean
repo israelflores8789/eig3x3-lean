@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Israel Flores-Arbolay
+-/
 module
 
 import Eig3x3
@@ -10,11 +15,12 @@ import Tests.Util
 Reference-free invariants of a correct decomposition, checked on thousands
 of random symmetric matrices from a deterministic PRNG (splitmix64 — pure
 UInt64 arithmetic, bit-identical on every platform since no libm is
-involved): the ordering contract, the three certificates under the shared
-gates, the trace and determinant identities, right-handedness, and bit-exact
-power-of-two scale invariance. None of this needs an external oracle —
-which is exactly why it lives in the Lean suite rather than the parity
-harness.
+involved), including:
+* eigenvalue ordering contract,
+* three certificates under the shared gates,
+* trace and determinant identities,
+* right-handedness,
+* and bit-exact power-of-two scale invariance.
 -/
 
 namespace Eig3x3.Tests
@@ -84,7 +90,7 @@ public def runProperties : IO Unit := do
     -- evaluation ≈5ε, the product ≈3ε, eigenvalue error ≈36ε at that scale).
     let mA := A.maxAbsEntry
     let prod := (e.l₁ * e.l₂) * e.l₃
-    if (prod - A.toMat3.det).abs > 64.0 * eps * mA * mA * mA then
+    if (prod - A.toMat3.det).abs > 64.0 * Float.eps * mA * mA * mA then
       failures := failures.push s!"det: |{prod} − {A.toMat3.det}|"
 
     -- Right-handedness.

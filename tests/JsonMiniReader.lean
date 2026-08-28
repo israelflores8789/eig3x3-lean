@@ -1,24 +1,34 @@
+/-
+Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Israel Flores-Arbolay
+-/
 module
 
 import Eig3x3
 
 /-!
-# JsonMini — a minimal JSON reader for repo infrastructure
+# JsonMiniReader — a minimal JSON reader for repo infrastructure
 
 Shared by `Cli.lean` (the eig3x3_cli binary) and `Tests/Golden.lean`.
-Scope: exactly what our own generated JSON needs — whitespace, string
-literals without escapes, decimal/scientific numbers, and integer members
-(dyadic pairs). This is not a general JSON library; if a schema ever grows
-beyond that, reconsider rather than extend.
 
-Lean core currently has no string→Float parser (leanprover/lean4#14659), so
-`parseDecimal` goes through `OfScientific`: mantissa and decimal exponent as
-exact `Nat`s, then one Float scaling. That can sit ~1 ulp from ideal
-rounding — documented and harmless at our gates — which is why reference
+Scope:
+* whitespace handling,
+* string literals without escapes,
+* decimal/scientific numbers,
+* and integer members (dyadic pairs).
+
+This is *not* a general JSON library. If a schema ever grows beyond the scope,
+reconsider rather than extend.
+
+Lean core currently has no string→Float parser (github: leanprover/lean4#14659),
+so `parseDecimal` goes through `OfScientific`: mantissa and decimal exponent as
+exact `Nat`s, then one Float scaling. That can sit ~1 ulp from ideal rounding —
+documented and harmless at this library's test gates — which is why reference
 *values* travel as exact dyadic pairs instead (see `Tests/Golden.lean`).
 -/
 
-namespace JsonMini
+namespace JsonMiniReader
 
 def isWs (c : Char) : Bool :=
   c == ' ' || c == '\n' || c == '\t' || c == '\r'
@@ -109,7 +119,7 @@ def parseInt (cs : List Char) : Option (Int × List Char) := do
     pure (← s.toInt?, rest)
 
 /-- One matrix row: `[a00, a11, a22, a01, a02, a12]` — SymmMat3 field
-    order. Shared by the CLI's input schema and Golden's cases. -/
+    order. Shared by Cli.lean's input schema and Golden.lean's cases. -/
 def parseSymmMat3 (cs : List Char) : Option (SymmMat3 × List Char) := do
   let cs ← expectChar '[' cs
   let (x0, cs) ← parseFloat cs
@@ -126,4 +136,4 @@ def parseSymmMat3 (cs : List Char) : Option (SymmMat3 × List Char) := do
   let cs ← expectChar ']' cs
   pure (⟨x0, x1, x2, x3, x4, x5⟩, cs)
 
-end JsonMini
+end JsonMiniReader
