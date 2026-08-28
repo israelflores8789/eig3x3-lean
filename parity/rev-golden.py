@@ -1,23 +1,31 @@
-"""golden.py — generate golden.json, the high-precision reference set.
+# Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Israel Flores-Arbolay
 
-Role in the harness: pure generator. This module contains no assertions.
-The Lean suite (tests/Tests/Golden.lean) consumes golden.json directly, and
-compare.py may use it as a reference. The module exists because the library
-is Float-only by design and manufacturing 50-digit eigenvalue references
-requires arbitrary precision — mpmath does in one line what Lean
-deliberately cannot.
+"""golden.py — Generates golden.json
+
+This module is purely a generator of 50-digit eigenvalue references vectors
+using Python's mpmath, stored in generated/golden.json which has two consumers:
+
+    * The test Tests/Golden.lean consumes golden.json directly.
+    * The Python module compare.py references golden.json for its parity checks.
 
 Exactness channel: each reference eigenvalue is stored twice —
-  * "eigvals_display": the 17-significant-digit decimal (for humans; 17
-    digits uniquely determine any float64),
+  * "eigvals_display": the 17-significant-digit decimal
+    (human-readable 17-digit float64 representation),
   * "eigvals": the exact dyadic pair [sig, exp] with value sig * 2^exp
     (via math.frexp; sig an exact integer below 2^53) — the bit-exact
     transfer channel that Golden.lean uses, immune to decimal-parser
     rounding.
 
 Schema note: "cases" is written before "provenance" — the Lean mini-reader
-parses the cases and ignores the rest. Run from the repo root
-(`just golden`) so golden.json lands at the root.
+(JsonMini.lean) parses the cases and ignores the rest.
+
+IMPORTANT: NEVER modify golden.json directly.
+
+Usage:
+    python golden.py                  # writes generated/golden.json
+    just golden                       # equivalent
 """
 
 import json
@@ -29,7 +37,7 @@ import gen_cases
 
 mp.mp.dps = 50
 
-GOLDEN_JSON = "golden.json"
+GOLDEN_JSON = "generated/golden.json"
 
 
 def golden_eigvals(A) -> list:
@@ -48,7 +56,7 @@ def dyadic(x: float) -> list:
     if x == 0.0:
         return [0, 0]
     m, e = math.frexp(x)
-    return [int(m * 2 ** 53), e - 53]
+    return [int(m * 2**53), e - 53]
 
 
 def curated_cases() -> dict:
@@ -65,12 +73,14 @@ def generate(path: str = GOLDEN_JSON) -> None:
     cases = []
     for name, A in curated_cases().items():
         vals = golden_eigvals(A)
-        cases.append({
-            "name": name,
-            "matrix": [float(x) for x in A],
-            "eigvals_display": [format(v, ".17g") for v in vals],
-            "eigvals": [dyadic(v) for v in vals],
-        })
+        cases.append(
+            {
+                "name": name,
+                "matrix": [float(x) for x in A],
+                "eigvals_display": [format(v, ".17g") for v in vals],
+                "eigvals": [dyadic(v) for v in vals],
+            }
+        )
         print(f"  {name:<18} " + "  ".join(f"{v:.17g}" for v in vals))
     doc = {
         "cases": cases,
@@ -79,8 +89,8 @@ def generate(path: str = GOLDEN_JSON) -> None:
             "mpmath": mp.__version__,
             "dps": mp.mp.dps,
             "encoding": "eigvals are exact dyadic pairs [sig, exp]: "
-                        "value = sig * 2^exp, the correctly-rounded float64 "
-                        "of the 50-digit result.",
+            "value = sig * 2^exp, the correctly-rounded float64 "
+            "of the 50-digit result.",
         },
     }
     with open(path, "w") as f:

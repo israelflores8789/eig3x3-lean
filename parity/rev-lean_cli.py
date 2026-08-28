@@ -1,7 +1,11 @@
-"""lean_cli.py — subprocess bridge to the eig3x3_cli binary.
+# Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Israel Flores-Arbolay
 
-One process invocation per batch, never per matrix. This module owns the
-JSON schema (the contract the Lean side implements):
+"""lean_cli.py — Subprocess Bridge to the Lean eig3x3_cli Binary
+
+This module owns the JSON schema (the contract Cli.lean implements).
+One process invocation per batch, never per matrix.
 
 Input (stdin, JSON):
     {"matrices": [[a00, a11, a22, a01, a02, a12], ...]}
@@ -16,7 +20,8 @@ Output (stdout, JSON):
                   "certificates": {"maxResidual": r,
                                    "orthogonality": o,
                                    "reconstruction": rc}}, ...]}
-eigvecs are COLUMN-MAJOR: column i is the unit eigenvector for l_i.
+eigvecs are COLUMN-MAJOR: column i is the unit eigenvector for l_i (consistent
+with NumPy / SciPy / PyTorch convention).
 
 Boundary verification (two distinct checks, both bitwise):
   * input fidelity: the echoed "matrix" is the CLI's parsed view of the
@@ -26,16 +31,15 @@ Boundary verification (two distinct checks, both bitwise):
   * output self-consistency: the payload's certificate fields are recomputed
     from the payload's own eigenpairs and echoed matrix (see
     `recompute_certificates`) and must match BITWISE. Certificates use only
-    +, −, ×, ÷ — correctly rounded and deterministic under IEEE 754 — so
-    any corruption of the payload (transposition, field misorder, a 1-ulp
-    slip) breaks the equality. This mirrors the *checker*
-    (Certificates.lean), never the solver.
+    +, −, ×, ÷ — correctly rounded to 1/2 ulp and deterministic under IEEE 754 —
+    so any corruption of the payload (transposition, field misorder, a 1-ulp
+    slip) breaks the equality. This is an op-order mirror of Certificates.lean.
 """
 
 import json
 import os
 import subprocess
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 DEFAULT_BINARY = os.path.join(".lake", "build", "bin", "eig3x3_cli")
 
@@ -44,11 +48,12 @@ CERT_KEYS = ("maxResidual", "orthogonality", "reconstruction")
 
 class Result(NamedTuple):
     """One decomposition payload from the CLI."""
-    sent: tuple          # the matrix as handed to the CLI
-    echo: Optional[tuple]  # the CLI's parsed view of it (None on old schemas)
-    eigvals: tuple       # (l1, l2, l3)
-    eigvecs: tuple       # (c1, c2, c3), columns
-    certs: dict          # CERT_KEYS
+
+    sent: tuple  # the matrix as handed to the CLI
+    echo: tuple | None  # the CLI's parsed view of it (None on old schemas)
+    eigvals: tuple  # (l1, l2, l3)
+    eigvecs: tuple  # (c1, c2, c3), columns
+    certs: dict  # CERT_KEYS
 
 
 def available(binary: str = DEFAULT_BINARY) -> bool:
@@ -59,18 +64,20 @@ def run(matrices: list, binary: str = DEFAULT_BINARY) -> list:
     """Run the CLI on a batch of 6-tuples; returns a list of Result."""
     if not available(binary):
         raise FileNotFoundError(
-            f"eig3x3_cli not found at {binary!r}; run `just cli` first")
+            f"eig3x3_cli not found at {binary!r}; run `just cli` first"
+        )
     payload = {"matrices": [[float(x) for x in A] for A in matrices]}
-    proc = subprocess.run([binary], input=json.dumps(payload),
-                          text=True, capture_output=True)
+    proc = subprocess.run(
+        [binary], input=json.dumps(payload), text=True, capture_output=True
+    )
     if proc.returncode != 0:
-        raise RuntimeError(f"eig3x3_cli exited {proc.returncode}: "
-                           f"{proc.stderr.strip()}")
+        raise RuntimeError(
+            f"eig3x3_cli exited {proc.returncode}: {proc.stderr.strip()}"
+        )
     data = json.loads(proc.stdout)
     out = []
-    for A, r in zip(matrices, data["results"]):
-        echo = (tuple(float(x) for x in r["matrix"]) if "matrix" in r
-                else None)
+    for A, r in zip(matrices, data["results"], strict=True):
+        echo = tuple(float(x) for x in r["matrix"]) if "matrix" in r else None
         e = tuple(float(x) for x in r["eigvals"])
         v = [float(x) for x in r["eigvecs"]]
         Q = (tuple(v[0:3]), tuple(v[3:6]), tuple(v[6:9]))
@@ -85,15 +92,18 @@ def decomposition(A, binary: str = DEFAULT_BINARY) -> Result:
 
 
 # --- Certificate recomputation: op-order mirror of Certificates.lean -------
-# Pure +, -, x over the payload's own numbers, so IEEE determinism makes the
-# recomputation bitwise-identical to Lean's `certify` whenever the payload
-# is faithful.
+# Pure +, -, x over the payload's own numbers, so IEEE 754 determinism makes
+# the recomputation bitwise-identical to Lean's `certify` whenever the
+# payload is faithful.
+
 
 def _mul_vec(A, v):
     a00, a11, a22, a01, a02, a12 = A
-    return (a00 * v[0] + a01 * v[1] + a02 * v[2],
-            a01 * v[0] + a11 * v[1] + a12 * v[2],
-            a02 * v[0] + a12 * v[1] + a22 * v[2])
+    return (
+        a00 * v[0] + a01 * v[1] + a02 * v[2],
+        a01 * v[0] + a11 * v[1] + a12 * v[2],
+        a02 * v[0] + a12 * v[1] + a22 * v[2],
+    )
 
 
 def _dot(u, v):
@@ -116,8 +126,15 @@ def _orthogonality_error(Q):
 
 def _reconstruct(e, Q):
     def comp(m, v):
-        return (m * v[0] * v[0], m * v[1] * v[1], m * v[2] * v[2],
-                m * v[0] * v[1], m * v[0] * v[2], m * v[1] * v[2])
+        return (
+            m * v[0] * v[0],
+            m * v[1] * v[1],
+            m * v[2] * v[2],
+            m * v[0] * v[1],
+            m * v[0] * v[2],
+            m * v[1] * v[2],
+        )
+
     b1, b2, b3 = comp(e[0], Q[0]), comp(e[1], Q[1]), comp(e[2], Q[2])
     return tuple(b1[i] + b2[i] + b3[i] for i in range(6))
 
@@ -139,7 +156,7 @@ def recompute_certificates(A, e, Q) -> dict:
     }
 
 
-def self_consistent(res: Result) -> Optional[bool]:
+def self_consistent(res: Result) -> bool | None:
     """Bitwise certificate self-consistency of a payload.
 
     Returns None (skipped) if the result carries no matrix echo — apply the
@@ -147,5 +164,4 @@ def self_consistent(res: Result) -> Optional[bool]:
     """
     if res.echo is None:
         return None
-    return (recompute_certificates(res.echo, res.eigvals, res.eigvecs)
-            == res.certs)
+    return recompute_certificates(res.echo, res.eigvals, res.eigvecs) == res.certs
