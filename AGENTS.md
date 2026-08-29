@@ -16,23 +16,22 @@ eig3x3-lean/
 │   │   └── Certificates.lean  # Runtime calculation assurances
 ├── tests/
 │   ├── Main.lean              # lean_exe: test driver (`lake test`)
-│   ├── Cli.lean               # lean_exe: parity/bench CLI (JSON in, JSON out)
+│   ├── Cli.lean               # lean_exe: eig3x3_cli, parity/bench JSON-driven CLI
+│   ├── JsonMiniReader.lean    # shared minimal JSON reader (Cli + Golden)
 │   ├── Tests/
 │   │   ├── Certificates.lean  # Per-case certificate assertions under machine-epsilon gates
-│   │   ├── Golden.lean        # Embedded 50-digit mpmath references
+│   │   ├── Golden.lean        # Assertions against "golden" reference vectors
 │   │   ├── KnownAnswer.lean   # Exact known-answer assertions
 │   │   ├── Regression.lean    # Pinned historical failures (r₁₀ discriminant, near-double path)
 │   │   └── Util.lean          # Shared assertions, machine-epsilon gates, case zoo
 ├── parity/                    # pytest parity suite (Lean exe vs references)
 │   ├── gates.py               # shared numerical standard; mirrors Tests/Util.lean
 │   ├── gen_cases.py           # case generation
-│   ├── mirror.py              # op-for-op bit-exact float64 cross-check port of the Lean Eig3x3 package
 │   ├── lean_cli.py            # subprocess bridge to eig3x3_cli; owns JSON schema
-│   ├── compare.py             # numpy.linalg.eigvalsh parity plus certificates
-│   ├── exact.py               # exact rat-math checks
-│   ├── golden.py              # 50-digit mpmath golden vectors; writes golden.json
-│   ├── properties.py          # ordering, trace, det, handedness, certificates, bit-exact 2^k scale invariance
-│   └── bench.py               # timing and the naive-vs-present discriminant study
+│   ├── compare.py             # numpy/LAPACK parity test
+│   ├── errata.py              # exhibits of errata found during implementation
+│   ├── golden.py              # 50-digit mpmath golden vectors generator; writes golden.json
+│   └── bench.py               # performance benchmark of Lean against numpy/LAPACK
 ├── scripts/                   # dev/CI helper scripts
 ├── golden.json                # generated golden vectors (generated, versioned, never hand-edited)
 ├── lakefile.toml              # Lean4 project configuration
@@ -50,21 +49,29 @@ Basic ──┬──> Eigenvalues ───┐
         └──> Certificates
 ```
 
-### Python parity layout and dependency flow (`parity/`)
+### Lean test suite dependency flow (`tests/`)
 ```
-layer 0 (no internal deps):  gates    gen_cases    mirror    lean_cli
-layer 1:                     exact        → gen_cases
-                             golden       → gates, gen_cases, mirror
-                             properties   → gates, gen_cases, mirror
-layer 2:                     compare      → gates, gen_cases, mirror, lean_cli
-                             bench        → compare, gen_cases, mirror
-external boundary:  lean_cli ──JSON on stdin/stdout──> eig3x3_cli ──imports──> Eig3x3
-artifact flow:      golden.py ──writes──> golden.json ──embedded──> Tests/Golden.lean
+Eig3x3 ──┬──> Util ──┬──> KnownAnswer ───┐
+         │           ├──> Golden ────────┤
+         │           ├──> Properties ────┤
+         │           ├──> Regression ────┤
+         │           └──> Certificates ──┴──> Main (lean_exe) <──┬── JsonMiniReader
+         └──────────────────────────────────> Cli  (lean_exe) <──┘
 ```
 
-Data flow: `gen_cases` produces matrices; an implementation (`mirror` now, `lean_cli`→`eig3x3_cli` later) produces decompositions plus certificates; `gates` judges everything in eps·maxAbs units; the four check modules are pass/fail suites; `bench.py` reports and never gates.
+### Python parity test dependency flow (`parity/`)
+```
+Parity Test:
+                                      generated/golden.json ──┐
+  gen_cases.py ──> lean_cli.py ──> eig3x3_cli (Lean binary) ──┼──> compare.py
+                                                   gates.py ──┘
 
-Flat by design: nine single-purpose modules, each runnable as a script with a nonzero exit code on failure. Do not restructure into packages or split out a tests/ directory — the layout is documented here and is deliberate.
+Generate "Golden" Vectors:
+  golden.py (generate vectors) ──> generated/golden.json ──> Tests/Golden.lean
+
+Benchmark:
+  bench.py  ──> eig3x3_cli (Lean binary)
+```
 
 ## Commands
 
@@ -73,24 +80,23 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 | Command | What it runs | Pass condition |
 |---|---|---|
 | `just test` | Lean test suite (`lake test`): known-answer, regression, certificates, golden | exit 0, all assertions `ok` |
-| `just exact` | Exact rat-math identity checks | 0 failures |
-| `just props` | Property invariants | 0 failures |
-| `just parity` | numpy parity vs mirror: eigenvalue error in ε·maxAbs units + certificates under the shared 64ε/16ε gates | all gates held |
-| `just golden-check` | validates `eigendecomp` against golden.json | 0 failures |
-| `just bench` | timing + naive-vs-present discriminant study | informational only |
+| `just errata` | errata exhibits during algorithm implementation | 0 failures |
+| `just parity` | executes python parity test suite: eigenvalue error in ε·maxAbs units + certificates under the shared 64ε/16ε gates | all gates held |
+| `just bench` | performance benchmark of Lean binary against numpy/LAPACK | informational only |
 | `just ci` | all of the above plus ruff and pyrefly | all green |
 
-- USE `uv run pytest parity -k <expr>` to run a subset of parity tests
-- **CLI Smoke Test**: After running `just cli --impl lean`, RUN `echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3_cli` and EXPECT eigenvalues 0.58578643762690497, 2.0, 3.4142135623730949 with certificates ≈ 1e-16. IF the result does NOT match expectations, STOP and REPORT the failure.
+- **CLI Smoke Test**: After running `just build_cli`, RUN `echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3_cli` and EXPECT eigenvalues 0.58578643762690497, 2.0, 3.4142135623730949 with certificates ≈ 1e-16. IF the result does NOT match expectations, STOP and REPORT the failure.
 
 ### Rules
 - NEVER loosen a tolerance or edit an expected value to make a failure pass. STOP and REPORT the failure.
 - Numerical literals are INTENTIONALLY close (e.g. 1 ULP apart). Do NOT modify these figures; their purpose is to test mathematic float-point execution.
-- `golden.json` and the literals in `Tests/Golden.lean` are generated artifacts. NEVER hand-edit. Regenerate via `just golden` to keep `golden.py`'s curated set and `Tests/Golden.lean` in sync. IF `golden.json` is missing, RUN `just golden` to generate the file.
-- The parity harness runs against the Python mirror by default. USE the `--impl lean` flag on `just cli` to perform the parity comparison against Lean. This is REQUIRED before release.
+- the directory `generated/` contains generated artifcats (e.g. `golden.json`). NEVER edit the contents inside `generated/`. 
+  - USE `just golden` to generate or update `generated/golden.json`.
+- `parity/gates.py` mirrors `Tests/Util.lean`; IF requested by the user, modify them together or STOP and REPORT a conflict.
+- Do NOT modify `parity/errata.py`.
 
 ## Known Issues
-- The Habera–Zilian reference paper contains a typo in: §7, Algorithm 8, `r₁₀`. The corrected form is implemented in `src/Eig3x3/Eigenvalues.lean`. Do NOT "fix" it back.
+- The Habera–Zilian reference paper contains a typo in: §7, Algorithm 8, `r₁₀`. The corrected form is implemented in `src/Eig3x3/Eigenvalues.lean`. Do NOT "fix" it back. 
 
 ## Boundaries
 - Do NOT add Lake dependencies unless explicitly asked.

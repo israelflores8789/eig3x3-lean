@@ -2,13 +2,13 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""erratum.py — Exact-Arithmetic Exhibits for Implementation Corrections
+"""errata.py — exact-arithmetic exhibits for errata during implementation
 
 This module contains exhibits of errata found during algorithm implementation
 and an executable certificate of corrected implementations for this library.
 
-Exhibit: Algorithm 8, r₁₀ sign erratum in Habera–Zilian's 2025 paper
-(arXiv:2511.00292).
+Exhibit ("REGRESSION"):
+Algorithm 8, r₁₀ sign erratum in Habera-Zilian's 2025 paper (arXiv:2511.00292).
 
 In exact rational arithmetic, without floats nor tolerances, this shows that:
 

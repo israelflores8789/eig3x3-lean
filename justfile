@@ -13,26 +13,20 @@ build:
 test:
     lake test
 
-cli:
+build_cli:
     lake build eig3x3_cli
 
 # ---- Python parity harness ----
 # (after the pytest migration, these become: pytest parity/tests -q)
 
 parity n="1000" seed="42":
-    cd {{parity_dir}} && {{py}} compare.py --impl mirror --n {{n}} --seed {{seed}}
+    cd {{parity_dir}} && {{py}} compare.py --n {{n}} --seed {{seed}}
 
-exact n="2000":
-    cd {{parity_dir}} && {{py}} exact.py {{n}}
-
-props n="2000":
-    cd {{parity_dir}} && {{py}} properties.py {{n}}
+errata n="2000" seed="42":
+    cd {{parity_dir}} && {{py}} errata.py {{n}} {{seed}}
 
 golden:
     cd {{parity_dir}} && {{py}} golden.py
-
-golden-check:
-    cd {{parity_dir}} && {{py}} golden.py --check
 
 bench:
     cd {{parity_dir}} && {{py}} bench.py
@@ -48,4 +42,4 @@ typecheck:
 
 # ---- the full local gate ----
 
-ci: test lint typecheck exact props parity golden-check
+ci: test lint typecheck parity

@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Israel Flores-Arbolay
 -/
 import Tests.KnownAnswer
+import Tests.Golden
+import Tests.Properties
 import Tests.Regression
 import Tests.Certificates
 
@@ -21,6 +23,8 @@ namespace Eig3x3.Tests
 def runAll : IO UInt32 := do
   let suites : List (String × IO Unit) :=
     [("known-answer", runKnownAnswer),
+     ("golden", runGolden),
+     ("properties", runProperties),
      ("regression", runRegression),
      ("certificates", runCertificates)]
   let mut failed := 0

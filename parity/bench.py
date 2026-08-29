@@ -2,85 +2,81 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""Benchmarks and the naive-vs-present discriminant study.
+"""bench.py — Performance bench of Lean's Eig3x3 closed form vs numpy/LAPACK
 
-IMPORTANT: mirror.py is a pure Python replica of the Lean source package
-and is not meant to be a benchmark target. Its per-matrix time says nothing
-about the Lean binary. Timing comparisons such as
+This module measures the computational cost per matrix between Lean's closed form
+eigendecomposition and numpy/LAPACK's iterative driver.
 
-* eig3x3_cli, which should be constant time,
-* vs numpy/LAPACK, which is O(n^3) with an input-dependent iteration count,
+Honesty note, printed with every report: the CLI figure is end-to-end
+through eig3x3_cli and therefore includes JSON serialization — the real
+cost of an IPC-style deployment. A pure in-process compute figure (ns/op)
+belongs to a small Lean-side micro-benchmark, which is a separate addition.
 
-is only meaningful when tested against the Lean CLI.
+[TODO update this with an in-process computation benchmark]
 
-However, an accuracy study that models what Habera-Zilian (2025) proposed
-can be performed against mirror.py. The accuracy study implemented in this
-modulevreproduces the Habera-Zilian's naive-vs-present comparison: the same
-pipeline run with the Algorithm 8 discriminant vs the clamped naive
-discriminant, on the adversarial paths whose exact eigenvalues are known
-in closed form.
+Usage:
+    python bench.py                      # after `just build_cli`
 """
 
-import sys
+import argparse
 import time
 
 import numpy as np
 
 import compare
 import gen_cases
-import mirror
+import lean_cli
 
 
-def time_per_matrix(fn, cases: list, repeat: int = 3) -> float:
-    """Best-of-repeat seconds per matrix."""
-    best = float("inf")
-    for _ in range(repeat):
-        t0 = time.perf_counter()
-        for A in cases:
-            fn(A)
-        best = min(best, (time.perf_counter() - t0) / len(cases))
-    return best
+def time_lean_cli(binary: str, cases: list) -> float:
+    """Seconds per matrix, one batch call (process startup amortized)."""
+    t0 = time.perf_counter()
+    lean_cli.run(cases, binary)
+    return (time.perf_counter() - t0) / len(cases)
 
 
-def naive_vs_present() -> None:
-    """Error of the two discriminants on the adversarial paths.
+def time_numpy_loop(cases: list) -> float:
+    """Seconds per matrix, per-matrix eigh loop."""
+    t0 = time.perf_counter()
+    for A in cases:
+        np.linalg.eigh(compare.to_dense(A))
+    return (time.perf_counter() - t0) / len(cases)
 
-    The path matrices have exactly-known float64 eigenvalues, so no
-    high-precision reference is needed.
-    """
-    print(f"{'delta':>10} {'path':<18} {'err (Alg. 8)':>14} {'err (naive)':>14}")
-    for d in gen_cases.DELTAS:
-        paths = [
-            (
-                "near-double-top",
-                (-1.0, 1.0, 1.0 + d, 0.0, 0.0, 0.0),
-                (-1.0, 1.0, 1.0 + d),
-            ),
-            ("near-triple", (1.0, 1.0, 1.0 + d, 0.0, 0.0, 0.0), (1.0, 1.0, 1.0 + d)),
-            ("offdiag-double", (1.0, 1.0, -1.0, d, 0.0, 0.0), (-1.0, 1.0 - d, 1.0 + d)),
-        ]
-        for label, A, ref in paths:
-            e_p = mirror.eigendecomp(A)[0]
-            e_n = mirror.eigendecomp(A, use_naive=True)[0]
-            err_p = max(abs(e_p[i] - ref[i]) for i in range(3))
-            err_n = max(abs(e_n[i] - ref[i]) for i in range(3))
-            print(f"{d:>10.1e} {label:<18} {err_p:>14.3e} {err_n:>14.3e}")
+
+def time_numpy_batched(cases: list) -> float:
+    """Seconds per matrix, one vectorized eigh over the stacked batch."""
+    M = np.stack([compare.to_dense(A) for A in cases])
+    t0 = time.perf_counter()
+    np.linalg.eigh(M)
+    return (time.perf_counter() - t0) / len(cases)
 
 
 def main() -> int:
-    rng = np.random.default_rng(0)
-    cases = gen_cases.random_uniform(rng, 1000)
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--n", type=int, default=20000)
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--lean-binary", default=lean_cli.DEFAULT_BINARY)
+    args = p.parse_args()
+    if not lean_cli.available(args.lean_binary):
+        p.error(
+            f"eig3x3_cli not found at {args.lean_binary!r}; run `just build_cli` first"
+        )
 
-    print("== timing (see module docstring for the caveat) ==")
-    t_mirror = time_per_matrix(mirror.eigendecomp, cases[:200])
-    print(f"mirror (pure Python): {t_mirror * 1e6:10.1f} us/matrix")
-    t_numpy = time_per_matrix(lambda A: compare.numpy_decomposition(A), cases)
-    print(f"numpy/LAPACK:         {t_numpy * 1e6:10.1f} us/matrix")
+    rng = np.random.default_rng(args.seed)
+    cases = gen_cases.random_uniform(rng, args.n)
 
-    print("\n== naive-vs-present discriminant ==")
-    naive_vs_present()
+    print(
+        f"# bench — n={args.n} seed={args.seed} "
+        f"(CLI figures include the JSON boundary; see module docstring)"
+    )
+    t_cli = time_lean_cli(args.lean_binary, cases)
+    t_loop = time_numpy_loop(cases)
+    t_batch = time_numpy_batched(cases)
+    print(f"eig3x3_cli, end-to-end:          {t_cli * 1e6:9.2f} us/matrix")
+    print(f"numpy/LAPACK eigh, per-matrix:   {t_loop * 1e6:9.2f} us/matrix")
+    print(f"numpy/LAPACK eigh, batched:      {t_batch * 1e6:9.2f} us/matrix")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

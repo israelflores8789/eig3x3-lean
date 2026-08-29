@@ -2,36 +2,48 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""Golden vectors: 50-digit references via mpmath.
+"""golden.py — generates golden.json
 
-A small curated set (the zoo plus a few edge cases) is solved at 50-digit
-precision and emitted as 17-significant-digit decimals, which round-trip
-exactly to the correct float64. Writes golden.json with two consumers:
+This module is purely a generator of 50-digit eigenvalue "golden" reference
+vectors using Python's mpmath, stored in generated/golden.json which has
+two consumers:
 
-  * this harness (--check) validates against mirror.py;
-  * Lean's test suite in Tests/Golden.lean
+    * The test Tests/Golden.lean consumes golden.json directly.
+    * The Python module compare.py references golden.json for its
+      parity checks.
+
+Exactness channel: each reference eigenvalue is stored twice —
+  * "eigvals_display": the 17-significant-digit decimal
+    (human-readable 17-digit float64 representation),
+  * "eigvals": the exact dyadic pair [sig, exp] with value sig * 2^exp
+    (via math.frexp; sig an exact integer below 2^53) — the bit-exact
+    transfer channel that Golden.lean uses, immune to decimal-parser
+    rounding.
+
+Schema note: "cases" is written before "provenance" — the Lean mini-reader
+(JsonMini.lean) parses the cases and ignores the rest.
+
+IMPORTANT: NEVER modify golden.json directly.
 
 Usage:
-    python golden.py                # writes golden.json
-    python golden.py --check        # validates mirror.py against golden.json
+    python golden.py                     # writes generated/golden.json
+    just golden                          # equivalent
 """
 
 import json
-import sys
+import math
 
 import mpmath as mp
 
 import gen_cases
-import mirror
-from gates import cert_tol
 
 mp.mp.dps = 50
 
-GOLDEN_JSON = "golden.json"
+GOLDEN_JSON = "generated/golden.json"
 
 
 def golden_eigvals(A) -> list:
-    """Eigenvalues of the *exact* float64 matrix, at 50 digits, ascending."""
+    """Eigenvalues of the *exact* float64 matrix at 50 digits, ascending."""
     a00, a11, a22, a01, a02, a12 = (mp.mpf(x) for x in A)
     M = mp.matrix(3, 3)
     M[0, 0], M[0, 1], M[0, 2] = a00, a01, a02
@@ -39,6 +51,14 @@ def golden_eigvals(A) -> list:
     M[2, 0], M[2, 1], M[2, 2] = a02, a12, a22
     E = mp.eigsy(M, eigvals_only=True)
     return sorted(float(x) for x in E)  # float() rounds correctly to float64
+
+
+def dyadic(x: float) -> list:
+    """Exact pair [sig, exp] with x == sig * 2^exp."""
+    if x == 0.0:
+        return [0, 0]
+    m, e = math.frexp(x)
+    return [int(m * 2**53), e - 53]
 
 
 def curated_cases() -> dict:
@@ -52,47 +72,38 @@ def curated_cases() -> dict:
 
 
 def generate(path: str = GOLDEN_JSON) -> None:
-    out = []
+    cases = []
     for name, A in curated_cases().items():
         vals = golden_eigvals(A)
-        out.append(
+        cases.append(
             {
                 "name": name,
                 "matrix": [float(x) for x in A],
-                # 17 significant digits round-trip exactly to the same float64.
-                "eigvals": [format(v, ".17g") for v in vals],
+                "eigvals_display": [format(v, ".17g") for v in vals],
+                "eigvals": [dyadic(v) for v in vals],
             }
         )
-        print(f"  {name:<18} {vals[0]:.17g}  {vals[1]:.17g}  {vals[2]:.17g}")
+        print(f"  {name:<18} " + "  ".join(f"{v:.17g}" for v in vals))
+    doc = {
+        "cases": cases,
+        "provenance": {
+            "generator": "parity/golden.py",
+            "mpmath": mp.__version__,
+            "dps": mp.mp.dps,
+            "encoding": "eigvals are exact dyadic pairs [sig, exp]: "
+            "value = sig * 2^exp, the correctly-rounded float64 "
+            "of the 50-digit result.",
+        },
+    }
     with open(path, "w") as f:
-        json.dump(out, f, indent=2)
-    print(f"wrote {path} ({len(out)} cases)")
-
-
-def check(path: str = GOLDEN_JSON) -> int:
-    with open(path) as f:
-        cases = json.load(f)
-    failures = 0
-    for case in cases:
-        A = tuple(case["matrix"])
-        ref = [float(s) for s in case["eigvals"]]
-        e, _, _ = mirror.decomposition(A)
-        err = max(abs(e[i] - ref[i]) for i in range(3))
-        tol = cert_tol(A)
-        status = "ok" if err <= tol else "FAIL"
-        if err > tol:
-            failures += 1
-        print(f"  {status:<4} {case['name']:<18} max|err| {err:.3e} (gate {tol:.3e})")
-    print(f"golden: {failures} failure(s)")
-    return 1 if failures else 0
+        json.dump(doc, f, indent=2)
+    print(f"wrote {path} ({len(cases)} cases)")
 
 
 def main() -> int:
-    if "--check" in sys.argv:
-        return check()
     generate()
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
