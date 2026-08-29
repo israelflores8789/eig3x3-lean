@@ -91,7 +91,6 @@ def compare_suite(name: str, cases: list, refs: list, results: list) -> dict:
     failures: list[tuple] = []
     echo_mismatches = 0
     worst_ulp = 0.0
-    consistency_skipped = 0
     for A, (e_ref, c_ref), res in zip(cases, refs, results, strict=True):
         mA = max_abs_entry(A)
         unit = EPS * mA
@@ -102,15 +101,12 @@ def compare_suite(name: str, cases: list, refs: list, results: list) -> dict:
 
         # Boundary checks: input fidelity (informational) and output
         # self-consistency (bitwise, gated).
-        if res.echo is None:
-            consistency_skipped += 1
-        else:
-            gap = max(ulp_gap(a, b) for a, b in zip(A, res.echo, strict=True))
-            if gap > 0.0:
-                echo_mismatches += 1
-                worst_ulp = max(worst_ulp, gap)
-            if not lean_cli.self_consistent(res):
-                failures.append((name, "self-consistency", A))
+        gap = max(ulp_gap(a, b) for a, b in zip(A, res.echo, strict=True))
+        if gap > 0.0:
+            echo_mismatches += 1
+            worst_ulp = max(worst_ulp, gap)
+        if not lean_cli.self_consistent(res):
+            failures.append((name, "self-consistency", A))
 
         # Certificates under the shared gates — both implementations.
         cert_pairs = [(res.certs, "cli")]
@@ -132,7 +128,6 @@ def compare_suite(name: str, cases: list, refs: list, results: list) -> dict:
         "failures": failures,
         "echo_mismatches": echo_mismatches,
         "worst_ulp": worst_ulp,
-        "consistency_skipped": consistency_skipped,
     }
 
 
@@ -149,12 +144,6 @@ def print_report(rep: dict) -> None:
             f"    input fidelity: {rep['echo_mismatches']} echoed entries "
             f"differ (worst {rep['worst_ulp']:.1f} ulp; ≤2 ulp is the "
             f"documented parse caveat)"
-        )
-    if rep["consistency_skipped"]:
-        print(
-            f"    note: self-consistency skipped for "
-            f"{rep['consistency_skipped']} result(s) without a matrix "
-            f"echo — apply the echo patch to tests/Cli.lean"
         )
     for f in rep["failures"][:5]:
         print(f"    FAIL {f}")

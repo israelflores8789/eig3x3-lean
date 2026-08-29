@@ -43,7 +43,7 @@ eig3x3-lean/
 └── justfile                   # command runner
 ```
 
-### Lean package dependency flow (`Eig3x3/`)
+### Lean source package dependency flow (`Eig3x3/`)
 ```
 Basic ──┬──> Eigenvalues ───┐
         ├──> Eigenvectors ──┴──> Eigendecomp

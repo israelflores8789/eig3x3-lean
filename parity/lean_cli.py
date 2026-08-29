@@ -55,7 +55,7 @@ class Result(NamedTuple):
     """One decomposition payload from the CLI."""
 
     sent: tuple  # the matrix as handed to the CLI
-    echo: tuple | None  # the CLI's parsed view of it (None on old schemas)
+    echo: tuple  # the CLI's parsed view of it
     eigvals: tuple  # (l1, l2, l3)
     eigvecs: tuple  # (c1, c2, c3), columns
     certs: dict  # CERT_KEYS
@@ -82,7 +82,14 @@ def run(matrices: list, binary: str = DEFAULT_BINARY) -> list:
     data = json.loads(proc.stdout)
     out = []
     for A, r in zip(matrices, data["results"], strict=True):
-        echo = tuple(float(x) for x in r["matrix"]) if "matrix" in r else None
+        if "matrix" not in r:
+            raise RuntimeError(
+                "eig3x3_cli result is missing the matrix echo field; "
+                "try rebuilding with `just build_cli`.\n"
+                "If the problem persists, check that Cli.lean dispatches "
+                'an echoed "matrix".'
+            )
+        echo = tuple(float(x) for x in r["matrix"])
         e = tuple(float(x) for x in r["eigvals"])
         v = [float(x) for x in r["eigvecs"]]
         Q = (tuple(v[0:3]), tuple(v[3:6]), tuple(v[6:9]))
@@ -162,12 +169,14 @@ def recompute_certificates(A, e, Q) -> dict:
 
 
 def self_consistent(res: Result) -> bool | None:
-    """Bitwise certificate self-consistency of a payload.
+    """Bitwise self-consistency certificate.
 
-    Returns None (skipped) if the result carries no matrix echo — apply the
-    two-line echo patch to tests/Cli.lean to enable the check.
-    [TODO make none fail loudly]
+    The payload's certificate fields must equal the certificates recomputed
+    from its own eigenpairs and echoed matrix. Works because the certificates
+    use only +, −, ×, ÷, which are deterministic under IEEE 754 — any
+    serialization corruption (transposition, field misorder, a 1-ulp slip)
+    breaks the equality.
+
+    The echo field is mandatory; `run()` rejects binaries that lack it.
     """
-    if res.echo is None:
-        return None  # TODO: make None fail loudly
     return recompute_certificates(res.echo, res.eigvals, res.eigvecs) == res.certs

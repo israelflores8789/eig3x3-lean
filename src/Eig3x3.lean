@@ -73,9 +73,7 @@ precision while still carrying the speed and determinism of a closed-form soluti
 * `eigvecIsolated` adds a defensive exact-zero fallback; Eberly relies on
   exact-arithmetic rank 2 and has no such guard.
 
-## Validation (op-for-op float64 mirror vs `numpy.linalg.eigvalsh`)
-
-[TODO make sure to add eigenvector validation vs numpy.linalg.eigh]
+## Validation (op-for-op float64 mirror vs `numpy.linalg.eigh`)
 
 * 20k random symmetric matrices:        max |Δλ| ≈ 8e-15
 * near-double path diag(−1,1,1+δ):      ≈ 6e-16 for δ ∈ [1e-16, 1e-4]

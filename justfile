@@ -4,7 +4,7 @@ py := "uv run python"
 pytest := "uv run pytest"
 parity_dir := "parity"
 
-default: test
+default: build_all test lint typecheck parity
 
 # ---- Lean ----
 
@@ -25,13 +25,13 @@ build_all: build build_bench build_cli
 # ---- Python parity harness ----
 
 parity suite="" n="1000" seed="42":
-    {{pytest}} parity/parity.py {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
+    cd {{parity_dir}} && {{pytest}} parity.py {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
 
 parity-parallel suite="" n="1000" seed="42" workers="auto":
-    {{pytest}} parity/parity.py -n {{workers}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
+    cd {{parity_dir}} && {{pytest}} parity.py -n {{workers}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
 
 parity-ci suite="" n="1000" seed="42" workers="auto" xml="generated/junit.xml":
-    {{pytest}} parity/parity.py -n {{workers}} --junitxml={{xml}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
+    cd {{parity_dir}} && {{pytest}} parity.py -n {{workers}} --junitxml={{xml}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
 
 errata n="2000" seed="42":
     cd {{parity_dir}} && {{py}} errata.py {{n}} {{seed}}
