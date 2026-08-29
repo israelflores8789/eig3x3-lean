@@ -128,7 +128,7 @@ def loadGolden (path : String) : IO (List GoldenCase) := do
 /-- Each case must meet the shared standard (64ε · max |entry|) against the
     essentially-exact references. -/
 public def runGolden : IO Unit := do
-  let cases ← loadGolden "golden.json"
+  let cases ← loadGolden "generated/golden.json"
   for gc in cases do
     let d := eigendecomp gc.matrix
     let tol := certTol gc.matrix

@@ -45,7 +45,8 @@ import os
 import subprocess
 from typing import NamedTuple
 
-DEFAULT_BINARY = os.path.join(".lake", "build", "bin", "eig3x3_cli")
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DEFAULT_BINARY = os.path.join(PROJECT_ROOT, ".lake", "build", "bin", "eig3x3_cli")
 
 CERT_KEYS = ("maxResidual", "orthogonality", "reconstruction")
 
@@ -164,7 +165,8 @@ def self_consistent(res: Result) -> bool | None:
     """Bitwise certificate self-consistency of a payload.
 
     Returns None (skipped) if the result carries no matrix echo — apply the
-    two-line echo patch to tests/Cli.lean to enable the check. [TODO make none fail loudly]
+    two-line echo patch to tests/Cli.lean to enable the check.
+    [TODO make none fail loudly]
     """
     if res.echo is None:
         return None  # TODO: make None fail loudly

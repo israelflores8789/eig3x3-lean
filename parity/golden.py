@@ -32,6 +32,7 @@ Usage:
 
 import json
 import math
+import os
 
 import mpmath as mp
 
@@ -39,7 +40,8 @@ import gen_cases
 
 mp.mp.dps = 50
 
-GOLDEN_JSON = "generated/golden.json"
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+GOLDEN_JSON = os.path.join(PROJECT_ROOT, "generated", "golden.json")
 
 
 def golden_eigvals(A) -> list:
@@ -95,6 +97,7 @@ def generate(path: str = GOLDEN_JSON) -> None:
             "of the 50-digit result.",
         },
     }
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     with open(path, "w") as f:
         json.dump(doc, f, indent=2)
     print(f"wrote {path} ({len(cases)} cases)")

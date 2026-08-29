@@ -5,7 +5,7 @@ Authors: Israel Flores-Arbolay
 -/
 module
 
-import Eig3x3
+public import Eig3x3.Basic
 
 /-!
 # JsonMiniReader — a minimal JSON reader for repo infrastructure
@@ -29,6 +29,10 @@ documented and harmless at this library's test gates — which is why reference
 -/
 
 namespace JsonMiniReader
+
+open Eig3x3
+
+public section
 
 def isWs (c : Char) : Bool :=
   c == ' ' || c == '\n' || c == '\t' || c == '\r'
@@ -135,5 +139,23 @@ def parseSymmMat3 (cs : List Char) : Option (SymmMat3 × List Char) := do
   let (x5, cs) ← parseFloat cs
   let cs ← expectChar ']' cs
   pure (⟨x0, x1, x2, x3, x4, x5⟩, cs)
+
+/-- The `"matrices"` array. `partial`: a hand-rolled recursive-descent loop
+    whose termination the compiler cannot see; the input is
+    machine-generated, so failure returns `none`, never a crash. -/
+partial def parseSymmMat3Rows (acc : List SymmMat3) (cs : List Char)
+    : Option (List SymmMat3 × List Char) :=
+  match skipWs cs with
+  | ']' :: cs => some (acc.reverse, cs)
+  | _ =>
+    match parseSymmMat3 cs with
+    | none => none
+    | some (m, cs) =>
+      match skipWs cs with
+      | ',' :: cs => parseSymmMat3Rows (m :: acc) cs
+      | ']' :: cs => some ((m :: acc).reverse, cs)
+      | _ => none
+
+end
 
 end JsonMiniReader

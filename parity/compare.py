@@ -28,6 +28,7 @@ Usage:
 import argparse
 import json
 import math
+import os
 import sys
 
 import numpy as np
@@ -35,6 +36,9 @@ import numpy as np
 import gen_cases
 import lean_cli
 from gates import EPS, ORTHO_TOL, cert_tol, max_abs_entry
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DEFAULT_GOLDEN = os.path.join(PROJECT_ROOT, "generated", "golden.json")
 
 CERT_KEYS = lean_cli.CERT_KEYS
 
@@ -83,7 +87,7 @@ def compare_suite(name: str, cases: list, refs: list, results: list) -> dict:
     """refs: [(ref_eigvals, ref_certs_or_None)]; results: lean_cli.Result."""
     worst_eval = 0.0
     worst_cert = {k: 0.0 for k in CERT_KEYS}
-    failures = []
+    failures: list[tuple] = []
     echo_mismatches = 0
     worst_ulp = 0.0
     consistency_skipped = 0
@@ -160,7 +164,7 @@ def main() -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     p.add_argument("--lean-binary", default=lean_cli.DEFAULT_BINARY)
-    p.add_argument("--golden", default="golden.json")
+    p.add_argument("--golden", default=DEFAULT_GOLDEN)
     p.add_argument(
         "--n", type=int, default=20000, help="batch size for the random suites"
     )
@@ -199,8 +203,8 @@ def main() -> int:
             f"# golden skipped: {args.golden} not found "
             f"(run `just golden` from the repo root)"
         )
-        gcases = None
-    if gcases:
+        gcases, grefs = None, None
+    if gcases and grefs:
         results = lean_cli.run(gcases, args.lean_binary)
         rep = compare_suite("golden", gcases, grefs, results)
         print_report(rep)

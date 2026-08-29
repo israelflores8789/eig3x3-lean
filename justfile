@@ -13,11 +13,13 @@ build:
 test:
     lake test
 
+build_bench:
+    lake build eig3x3_bench
+
 build_cli:
     lake build eig3x3_cli
 
-build_bench:
-    lake build eig3x3_bench
+bulid_all: build build_bench build_cli
 
 # ---- Python parity harness ----
 # (after the pytest migration, these become: pytest parity/tests -q)

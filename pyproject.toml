@@ -32,7 +32,7 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.pyrefly]
-type-checking-mode = "default" 
+preset = "default" 
 python-interpreter-path = ".venv/bin/python"
 search-path = ["parity"]
 project-includes = ["parity/**/*.py"]

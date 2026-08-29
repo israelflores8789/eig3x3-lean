@@ -70,6 +70,15 @@ def exactDecimal (x : Float) : String :=
 
 /-! ## Output -/
 
+def parseInput (s : String) : Option (List SymmMat3) := do
+  let cs ← expectChar '{' s.toList
+  let cs ← expectString "matrices" cs
+  let cs ← expectChar ':' cs
+  let cs ← expectChar '[' cs
+  let (ms, cs) ← parseSymmMat3Rows [] cs
+  let _ ← expectChar '}' cs
+  pure ms
+
 /-- One result object, exactly matching the `lean_cli.py` schema. -/
 def resultJson (A : SymmMat3) : String :=
   let d := eigendecomp A

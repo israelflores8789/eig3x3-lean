@@ -30,7 +30,8 @@ import compare
 import gen_cases
 import lean_cli
 
-BENCH_BINARY = os.path.join(".lake", "build", "bin", "eig3x3_bench")
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+BENCH_BINARY = os.path.join(PROJECT_ROOT, ".lake", "build", "bin", "eig3x3_bench")
 
 
 def time_lean_ops(bench_binary: str) -> tuple[float, float]:

@@ -11,7 +11,7 @@ globs = ["Eig3x3.*"]
 [[lean_lib]]
 name = "Tests"
 srcDir = "tests"
-globs = ["Tests.*"]
+globs = ["Tests.*", "JsonMiniReader"]
 
 [[lean_exe]]
 name = "eig3x3_tests"
