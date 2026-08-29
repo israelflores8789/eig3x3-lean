@@ -2,7 +2,7 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""compare.py — parity test suite
+"""parity.py — parity test suite
 
 This module takes the results of running eig3x3_cli and performs the parity
 comparison against the results of running numpy/LAPACK.
@@ -22,7 +22,7 @@ Doctrine:
     references), reconstructed bit-exactly from dyadic pairs.
 
 Usage:
-    python compare.py                    # after `just build_cli`
+    python parity.py                    # after `just build_cli`
 """
 
 import argparse
@@ -32,6 +32,7 @@ import os
 import sys
 
 import numpy as np
+import pytest
 
 import gen_cases
 import lean_cli
@@ -157,6 +158,87 @@ def print_report(rep: dict) -> None:
         )
     for f in rep["failures"][:5]:
         print(f"    FAIL {f}")
+
+
+# ---------------------------------------------------------------------------
+# Pytest Test Entry Points (Granular Suite Execution)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.zoo
+def test_zoo(lean_cli_binary: str) -> None:
+    """Parity against NumPy/LAPACK on the curated ZOO matrices."""
+    cases = gen_cases.cases_for("zoo", 0, np.random.default_rng(0))
+    refs = [numpy_reference(A) for A in cases]
+    results = lean_cli.run(cases, lean_cli_binary)
+    rep = compare_suite("zoo", cases, refs, results)
+    assert not rep["failures"], f"zoo failures: {rep['failures']}"
+    assert rep["worst_eval_units"] <= 64.0
+
+
+@pytest.mark.random
+def test_random(lean_cli_binary: str, batch_n: int, rng: np.random.Generator) -> None:
+    """Parity against NumPy/LAPACK on uniform random matrices in [-1, 1]."""
+    cases = gen_cases.cases_for("random", batch_n, rng)
+    refs = [numpy_reference(A) for A in cases]
+    results = lean_cli.run(cases, lean_cli_binary)
+    rep = compare_suite("random", cases, refs, results)
+    assert not rep["failures"], f"random failures: {rep['failures']}"
+    assert rep["worst_eval_units"] <= 64.0
+
+
+@pytest.mark.logscale
+def test_logscale(lean_cli_binary: str, batch_n: int, rng: np.random.Generator) -> None:
+    """Parity across 600 orders of magnitude (1e-300 to 1e300)."""
+    cases = gen_cases.cases_for("logscale", batch_n, rng)
+    refs = [numpy_reference(A) for A in cases]
+    results = lean_cli.run(cases, lean_cli_binary)
+    rep = compare_suite("logscale", cases, refs, results)
+    assert not rep["failures"], f"logscale failures: {rep['failures']}"
+    assert rep["worst_eval_units"] <= 64.0
+
+
+@pytest.mark.paths
+def test_paths(lean_cli_binary: str) -> None:
+    """Parity along Habera-Zilian adversarial perturbation paths."""
+    cases = gen_cases.cases_for("paths", 0, np.random.default_rng(0))
+    refs = [numpy_reference(A) for A in cases]
+    results = lean_cli.run(cases, lean_cli_binary)
+    rep = compare_suite("paths", cases, refs, results)
+    assert not rep["failures"], f"paths failures: {rep['failures']}"
+    assert rep["worst_eval_units"] <= 64.0
+
+
+@pytest.mark.smallscale
+def test_smallscale(lean_cli_binary: str) -> None:
+    """Parity on vanishing double eigenvalues (s, s, 2s) at 1e-300 to 1e-1."""
+    cases = gen_cases.cases_for("smallscale", 0, np.random.default_rng(0))
+    refs = [numpy_reference(A) for A in cases]
+    results = lean_cli.run(cases, lean_cli_binary)
+    rep = compare_suite("smallscale", cases, refs, results)
+    assert not rep["failures"], f"smallscale failures: {rep['failures']}"
+    assert rep["worst_eval_units"] <= 64.0
+
+
+@pytest.mark.frontier
+def test_frontier(lean_cli_binary: str) -> None:
+    """Parity on frontier scale-edge cases (2^±997, extreme dynamic range)."""
+    cases = gen_cases.cases_for("frontier", 0, np.random.default_rng(0))
+    refs = [numpy_reference(A) for A in cases]
+    results = lean_cli.run(cases, lean_cli_binary)
+    rep = compare_suite("frontier", cases, refs, results)
+    assert not rep["failures"], f"frontier failures: {rep['failures']}"
+    assert rep["worst_eval_units"] <= 64.0
+
+
+@pytest.mark.golden
+def test_golden(lean_cli_binary: str, golden_json: str) -> None:
+    """Parity against 50-digit mpmath reference vectors from golden.json."""
+    gcases, grefs = load_golden(golden_json)
+    results = lean_cli.run(gcases, lean_cli_binary)
+    rep = compare_suite("golden", gcases, grefs, results)
+    assert not rep["failures"], f"golden failures: {rep['failures']}"
+    assert rep["worst_eval_units"] <= 64.0
 
 
 def main() -> int:

@@ -1,6 +1,7 @@
 # eig3x3 — project recipes. `just --list` shows everything.
 
-py := "python"
+py := "uv run python"
+pytest := "uv run pytest"
 parity_dir := "parity"
 
 default: test
@@ -19,12 +20,18 @@ build_bench:
 build_cli:
     lake build eig3x3_cli
 
-bulid_all: build build_bench build_cli
+build_all: build build_bench build_cli
 
 # ---- Python parity harness ----
 
-parity n="1000" seed="42":
-    cd {{parity_dir}} && {{py}} compare.py --n {{n}} --seed {{seed}}
+parity suite="" n="1000" seed="42":
+    {{pytest}} parity/parity.py {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
+
+parity-parallel suite="" n="1000" seed="42" workers="auto":
+    {{pytest}} parity/parity.py -n {{workers}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
+
+parity-ci suite="" n="1000" seed="42" workers="auto" xml="generated/junit.xml":
+    {{pytest}} parity/parity.py -n {{workers}} --junitxml={{xml}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
 
 errata n="2000" seed="42":
     cd {{parity_dir}} && {{py}} errata.py {{n}} {{seed}}
@@ -38,12 +45,12 @@ bench:
 # ---- hygiene ----
 
 lint:
-    ruff check {{parity_dir}}
-    ruff format --check {{parity_dir}}
+    uv run ruff check {{parity_dir}}
+    uv run ruff format --check {{parity_dir}}
 
 typecheck:
-    pyrefly check {{parity_dir}}
+    uv run pyrefly check {{parity_dir}}
 
-# ---- the full local gate ----
+# ---- the full local / CI gate ----
 
-ci: test lint typecheck parity
+ci: test lint typecheck parity-ci

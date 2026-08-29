@@ -333,7 +333,7 @@
   ],
   "provenance": {
     "generator": "parity/golden.py",
-    "mpmath": "1.3.0",
+    "mpmath": "1.4.1",
     "dps": 50,
     "encoding": "eigvals are exact dyadic pairs [sig, exp]: value = sig * 2^exp, the correctly-rounded float64 of the 50-digit result."
   }

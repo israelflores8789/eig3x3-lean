@@ -8,14 +8,30 @@ requires-python = ">=3.12"
 dependencies = ["numpy", "mpmath"]
 
 [dependency-groups]
-dev = ["pytest", "ruff", "pyrefly"]
+dev = [
+    "pytest",
+    "ruff",
+    "pyrefly",
+    "pytest-xdist>=3.8.0",
+]
 
 [tool.uv]
 package = false
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = [".", "parity"]
 testpaths = ["parity"]
+python_files = ["parity.py"]
+python_functions = ["test_*"]
+markers = [
+    "zoo: curated test zoo matrices",
+    "random: uniform random matrix sweeps",
+    "logscale: log-scale matrix sweeps across 600 orders of magnitude",
+    "paths: Habera-Zilian adversarial perturbation paths",
+    "smallscale: vanishing scale double eigenvalues",
+    "frontier: extreme dynamic range matrices",
+    "golden: 50-digit mpmath reference cases",
+]
 
 [tool.ruff]
 line-length = 88

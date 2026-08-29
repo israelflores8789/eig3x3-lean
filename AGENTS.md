@@ -28,7 +28,7 @@ eig3x3-lean/
 │   ├── gates.py               # shared numerical standard; mirrors Tests/Util.lean
 │   ├── gen_cases.py           # case generation
 │   ├── lean_cli.py            # subprocess bridge to eig3x3_cli; owns JSON schema
-│   ├── compare.py             # numpy/LAPACK parity test
+│   ├── parity.py              # pytest test harness & numpy/LAPACK parity test
 │   ├── errata.py              # exhibits of errata found during implementation
 │   ├── golden.py              # 50-digit mpmath golden vectors generator; writes golden.json
 │   └── bench.py               # performance benchmark of Lean against numpy/LAPACK
@@ -64,7 +64,7 @@ Eig3x3 ──┬──> Util ──┬──> KnownAnswer ───┐
 ```
 Parity Test:
                                       generated/golden.json ──┐
-  gen_cases.py ──> lean_cli.py ──> eig3x3_cli (Lean binary) ──┼──> compare.py
+  gen_cases.py ──> lean_cli.py ──> eig3x3_cli (Lean binary) ──┼──> parity.py
                                                    gates.py ──┘
 
 Generate "Golden" Vectors:

@@ -26,9 +26,9 @@ import time
 
 import numpy as np
 
-import compare
 import gen_cases
 import lean_cli
+import parity
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 BENCH_BINARY = os.path.join(PROJECT_ROOT, ".lake", "build", "bin", "eig3x3_bench")
@@ -63,13 +63,13 @@ def time_numpy_loop(cases: list) -> float:
     """Seconds per matrix, per-matrix eigh loop."""
     t0 = time.perf_counter()
     for A in cases:
-        np.linalg.eigh(compare.to_dense(A))
+        np.linalg.eigh(parity.to_dense(A))
     return (time.perf_counter() - t0) / len(cases)
 
 
 def time_numpy_batched(cases: list) -> float:
     """Seconds per matrix, one vectorized eigh over the stacked batch."""
-    M = np.stack([compare.to_dense(A) for A in cases])
+    M = np.stack([parity.to_dense(A) for A in cases])
     t0 = time.perf_counter()
     np.linalg.eigh(M)
     return (time.perf_counter() - t0) / len(cases)
