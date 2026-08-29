@@ -22,7 +22,6 @@ build_cli:
 bulid_all: build build_bench build_cli
 
 # ---- Python parity harness ----
-# (after the pytest migration, these become: pytest parity/tests -q)
 
 parity n="1000" seed="42":
     cd {{parity_dir}} && {{py}} compare.py --n {{n}} --seed {{seed}}

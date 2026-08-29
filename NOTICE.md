@@ -55,12 +55,14 @@ used for code generation under continuous human direction. Every file was
 manually reviewed and edited, and the mathematics was checked against the sources
 listed in §1.
 
-<!-- TODO: update this to reflect final development before release -->
-Correctness does not rest on manual review. The implementation is parity-tested in
-CI against an independent NumPy reference over a shared corpus of test
-vectors — including repeated and near-repeated eigenvalues and the
-stabilized-discriminant regime — under documented error tolerances. See
-`testdata/` and `python/tests/`, or run `just parity` to reproduce.
+Correctness does not rest on manual review. The implementation is parity-tested
+in CI against an independent NumPy/LAPACK reference over a shared corpus of test
+vectors — including repeated and near-repeated eigenvalues, mpmath-based "golden"
+vectors, degenerate discriminant regimes, and runtime certificates on residual
+error, orthonomality, and reconstruction (QᵀQ = I) — under machine-epsilon-scaled 
+tolerances.
+
+See `tests/` and `parity/`, or run `just parity` to reproduce.
 
 ## 3. Name and Affiliation
 
