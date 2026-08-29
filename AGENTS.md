@@ -55,8 +55,9 @@ Eig3x3 ──┬──> Util ──┬──> KnownAnswer ───┐
          │           ├──> Golden ────────┤
          │           ├──> Properties ────┤
          │           ├──> Regression ────┤
-         │           └──> Certificates ──┴──> Main (lean_exe) <──┬── JsonMiniReader
-         └──────────────────────────────────> Cli  (lean_exe) <──┘
+         │           └──> Certificates ──┴──> Main  (lean_exe) <──┬── JsonMiniReader
+         ├──────────────────────────────────> Cli   (lean_exe) <──┘
+         └──────────────────────────────────> Bench (lean_exe)
 ```
 
 ### Python parity test dependency flow (`parity/`)

@@ -110,11 +110,7 @@ def main() -> int:
     cases = [tuple(Fraction(x) for x in A) for A in gen_cases.integer_matrices(rng, n)]
     fail_printed = sum(1 for A in cases if delta_frac(A, -1) != identity_value(A))
     fail_corrected = sum(1 for A in cases if delta_frac(A, +1) != identity_value(A))
-    print(
-        f"sweep over {total} random integer matrices (seed {seed}):".format(
-            total=len(cases)
-        )
-    )
+    print(f"sweep over {len(cases)} random integer matrices (seed {seed}):")
     print(f"  printed sign:   identity fails on {fail_printed}/{len(cases)}")
     print(f"  corrected sign: identity fails on {fail_corrected}/{len(cases)}\n")
     print("cross-reference: the corrected sign agrees with the validated x₁₀")

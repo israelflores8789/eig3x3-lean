@@ -7,18 +7,21 @@
 This module measures the computational cost per matrix between Lean's closed form
 eigendecomposition and numpy/LAPACK's iterative driver.
 
-Honesty note, printed with every report: the CLI figure is end-to-end
-through eig3x3_cli and therefore includes JSON serialization — the real
-cost of an IPC-style deployment. A pure in-process compute figure (ns/op)
-belongs to a small Lean-side micro-benchmark, which is a separate addition.
-
-[TODO update this with an in-process computation benchmark]
+Reports:
+* in-process Lean per matrix computation cost
+* in-process Lean per matrix computation cost with accuracy certificates
+* end-to-end Lean per matrix computation cost, which includes JSON
+  serialization as a model of IPC-style deployment
+* numpy/LAPACK per matrix in-process computation cost
+* numpy/LAPACK batched in-process computation cost
 
 Usage:
-    python bench.py                      # after `just build_cli`
+    python bench.py                      # after `just build_bench` and `just build_cli`
 """
 
 import argparse
+import os
+import subprocess
 import time
 
 import numpy as np
@@ -26,6 +29,26 @@ import numpy as np
 import compare
 import gen_cases
 import lean_cli
+
+BENCH_BINARY = os.path.join(".lake", "build", "bin", "eig3x3_bench")
+
+
+def time_lean_ops(bench_binary: str) -> tuple[float, float]:
+    """Pure in-process µs/matrix from the Lean micro-benchmark:
+    (eigendecomp only, eigendecomp + certify)."""
+    proc = subprocess.run([bench_binary], capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"eig3x3_bench exited {proc.returncode}: {proc.stderr.strip()}"
+        )
+    vals = {}
+    for line in proc.stdout.splitlines():
+        if line.startswith("ns_per_op_"):
+            key, _, v = line.partition(" ")
+            vals[key] = float(v) / 1000.0  # ns -> µs
+    if "ns_per_op_decomp" not in vals or "ns_per_op_full" not in vals:
+        raise RuntimeError("eig3x3_bench output missing ns_per_op lines")
+    return vals["ns_per_op_decomp"], vals["ns_per_op_full"]
 
 
 def time_lean_cli(binary: str, cases: list) -> float:
@@ -57,6 +80,12 @@ def main() -> int:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--lean-binary", default=lean_cli.DEFAULT_BINARY)
     args = p.parse_args()
+
+    if not lean_cli.available(BENCH_BINARY):
+        p.error(
+            f"eig3x3_bench not found at {BENCH_BINARY!r}; run `just build_bench` first",
+        )
+
     if not lean_cli.available(args.lean_binary):
         p.error(
             f"eig3x3_cli not found at {args.lean_binary!r}; run `just build_cli` first"
@@ -69,12 +98,15 @@ def main() -> int:
         f"# bench — n={args.n} seed={args.seed} "
         f"(CLI figures include the JSON boundary; see module docstring)"
     )
+    t_bench_decomp, t_bench_full = time_lean_ops(BENCH_BINARY)
     t_cli = time_lean_cli(args.lean_binary, cases)
     t_loop = time_numpy_loop(cases)
     t_batch = time_numpy_batched(cases)
-    print(f"eig3x3_cli, end-to-end:          {t_cli * 1e6:9.2f} us/matrix")
-    print(f"numpy/LAPACK eigh, per-matrix:   {t_loop * 1e6:9.2f} us/matrix")
-    print(f"numpy/LAPACK eigh, batched:      {t_batch * 1e6:9.2f} us/matrix")
+    print(f"eig3x3_cli, in-process:            {t_bench_decomp:9.2f} us/matrix")
+    print(f"eig3x3_cli, in-process, w/ certs:  {t_bench_full:9.2f} us/matrix")
+    print(f"eig3x3_cli, end-to-end:            {t_cli * 1e6:9.2f} us/matrix")
+    print(f"numpy/LAPACK eigh, per-matrix:     {t_loop * 1e6:9.2f} us/matrix")
+    print(f"numpy/LAPACK eigh, batched:        {t_batch * 1e6:9.2f} us/matrix")
     return 0
 
 

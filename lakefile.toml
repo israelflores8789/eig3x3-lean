@@ -22,3 +22,8 @@ srcDir = "tests"
 name = "eig3x3_cli"
 root = "Cli"
 srcDir = "tests"
+
+[[lean_exe]]
+name = "eig3x3_bench"
+root = "Bench"
+srcDir = "tests"
