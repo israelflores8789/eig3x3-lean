@@ -23,7 +23,7 @@ jobs:
         uses: leanprover/lean-action@v1
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@v10.0.1
         with:
           enable-cache: true
 
