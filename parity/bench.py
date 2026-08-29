@@ -78,7 +78,7 @@ def time_numpy_batched(cases: list) -> float:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--n", type=int, default=20000)
-    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--seed", type=int, default=42)
     p.add_argument("--lean-binary", default=lean_cli.DEFAULT_BINARY)
     args = p.parse_args()
 
@@ -95,10 +95,7 @@ def main() -> int:
     rng = np.random.default_rng(args.seed)
     cases = gen_cases.random_uniform(rng, args.n)
 
-    print(
-        f"# bench — n={args.n} seed={args.seed} "
-        f"(CLI figures include the JSON boundary; see module docstring)"
-    )
+    print(f"# bench — n={args.n} seed={args.seed}")
     t_bench_decomp, t_bench_full = time_lean_ops(BENCH_BINARY)
     t_cli = time_lean_cli(args.lean_binary, cases)
     t_loop = time_numpy_loop(cases)
