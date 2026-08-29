@@ -9,7 +9,7 @@ vectors using Python's mpmath, stored in generated/golden.json which has
 two consumers:
 
     * The test Tests/Golden.lean consumes golden.json directly.
-    * The Python module compare.py references golden.json for its
+    * The Python module parity.py references golden.json for its
       parity checks.
 
 Exactness channel: each reference eigenvalue is stored twice —

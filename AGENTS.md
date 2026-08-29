@@ -31,6 +31,7 @@ eig3x3-lean/
 │   ├── parity.py              # pytest test harness & numpy/LAPACK parity test
 │   ├── errata.py              # exhibits of errata found during implementation
 │   ├── golden.py              # 50-digit mpmath golden vectors generator; writes golden.json
+│   ├── conftest.py            # pytest configuration, auto-scaffolding fixtures & CLI options
 │   └── bench.py               # performance benchmark of Lean against numpy/LAPACK
 ├── scripts/                   # dev/CI helper scripts
 ├── golden.json                # generated golden vectors (generated, versioned, never hand-edited)
@@ -63,9 +64,10 @@ Eig3x3 ──┬──> Util ──┬──> KnownAnswer ───┐
 ### Python parity test dependency flow (`parity/`)
 ```
 Parity Test:
-                                      generated/golden.json ──┐
-  gen_cases.py ──> lean_cli.py ──> eig3x3_cli (Lean binary) ──┼──> parity.py
-                                                   gates.py ──┘
+                                         generated/golden.json ──┐
+  gen_cases.py ──> lean_cli.py ──┬──> eig3x3_cli (Lean binary) ──┼──> parity.py
+                                 │                    gates.py ──┘
+                                 └──> golden.py ────────────────────> conftest.py (pytest)
 
 Generate "Golden" Vectors:
   golden.py (generate vectors) ──> generated/golden.json ──> Tests/Golden.lean

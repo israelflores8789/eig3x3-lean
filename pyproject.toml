@@ -22,7 +22,6 @@ package = false
 pythonpath = [".", "parity"]
 testpaths = ["parity"]
 python_files = ["parity.py"]
-python_functions = ["test_*"]
 markers = [
     "zoo: curated test zoo matrices",
     "random: uniform random matrix sweeps",
