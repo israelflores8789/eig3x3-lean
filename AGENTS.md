@@ -86,6 +86,7 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 | `just bench` | performance benchmark of Lean binary against numpy/LAPACK | informational only |
 | `just ci` | all of the above plus ruff and pyrefly | all green |
 
+- USE `just build_all` to build the Lean source, bench, and CLI binaries.
 - **CLI Smoke Test**: After running `just build_cli`, RUN `echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3_cli` and EXPECT eigenvalues 0.58578643762690497, 2.0, 3.4142135623730949 with certificates ≈ 1e-16. IF the result does NOT match expectations, STOP and REPORT the failure.
 
 ### Rules
@@ -95,6 +96,7 @@ All commands run via `just` from the repo root; `just --list` shows everything.
   - USE `just golden` to generate or update `generated/golden.json`.
 - `parity/gates.py` mirrors `Tests/Util.lean`; IF requested by the user, modify them together or STOP and REPORT a conflict.
 - Do NOT modify `parity/errata.py`.
+- USE `just <cmd>` for all tests. Do NOT perform manual command line equivalents UNLESS you believe the `just` command to be stale. IF you believe a dedicated `just` command is stale, REPORT to the user your proposed update.
 
 ## Known Issues
 - The Habera–Zilian reference paper contains a typo in: §7, Algorithm 8, `r₁₀`. The corrected form is implemented in `src/Eig3x3/Eigenvalues.lean`. Do NOT "fix" it back. 
