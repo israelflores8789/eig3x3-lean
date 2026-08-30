@@ -468,9 +468,10 @@ scoped infixl:74 " ⨯₃ " => Vec3.cross
 scoped infixl:74 " ×₃ " => Vec3.cross
 
 
-/-- Absolute value: magnitude on `Float`, entrywise on `Vec3`/`Mat3`.
-Mirrors Mathlib's `|a|` notation for `abs`. -/
-scoped notation:max "|" x "|" => Abs.abs x
+/-- Absolute value bars, whitespace-sensitive like Mathlib's `|a|`: the bars
+must hug the argument (`|v|`, never `| v |`), so the leading bar can never be
+mistaken for a `match` alternative's `|`, which is always followed by a space. -/
+scoped macro:max atomic("|" noWs) x:term noWs "|" : term => `(_root_.Eig3x3.Abs.abs $x)
 
 
 /-- Norm: Euclidean on `Vec3`, Frobenius on `Mat3`. Type `\Vert`. -/
