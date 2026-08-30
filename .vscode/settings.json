@@ -1,4 +1,5 @@
 {
+  "python.languageServer": "None",
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
@@ -7,6 +8,8 @@
       "source.fixAll.ruff": "always"
     }
   },
+  "ruff.enable": true,
+  "ruff.organizeImports": true,
   "evenBetterToml.schema.associations": {
     "lakefile.toml": "https://schemastore.org",
     "pyproject.toml": "https://json.schemastore.org/pyproject.json"
