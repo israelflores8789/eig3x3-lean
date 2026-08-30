@@ -93,10 +93,10 @@ def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
 def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
   let u :=
     if |w.y| < |w.x| then
-      let inv := 1.0 / (w.x ^ 2 + w.z ^ 2).sqrt
+      let inv := 1.0 / (w.x ^ⁿ 2 + w.z ^ⁿ 2).sqrt
       ⟨-w.z * inv, 0.0, w.x * inv⟩
     else
-      let inv := 1.0 / (w.y ^ 2 + w.z ^ 2).sqrt
+      let inv := 1.0 / (w.y ^ⁿ 2 + w.z ^ⁿ 2).sqrt
       ⟨0.0, w.z * inv, -w.y * inv⟩
   (u, w ⨯₃ u)
 
@@ -124,11 +124,11 @@ def eigvecInPlane (A : SymmMat3) (v₀ : Vec3) (lam : Float) : Vec3 :=
     if maxAbs == 0.0 then u
     else if |m₁₁| < |m₀₁| then
       let t := m₁₁ / m₀₁
-      let n := 1.0 / (1.0 + t ^ 2).sqrt
+      let n := 1.0 / (1.0 + t ^ⁿ 2).sqrt
       (t * n) • u - n • v                      -- X = (t, −1)·n
     else
       let t := m₀₁ / m₁₁
-      let n := 1.0 / (1.0 + t ^ 2).sqrt
+      let n := 1.0 / (1.0 + t ^ⁿ 2).sqrt
       n • u - (t * n) • v                      -- X = (1, −t)·n
   else
     -- Solve using row 0: m₀₀·x₀ + m₀₁·x₁ = 0
@@ -136,11 +136,11 @@ def eigvecInPlane (A : SymmMat3) (v₀ : Vec3) (lam : Float) : Vec3 :=
     if maxAbs == 0.0 then u
     else if |m₀₀| < |m₀₁| then
       let t := m₀₀ / m₀₁
-      let n := 1.0 / (1.0 + t ^ 2).sqrt
+      let n := 1.0 / (1.0 + t ^ⁿ 2).sqrt
       n • u - (t * n) • v                      -- X = (1, −t)·n
     else
       let t := m₀₁ / m₀₀
-      let n := 1.0 / (1.0 + t ^ 2).sqrt
+      let n := 1.0 / (1.0 + t ^ⁿ 2).sqrt
       (t * n) • u - n • v                      -- X = (t, −1)·n
 
 /-- Assemble a right-handed orthonormal eigenbasis for the preconditioned

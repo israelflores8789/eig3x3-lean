@@ -26,7 +26,7 @@ open scoped Eig3x3
     suffers catastrophic cancellation near double eigenvalues with finite J₂
     (observed ≈5e-9 absolute eigenvalue error on the D2 path). -/
 def deltaNaive (J₂ J₃ : Float) : Float :=
-  let d := 4.0 * J₂ ^ 3 - 27.0 * J₃ ^ 2
+  let d := 4.0 * J₂ ^ⁿ 3 - 27.0 * J₃ ^ⁿ 2
   if d < 0.0 then 0.0 else d
 
 public def runRegression : IO Unit := do

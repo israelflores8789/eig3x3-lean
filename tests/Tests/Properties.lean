@@ -92,7 +92,7 @@ public def runProperties : IO Unit := do
     -- evaluation ≈5ε, the product ≈3ε, eigenvalue error ≈36ε at that scale).
     let mA := A.maxAbsEntry
     let prod := (e.l₀ * e.l₁) * e.l₂
-    if (prod - A.toMat3.det).abs > 64.0 * Float.eps * mA ^ 3 then
+    if (prod - A.toMat3.det).abs > 64.0 * Float.eps * mA ^ⁿ 3 then
       failures := failures.push s!"det: |{prod} − {A.toMat3.det}|"
 
     -- Right-handedness.

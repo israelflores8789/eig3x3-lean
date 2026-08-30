@@ -41,11 +41,13 @@ public def Eigval3.isOrdered (e : Eigval3) : Bool :=
 
 namespace Tests
 
+open scoped Eig3x3
+
 /-! ## Machine Precision Constants -/
 
 /-- float64 machine epsilon, 2⁻⁵². -/
 -- 0x1p-52 in idomatic Lean
-public def Float.eps : Float := (1 : Float) / ((2 : Float) ^ 52)
+public def Float.eps : Float := (1 : Float) / ((2 : Float) ^ⁿ 52)
 
 /-- The certificate standard for residual and reconstruction: 64ε scaled by
     the matrix's max |entry|. See the Certificates suite's module docstring

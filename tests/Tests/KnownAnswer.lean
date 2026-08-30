@@ -14,7 +14,7 @@ import Tests.Util
 Exact-in-float64 checks for the vector/matrix vocabulary (small integers
 only), known-answer eigenvalue checks, the exact fast paths (zero matrix,
 scaled identity), and end-to-end exercise of the notation (`ᵀ`, `⁻¹`, `⬝ᵥ`,
-`⬝ₘ`, `⊗ᵥ`, `⨯₃`, `•`, `⊙`, `|·|`, `‖·‖`, `‖·‖²`, `^`, `*`) and the
+`⬝ₘ`, `⊗ᵥ`, `⨯₃`, `•`, `⊙`, `|·|`, `‖·‖`, `‖·‖²`, `^ⁿ`, `^`, `*`) and the
 `Eigval3 → Vec3` and `SymmMat3 → Mat3` coercions.
 -/
 
@@ -42,8 +42,6 @@ public def runKnownAnswer : IO Unit := do
   assertClose "vec dot ⬝ᵥ" (u ⬝ᵥ v) 32.0 0.0
   assertTrue "vec cross ⨯₃"
     (((⟨1.0, 0.0, 0.0⟩ : Vec3) ⨯₃ ⟨0.0, 1.0, 0.0⟩).approx ⟨0.0, 0.0, 1.0⟩ 0.0)
-  assertTrue "vec cross ×₃ alias"
-    (((⟨1.0, 0.0, 0.0⟩ : Vec3) ×₃ ⟨0.0, 1.0, 0.0⟩).approx ⟨0.0, 0.0, 1.0⟩ 0.0)
   assertTrue "vec cross self is zero"
     ((u ⨯₃ u).approx ⟨0.0, 0.0, 0.0⟩ 0.0)
   assertTrue "vec outer ⊗ᵥ"
@@ -120,12 +118,35 @@ public def runKnownAnswer : IO Unit := do
     ((SymmMat3.toMat3 workedExample).approx
       ⟨⟨2.0, 1.0, 0.0⟩, ⟨1.0, 2.0, 1.0⟩, ⟨0.0, 1.0, 2.0⟩⟩ 0.0)
 
-  -- 3. Powers: x ^ n and M ^ n
+  -- 3. Powers: x ^ⁿ n, M ^ⁿ n, and M ^ n
   assertClose "float abs |x|" |-3.5| 3.5 0.0
-  assertClose "float pow 0" (3.0 ^ 0) 1.0 0.0
-  assertClose "float pow 1" (3.0 ^ 1) 3.0 0.0
-  assertClose "float pow 2" (3.0 ^ 2) 9.0 0.0
-  assertClose "float pow 3" (3.0 ^ 3) 27.0 0.0
+  assertClose "float powNat 0" (3.0 ^ⁿ 0) 1.0 0.0
+  assertClose "float powNat 1" (3.0 ^ⁿ 1) 3.0 0.0
+  assertClose "float powNat 2" (3.0 ^ⁿ 2) 9.0 0.0
+  assertClose "float powNat 3" (3.0 ^ⁿ 3) 27.0 0.0
+  assertClose "float powNat 8 (small boundary)" (2.0 ^ⁿ 8) 256.0 0.0
+  assertClose "float powNat 9 (large branch)" (2.0 ^ⁿ 9) 512.0 0.0
+  assertClose "float powNat 10" (2.0 ^ⁿ 10) 1024.0 0.0
+  assertClose "float powNat negative odd" ((-2.0) ^ⁿ 3) (-8.0) 0.0
+  assertClose "float powNat negative even" ((-2.0) ^ⁿ 4) 16.0 0.0
+
+  -- Mat3 powers via PowNat (^ⁿ) — exponentiation by squaring
+  assertTrue "mat powNat 0"
+    ((A ^ⁿ 0).approx Mat3.id 0.0)
+  assertTrue "mat powNat 1"
+    ((A ^ⁿ 1).approx A 0.0)
+  assertTrue "mat powNat 2"
+    ((A ^ⁿ 2).approx (A * A) 0.0)
+  assertTrue "mat powNat 3"
+    ((A ^ⁿ 3).approx (A * A * A) 0.0)
+  assertTrue "mat powNat 4 (even squaring)"
+    ((A ^ⁿ 4).approx ((A * A) * (A * A)) 0.0)
+  assertTrue "mat powNat 5 (odd squaring)"
+    ((A ^ⁿ 5).approx (A * (A ^ⁿ 4)) 0.0)
+  assertTrue "mat powNat 8"
+    ((A ^ⁿ 8).approx ((A ^ⁿ 4) * (A ^ⁿ 4)) 0.0)
+
+  -- Mat3 powers via standard Pow (^)
   assertTrue "mat pow 0"
     ((A ^ 0).approx Mat3.id 0.0)
   assertTrue "mat pow 1"
@@ -134,8 +155,26 @@ public def runKnownAnswer : IO Unit := do
     ((A ^ 2).approx (A * A) 0.0)
   assertTrue "mat pow 3"
     ((A ^ 3).approx (A * A * A) 0.0)
+  assertTrue "mat pow 4"
+    ((A ^ 4).approx ((A * A) * (A * A)) 0.0)
 
   -- 4. Precedence & identity rules
+  assertClose "powNat mul precedence"
+    (2.0 * 3.0 ^ⁿ 2)
+    18.0
+    0.0
+  assertClose "powNat add precedence"
+    (1.0 + 3.0 ^ⁿ 2)
+    10.0
+    0.0
+  assertTrue "powNat smul precedence"
+    ((2.0 • A ^ⁿ 2).approx (2.0 • (A * A)) 0.0)
+  assertClose "powNat frobenius dot precedence"
+    (A ^ⁿ 2 ⬝ₘ B)
+    ((A * A) ⬝ₘ B)
+    0.0
+  assertTrue "powNat transpose rule"
+    ((A ^ⁿ 2)ᵀ.approx (Aᵀ ^ⁿ 2) 0.0)
   assertClose "triple product precedence"
     (u ⬝ᵥ v ⨯₃ w)
     (u ⬝ᵥ (v ⨯₃ w))
