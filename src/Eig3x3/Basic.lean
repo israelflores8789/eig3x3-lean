@@ -41,7 +41,7 @@ with no Mathlib dependency. Precedences follow Lean core and Mathlib:
 | `u ⨯₃ v` | cross product          | `infixl:74`   | Mathlib `crossProduct`          |
 | `x ^ⁿ n` | power (by fast Nat)    | `infixr:80`   | (new; family of `^`)            |
 | `A ⊙ B` | Hadamard product       | `infixl:100`  | Mathlib `Matrix.hadamard`       |
-| `\|x\|`  | absolute value         | delimited     | Mathlib `\|a\|` for `abs`       |
+| `|x|`    | absolute value         | delimited     | Mathlib `|a|` for `abs`         |
 | `‖v‖`    | norm                   | delimited     | Mathlib `Norm.norm`             |
 | `‖v‖²`   | squared norm           | delimited     | (Mathlib writes `‖x‖ ^ 2`)      |
 | `Aᵀ`     | transpose              | `postfix:max` | Mathlib `Matrix.transpose`      |

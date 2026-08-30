@@ -29,29 +29,21 @@ public def runKnownAnswer : IO Unit := do
   let s : Float := 2.5
 
   -- 1. Vec3 arithmetic & operators (all exact)
-  assertTrue "vec add"
-    ((u + v).approx ⟨5.0, 7.0, 9.0⟩ 0.0)
-  assertTrue "vec sub"
-    ((v - u).approx ⟨3.0, 3.0, 3.0⟩ 0.0)
-  assertTrue "vec neg"
-    ((-u).approx ⟨-1.0, -2.0, -3.0⟩ 0.0)
-  assertTrue "vec div"
-    (((⟨2.0, 4.0, 6.0⟩ : Vec3) / 2.0).approx ⟨1.0, 2.0, 3.0⟩ 0.0)
-  assertTrue "vec smul"
-    ((2.0 • u).approx ⟨2.0, 4.0, 6.0⟩ 0.0)
+  assertTrue "vec add" ((u + v).approx ⟨5.0, 7.0, 9.0⟩ 0.0)
+  assertTrue "vec sub" ((v - u).approx ⟨3.0, 3.0, 3.0⟩ 0.0)
+  assertTrue "vec neg" ((-u).approx ⟨-1.0, -2.0, -3.0⟩ 0.0)
+  assertTrue "vec div" (((⟨2.0, 4.0, 6.0⟩ : Vec3) / 2.0).approx ⟨1.0, 2.0, 3.0⟩ 0.0)
+  assertTrue "vec smul" ((2.0 • u).approx ⟨2.0, 4.0, 6.0⟩ 0.0)
   assertClose "vec dot ⬝ᵥ" (u ⬝ᵥ v) 32.0 0.0
   assertTrue "vec cross ⨯₃"
     (((⟨1.0, 0.0, 0.0⟩ : Vec3) ⨯₃ ⟨0.0, 1.0, 0.0⟩).approx ⟨0.0, 0.0, 1.0⟩ 0.0)
-  assertTrue "vec cross self is zero"
-    ((u ⨯₃ u).approx ⟨0.0, 0.0, 0.0⟩ 0.0)
+  assertTrue "vec cross self is zero" ((u ⨯₃ u).approx ⟨0.0, 0.0, 0.0⟩ 0.0)
   assertTrue "vec outer ⊗ᵥ"
     ((u ⊗ᵥ v).approx ⟨⟨4.0, 8.0, 12.0⟩, ⟨5.0, 10.0, 15.0⟩, ⟨6.0, 12.0, 18.0⟩⟩ 0.0)
-  assertTrue "vec hadamard ⊙"
-    ((u ⊙ v).approx ⟨4.0, 10.0, 18.0⟩ 0.0)
+  assertTrue "vec hadamard ⊙" ((u ⊙ v).approx ⟨4.0, 10.0, 18.0⟩ 0.0)
   assertClose "vec normSq ‖v‖²" ‖u‖² 14.0 0.0
   assertClose "vec norm ‖v‖" ‖(⟨3.0, 4.0, 0.0⟩ : Vec3)‖ 5.0 0.0
-  assertTrue "vec abs |v|"
-    (|(⟨-1.0, 2.0, -3.0⟩ : Vec3)|.approx ⟨1.0, 2.0, 3.0⟩ 0.0)
+  assertTrue "vec abs |v|" (|(⟨-1.0, 2.0, -3.0⟩ : Vec3)|.approx ⟨1.0, 2.0, 3.0⟩ 0.0)
   assertTrue "vec map"
     (((⟨-1.0, 2.0, -3.0⟩ : Vec3).map Float.abs).approx ⟨1.0, 2.0, 3.0⟩ 0.0)
   assertTrue "vec map2"
@@ -75,8 +67,7 @@ public def runKnownAnswer : IO Unit := do
   assertTrue "mat smul"
     ((2.0 • A).approx
       ⟨⟨2.0, 4.0, 6.0⟩, ⟨8.0, 10.0, 12.0⟩, ⟨14.0, 16.0, 20.0⟩⟩ 0.0)
-  assertTrue "mat div"
-    ((A / 2.0).approx (0.5 • A) 0.0)
+  assertTrue "mat div" ((A / 2.0).approx (0.5 • A) 0.0)
   assertTrue "mat transpose ᵀ"
     (Aᵀ.approx
       (Mat3.ofRows (⟨1.0, 2.0, 3.0⟩ : Vec3) ⟨4.0, 5.0, 6.0⟩ ⟨7.0, 8.0, 10.0⟩) 0.0)
@@ -107,12 +98,9 @@ public def runKnownAnswer : IO Unit := do
     (|(⟨⟨-1.0, 2.0, -3.0⟩, ⟨4.0, -5.0, 6.0⟩, ⟨-7.0, 8.0, -10.0⟩⟩ : Mat3)|.approx A 0.0)
 
   let invA := A⁻¹
-  assertTrue "mat inv A * A⁻¹ = I"
-    ((A * invA).approx Mat3.id 1e-14)
-  assertTrue "mat inv A⁻¹ * A = I"
-    ((invA * A).approx Mat3.id 1e-14)
-  assertTrue "mat inv transpose parses M⁻¹ᵀ"
-    (A⁻¹ᵀ.approx invAᵀ 0.0)
+  assertTrue "mat inv A * A⁻¹ = I" ((A * invA).approx Mat3.id 1e-14)
+  assertTrue "mat inv A⁻¹ * A = I" ((invA * A).approx Mat3.id 1e-14)
+  assertTrue "mat inv transpose parses M⁻¹ᵀ" (A⁻¹ᵀ.approx invAᵀ 0.0)
 
   assertTrue "symm toMat3"
     ((SymmMat3.toMat3 workedExample).approx
@@ -131,66 +119,33 @@ public def runKnownAnswer : IO Unit := do
   assertClose "float powNat negative even" ((-2.0) ^ⁿ 4) 16.0 0.0
 
   -- Mat3 powers via PowNat (^ⁿ) — exponentiation by squaring
-  assertTrue "mat powNat 0"
-    ((A ^ⁿ 0).approx Mat3.id 0.0)
-  assertTrue "mat powNat 1"
-    ((A ^ⁿ 1).approx A 0.0)
-  assertTrue "mat powNat 2"
-    ((A ^ⁿ 2).approx (A * A) 0.0)
-  assertTrue "mat powNat 3"
-    ((A ^ⁿ 3).approx (A * A * A) 0.0)
+  assertTrue "mat powNat 0" ((A ^ⁿ 0).approx Mat3.id 0.0)
+  assertTrue "mat powNat 1" ((A ^ⁿ 1).approx A 0.0)
+  assertTrue "mat powNat 2" ((A ^ⁿ 2).approx (A * A) 0.0)
+  assertTrue "mat powNat 3" ((A ^ⁿ 3).approx (A * A * A) 0.0)
   assertTrue "mat powNat 4 (even squaring)"
     ((A ^ⁿ 4).approx ((A * A) * (A * A)) 0.0)
-  assertTrue "mat powNat 5 (odd squaring)"
-    ((A ^ⁿ 5).approx (A * (A ^ⁿ 4)) 0.0)
-  assertTrue "mat powNat 8"
-    ((A ^ⁿ 8).approx ((A ^ⁿ 4) * (A ^ⁿ 4)) 0.0)
+  assertTrue "mat powNat 5 (odd squaring)" ((A ^ⁿ 5).approx (A * (A ^ⁿ 4)) 0.0)
+  assertTrue "mat powNat 8" ((A ^ⁿ 8).approx ((A ^ⁿ 4) * (A ^ⁿ 4)) 0.0)
 
   -- Mat3 powers via standard Pow (^)
-  assertTrue "mat pow 0"
-    ((A ^ 0).approx Mat3.id 0.0)
-  assertTrue "mat pow 1"
-    ((A ^ 1).approx A 0.0)
-  assertTrue "mat pow 2"
-    ((A ^ 2).approx (A * A) 0.0)
-  assertTrue "mat pow 3"
-    ((A ^ 3).approx (A * A * A) 0.0)
-  assertTrue "mat pow 4"
-    ((A ^ 4).approx ((A * A) * (A * A)) 0.0)
+  assertTrue "mat pow 0" ((A ^ 0).approx Mat3.id 0.0)
+  assertTrue "mat pow 1" ((A ^ 1).approx A 0.0)
+  assertTrue "mat pow 2" ((A ^ 2).approx (A * A) 0.0)
+  assertTrue "mat pow 3" ((A ^ 3).approx (A * A * A) 0.0)
+  assertTrue "mat pow 4" ((A ^ 4).approx ((A * A) * (A * A)) 0.0)
 
   -- 4. Precedence & identity rules
-  assertClose "powNat mul precedence"
-    (2.0 * 3.0 ^ⁿ 2)
-    18.0
-    0.0
-  assertClose "powNat add precedence"
-    (1.0 + 3.0 ^ⁿ 2)
-    10.0
-    0.0
-  assertTrue "powNat smul precedence"
-    ((2.0 • A ^ⁿ 2).approx (2.0 • (A * A)) 0.0)
-  assertClose "powNat frobenius dot precedence"
-    (A ^ⁿ 2 ⬝ₘ B)
-    ((A * A) ⬝ₘ B)
-    0.0
-  assertTrue "powNat transpose rule"
-    ((A ^ⁿ 2)ᵀ.approx (Aᵀ ^ⁿ 2) 0.0)
-  assertClose "triple product precedence"
-    (u ⬝ᵥ v ⨯₃ w)
-    (u ⬝ᵥ (v ⨯₃ w))
-    0.0
-  assertTrue "smul cross precedence"
-    ((s • u ⨯₃ v).approx (s • (u ⨯₃ v)) 0.0)
-  assertClose "dot add precedence"
-    (u ⬝ᵥ u + v ⬝ᵥ v)
-    ((u ⬝ᵥ u) + (v ⬝ᵥ v))
-    0.0
-  assertTrue "transpose product identity"
-    (((A * B)ᵀ).approx (Bᵀ * Aᵀ) 0.0)
-  assertClose "matVec dot"
-    ((A * u) ⬝ᵥ v)
-    (u ⬝ᵥ (Aᵀ * v))
-    0.0
+  assertClose "powNat mul precedence" (2.0 * 3.0 ^ⁿ 2) 18.0 0.0
+  assertClose "powNat add precedence" (1.0 + 3.0 ^ⁿ 2) 10.0 0.0
+  assertTrue "powNat smul precedence" ((2.0 • A ^ⁿ 2).approx (2.0 • (A * A)) 0.0)
+  assertClose "powNat frobenius dot precedence" (A ^ⁿ 2 ⬝ₘ B) ((A * A) ⬝ₘ B) 0.0
+  assertTrue "powNat transpose rule" ((A ^ⁿ 2)ᵀ.approx (Aᵀ ^ⁿ 2) 0.0)
+  assertClose "triple product precedence" (u ⬝ᵥ v ⨯₃ w) (u ⬝ᵥ (v ⨯₃ w)) 0.0
+  assertTrue "smul cross precedence" ((s • u ⨯₃ v).approx (s • (u ⨯₃ v)) 0.0)
+  assertClose "dot add precedence" (u ⬝ᵥ u + v ⬝ᵥ v) ((u ⬝ᵥ u) + (v ⬝ᵥ v)) 0.0
+  assertTrue "transpose product identity" (((A * B)ᵀ).approx (Bᵀ * Aᵀ) 0.0)
+  assertClose "matVec dot" ((A * u) ⬝ᵥ v) (u ⬝ᵥ (Aᵀ * v)) 0.0
 
   -- 5. Worked example: eigenvalues 2−√2, 2, 2+√2
   let d := eigendecomp workedExample
