@@ -13,7 +13,7 @@ public import Eig3x3.Eigenvalues
 /-!
 # Eig3x3 — closed-form eigendecomposition of real symmetric 3×3 matrices
 
-Pure Lean 4 eigendecompisition implemention of real symmetric 3×3 matrices
+Pure Lean 4 eigendecompisition implemention of *real symmetric* 3×3 matrices
 over the `Float` type using Habera-Zilian's method for computing the eigenvalue
 vector and Eberly's non-iterative method for computing the eigenvector matrix.
 
@@ -29,7 +29,7 @@ loops, convergence tests, and running time dependent on input random variables.
 The pre-existing closed-form alternatives, such as Cardano and Viète’s methods,
 avoid this computational cost but suffer in accuracy by evaluating the classical
 trigonometric cubic formula whose arccos near ±1 and subtractive discriminant
-lose precision exactly when two eigenvalues are close.
+lose precision two eigenvalues are close.
 
 Habera–Zilian remove this trade-off by proposing a *closed-form* alternative where
 numerically dangerous steps — using invariants from diagonal differences, computing
@@ -84,10 +84,10 @@ precision while still carrying the speed and determinism of a closed-form soluti
 ## Scope
 
 * Real symmetric 3×3 eigendecomposition
-* Runtime certificates for computation assurances (`Eig3x3.Certificates`)
 * Basic 3×3 `Float` type matrix/vector operations (`Eig3x3.Basic`)
+* Runtime certificates for computation assurances (`Eig3x3.Certificates`)
 
-Complex Hermitian is *out of scope*.
+Complex Hermitian is currently *out of scope* but is in consideration for v2.
 
 **Note**: Habera-Zilian report that Algorithm 8 for computing the discriminant
 exceeds its (lowest-order) forward-stability bound only for benchmarks with an
@@ -98,12 +98,12 @@ by construction.
 
 ## Usage
 
-`import Eig3x3` re-exports the public API and offers:
-* type primtives
-* vector/matrix operations,
-* `eigvals`,
-* `eigendecomp`,
-* and `certify`.
+`import Eig3x3` publically offers:
+* type primtives (`Vec3`, `Mat3`, `Eigvals3`, `SymmMat3`, and `Decomposition`)
+* vector/matrix operations through `Vec3` and `Mat3`,
+* `eigvals` for calculating eigenvalues using Habera-Zilian's method,
+* `eigendecomp` for performing eigendecomposition including the eigenvectors,
+* and `certify` for runtime residual error feedback.
 
 Unicode notation for common vector and matrix operations is offered
 with `open scoped Eig3x3`, including:
@@ -117,8 +117,8 @@ with `open scoped Eig3x3`, including:
 * Hadamard entrywise product: `u ⊙ v`, `A ⊙ B`
 * norms: Euclidean `‖v‖`, `‖v‖²` and Frobenius `‖M‖`, `‖M‖²`
 * absolute value / magnitude: `|x|`, `|v|`, `|M|` (tight bars: `|v|`, not `| v |`)
-* powers: `x ^ 2`, `M ^ 2`
+* powers: `x ^ⁿ 2`, `M ^ⁿ 2`
 
-The eigenvector machinery (`Eig3x3.Eigenvectors`) is deliberately not public.
+The eigenvector-only machinery (`Eig3x3.Eigenvectors`) is deliberately not public.
 Use `eigendecomp`.
 -/
