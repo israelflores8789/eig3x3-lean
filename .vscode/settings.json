@@ -1,4 +1,10 @@
 {
+  "[lean4]": {
+    "editor.defaultFormatter": "leanprover.lean4",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
   "python.languageServer": "None",
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",

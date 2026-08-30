@@ -1,7 +1,14 @@
 name = "Eig3x3"
 version = "0.1.0"
+license = "Apache-2.0"
+licenseFiles = ["LICENSE", "NOTICE.md"]
 defaultTargets = ["Eig3x3"]
 testDriver = "eig3x3_tests"
+autoImplicit = false
+builtinLint = true
+linter.unusedVariables = true
+linter.deprecated = true
+linter.missingDocs = true
 
 [[lean_lib]]
 name = "Eig3x3"
