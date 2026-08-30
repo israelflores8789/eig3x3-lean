@@ -21,15 +21,20 @@ with no Mathlib dependency. Precedences follow Lean core and Mathlib:
 |----------|------------------------|--------------|--------------------------------|
 | `a + b`  | addition               | `infixl:65`  | Lean core (`HAdd.hAdd`)        |
 | `a - b`  | subtraction            | `infixl:65`  | Lean core (`HSub.hSub`)        |
-| `a * b`  | componentwise product  | `infixl:70`  | Lean core (`HMul.hMul`)        |
-| `u ⬝ᵥ v` | dot product            | `infixl:72`  | Mathlib `Matrix.dotProduct`    |
+| `a * b`  | multiplication / action| `infixl:70`  | Lean core (`HMul.hMul`)        |
+| `a / s`  | scalar division        | `infixl:70`  | Lean core (`HDiv.hDiv`)        |
+| `u ⊗ v`  | vector outer product   | `infixl:70`  | Dyadic product (`Vec3.outer`)  |
+| `u ⬝ᵥ v` | vector dot product     | `infixl:72`  | Mathlib `Matrix.dotProduct`    |
+| `A ⬝ₘ B` | matrix Frobenius dot   | `infixl:72`  | Matrix inner product           |
 | `s • v`  | scalar multiplication  | `infixr:73`  | Lean core (`HSMul.hSMul`)      |
 | `u ⨯₃ v` | cross product          | `infixl:74`  | Mathlib `crossProduct`         |
 | `x ^ n`  | power                  | `infixr:80`  | Lean core (`HPow.hPow`)        |
-| `A ⊙ B` | Hadamard product       | `infixl:100` | Mathlib `Matrix.hadamard`      |
+| `A ⊙ B`  | Hadamard product       | `infixl:100` | Mathlib `Matrix.hadamard`      |
 | `\|x\|`  | absolute value         | delimited    | Mathlib `\|a\|` for `abs`      |
 | `‖v‖`    | norm                   | delimited    | Mathlib `Norm.norm`            |
 | `‖v‖²`   | squared norm           | delimited    | (Mathlib writes `‖x‖ ^ 2`)     |
+| `Aᵀ`     | matrix transpose       | delimited    | Postfix transpose              |
+| `A⁻¹`    | matrix inverse         | delimited    | Postfix inverse                |
 
 Binding strength: `+ -` (65) < `*` (70) < `⬝ᵥ` (72) < `•` (73) < `⨯₃` (74)
 < `^` (80) < `⊙` (100). Useful consequences:
@@ -105,6 +110,10 @@ structure Decomposition where
 @[inline] def Vec3.scale (v : Vec3) (s : Float) : Vec3 :=
   ⟨s * v.x, s * v.y, s * v.z⟩
 
+@[inline] def Vec3.div (v : Vec3) (s : Float) : Vec3 :=
+  let invS := 1.0 / s
+  ⟨invS * v.x, invS * v.y, invS * v.z⟩
+
 @[inline] def Vec3.dot (u v : Vec3) : Float :=
   u.x * v.x + u.y * v.y + u.z * v.z
 
@@ -116,6 +125,10 @@ structure Decomposition where
 
 @[inline] def Vec3.norm (u : Vec3) : Float :=
   Float.sqrt u.normSq
+
+/-- Outer product of two vectors, producing a rank-1 matrix `u vᵀ`. -/
+@[inline] def Vec3.outer (u v : Vec3) : Mat3 :=
+  ⟨u.scale v.x, u.scale v.y, u.scale v.z⟩
 
 /-- Componentwise product. -/
 @[inline] def Vec3.mul (u v : Vec3) : Vec3 :=
@@ -131,6 +144,13 @@ structure Decomposition where
   ⟨f u.x v.x, f u.y v.y, f u.z v.z⟩
 
 @[inline] def Vec3.abs (v : Vec3) : Vec3 := v.map Float.abs
+
+/-- Eigenvalues as a plain vector, for downstream arithmetic. -/
+@[inline] def Eigval3.toVec3 (e : Eigval3) : Vec3 := ⟨e.l₀, e.l₁, e.l₂⟩
+
+/-- One-way coercion: ordered eigenvalues are a vector, but an arbitrary
+    vector is not ordered eigenvalues. -/
+instance : Coe Eigval3 Vec3 := ⟨Eigval3.toVec3⟩
 
 /-! ## Mat3 operations -/
 
@@ -155,6 +175,10 @@ structure Decomposition where
 @[inline] def Mat3.scale (M : Mat3) (s : Float) : Mat3 :=
   ⟨M.c₀.scale s, M.c₁.scale s, M.c₂.scale s⟩
 
+@[inline] def Mat3.div (M : Mat3) (s : Float) : Mat3 :=
+  let invS := 1.0 / s
+  ⟨M.c₀.scale invS, M.c₁.scale invS, M.c₂.scale invS⟩
+
 @[inline] def Mat3.add (M N : Mat3) : Mat3 :=
   ⟨M.c₀.add N.c₀, M.c₁.add N.c₁, M.c₂.add N.c₂⟩
 
@@ -172,6 +196,10 @@ structure Decomposition where
 @[inline] def Mat3.abs (M : Mat3) : Mat3 :=
   ⟨M.c₀.abs, M.c₁.abs, M.c₂.abs⟩
 
+/-- Matrix Frobenius inner product. -/
+@[inline] def Mat3.dot (M N : Mat3) : Float :=
+  M.c₀.dot N.c₀ + M.c₁.dot N.c₁ + M.c₂.dot N.c₂
+
 /-- Squared Frobenius norm: sum of squares of all entries. -/
 @[inline] def Mat3.normSq (M : Mat3) : Float :=
   M.c₀.normSq + M.c₁.normSq + M.c₂.normSq
@@ -184,6 +212,7 @@ structure Decomposition where
 @[inline] def Mat3.det (M : Mat3) : Float :=
   (M.c₀.cross M.c₁).dot M.c₂
 
+/-- det M: the triple product `(c₀ × c₁) ⬝ c₂` of the columns. -/
 @[inline] def Mat3.trace (M : Mat3) : Float :=
   M.c₀.x + M.c₁.y + M.c₂.z
 
@@ -195,27 +224,45 @@ def Mat3.id : Mat3 :=
 @[inline] def Mat3.ofRows (r₀ r₁ r₂ : Vec3) : Mat3 :=
   (⟨r₀, r₁, r₂⟩ : Mat3).transpose
 
+/-- Invert a 3×3 matrix via cofactor cross products: `M⁻¹ = (1/det M) adj(M)`. -/
+def Mat3.inv (M : Mat3) : Mat3 :=
+  let r₀ : Vec3 := ⟨M.c₀.x, M.c₁.x, M.c₂.x⟩
+  let r₁ : Vec3 := ⟨M.c₀.y, M.c₁.y, M.c₂.y⟩
+  let r₂ : Vec3 := ⟨M.c₀.z, M.c₁.z, M.c₂.z⟩
+  let c₀' := r₁.cross r₂
+  let c₁' := r₂.cross r₀
+  let c₂' := r₀.cross r₁
+  let det := r₀.dot c₀'
+  let invDet := 1.0 / det
+  ⟨c₀'.scale invDet, c₁'.scale invDet, c₂'.scale invDet⟩
+
 /-- Embed a symmetric matrix. -/
 def SymmMat3.toMat3 (A : SymmMat3) : Mat3 :=
   ⟨⟨A.a₀₀, A.a₀₁, A.a₀₂⟩, ⟨A.a₀₁, A.a₁₁, A.a₁₂⟩, ⟨A.a₀₂, A.a₁₂, A.a₂₂⟩⟩
 
-/-- Eigenvalues as a plain vector, for downstream arithmetic. -/
-@[inline] def Eigval3.toVec3 (e : Eigval3) : Vec3 := ⟨e.l₀, e.l₁, e.l₂⟩
+/-- One-way coercion: a symmetric matrix is a matrix, but an arbitrary
+    matrix is not symmetric. -/
+instance : Coe SymmMat3 Mat3 := ⟨SymmMat3.toMat3⟩
 
-/-- One-way coercion: ordered eigenvalues are a vector, but an arbitrary
-    vector is not ordered eigenvalues. -/
-instance : Coe Eigval3 Vec3 := ⟨Eigval3.toVec3⟩
-
-/-! ## Powers on `Float` -/
+/-! ## Powers on `Float` and `Mat3` -/
 
 /-- Power by repeated multiplication — adequate for the small exponents
 (2 and 3) that appear in characteristic-polynomial computations. -/
 def powNat (x : Float) : Nat → Float
   | 0     => 1.0
   | n + 1 => x * powNat x n
+-- TODO for large powers, should fallback to Lean's C implementation
 
-instance : Pow Float Nat where
+scoped instance : Pow Float Nat where
   pow := powNat
+
+/-- Matrix power by repeated multiplication. -/
+def Mat3.powNat (M : Mat3) : Nat → Mat3
+  | 0     => Mat3.id
+  | n + 1 => M.mul (Mat3.powNat M n)
+
+scoped instance : Pow Mat3 Nat where
+  pow := Mat3.powNat
 
 /-! ## Custom typeclasses for notation -/
 
@@ -274,21 +321,32 @@ instance : Mul Vec3 := ⟨Vec3.mul⟩
 
 /-- Scalar multiplication as `s • v` (right-associative, precedence 73). -/
 instance : HSMul Float Vec3 Vec3 := ⟨fun s v => v.scale s⟩
+instance : HDiv Vec3 Float Vec3 := ⟨Vec3.div⟩
 
 instance : Add Mat3 := ⟨Mat3.add⟩
 instance : Neg Mat3 := ⟨Mat3.neg⟩
 instance : Sub Mat3 := ⟨Mat3.sub⟩
 instance : Mul Mat3 := ⟨Mat3.mul⟩
 instance : HMul Mat3 Vec3 Vec3 := ⟨Mat3.mulVec⟩
+/-- Row-vector times matrix product `vᵀ M` without materializing the transpose. -/
+instance : HMul Vec3 Mat3 Vec3 := ⟨fun v M => M.transposeMulVec v⟩
 instance : HSMul Float Mat3 Mat3 := ⟨fun s M => M.scale s⟩
+instance : HDiv Mat3 Float Mat3 := ⟨Mat3.div⟩
 
 /-! ## Operators -/
+
+/-- Outer product producing a rank-1 matrix `u vᵀ` at precedence 70. Type as `\otimes` or `\otimes\_v`. -/
+scoped infixl:70 " ⊗ " => Vec3.outer
+scoped infixl:70 " ⊗ᵥ " => Vec3.outer
 
 /-- Dot product at precedence 72. -/
 scoped infixl:72 " ⬝ " => Vec3.dot
 
 /-- Dot product at precedence 72. Type as `\cdot` then `\_v` (or `\dot\_v`). -/
 scoped infixl:72 " ⬝ᵥ " => Vec3.dot
+
+/-- Matrix Frobenius inner product at precedence 72 (type `\cdot` then `\_m` or `\dot\_m`). -/
+scoped infixl:72 " ⬝ₘ " => Mat3.dot
 
 /-- Cross product at precedence 74.
 Glyphs provided: `⨯₃` (U+2A2F) and `×₃` (U+00D7, typed `\times\_3`). -/
@@ -313,6 +371,9 @@ scoped infixl:100 " ⊙ " => Hadamard.hadamard
 
 /-- Transpose notation. -/
 scoped postfix:max "ᵀ" => Mat3.transpose
+
+/-- Matrix inverse notation (type `\inv` or `\^-1`). -/
+scoped postfix:max "⁻¹" => Mat3.inv
 
 
 end  -- public section
