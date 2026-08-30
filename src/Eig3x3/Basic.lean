@@ -11,6 +11,33 @@ module
 Core types (`Vec3`, `Mat3`, `SymmMat3`, `Eigval3`, `Decomposition`), the
 public `Float` arithmetic vocabulary, typeclass instances for arithmetic
 notation, and scoped unicode notation.
+
+## Notation and Operators
+
+A Mathlib-consistent operator layer for vector/matrix algebra on `Float`,
+with no Mathlib dependency. Precedences follow Lean core and Mathlib:
+
+| Notation | Operation              | Declaration  | Convention source              |
+|----------|------------------------|--------------|--------------------------------|
+| `a + b`  | addition               | `infixl:65`  | Lean core (`HAdd.hAdd`)        |
+| `a - b`  | subtraction            | `infixl:65`  | Lean core (`HSub.hSub`)        |
+| `a * b`  | componentwise product  | `infixl:70`  | Lean core (`HMul.hMul`)        |
+| `u ⬝ᵥ v` | dot product            | `infixl:72`  | Mathlib `Matrix.dotProduct`    |
+| `s • v`  | scalar multiplication  | `infixr:73`  | Lean core (`HSMul.hSMul`)      |
+| `u ⨯₃ v` | cross product          | `infixl:74`  | Mathlib `crossProduct`         |
+| `x ^ n`  | power                  | `infixr:80`  | Lean core (`HPow.hPow`)        |
+| `A ⊙ B` | Hadamard product       | `infixl:100` | Mathlib `Matrix.hadamard`      |
+| `\|x\|`  | absolute value         | delimited    | Mathlib `\|a\|` for `abs`      |
+| `‖v‖`    | norm                   | delimited    | Mathlib `Norm.norm`            |
+| `‖v‖²`   | squared norm           | delimited    | (Mathlib writes `‖x‖ ^ 2`)     |
+
+Binding strength: `+ -` (65) < `*` (70) < `⬝ᵥ` (72) < `•` (73) < `⨯₃` (74)
+< `^` (80) < `⊙` (100). Useful consequences:
+
+* `u ⬝ᵥ v ⨯₃ w` parses as `u ⬝ᵥ (v ⨯₃ w)` — the scalar triple product
+  needs no parentheses.
+* `s • u ⨯₃ v` parses as `s • (u ⨯₃ v)`.
+* `u ⬝ᵥ u + v ⬝ᵥ v` parses as `(u ⬝ᵥ u) + (v ⬝ᵥ v)`.
 -/
 
 namespace Eig3x3
@@ -69,6 +96,9 @@ structure Decomposition where
 @[inline] def Vec3.add (u v : Vec3) : Vec3 :=
   ⟨u.x + v.x, u.y + v.y, u.z + v.z⟩
 
+@[inline] def Vec3.neg (v : Vec3) : Vec3 :=
+  ⟨-v.x, -v.y, -v.z⟩
+
 @[inline] def Vec3.sub (u v : Vec3) : Vec3 :=
   ⟨u.x - v.x, u.y - v.y, u.z - v.z⟩
 
@@ -84,7 +114,14 @@ structure Decomposition where
 @[inline] def Vec3.normSq (u : Vec3) : Float :=
   u.x * u.x + u.y * u.y + u.z * u.z
 
-/-- Componentwise map — the workhorse for eigenvalue post-processing
+@[inline] def Vec3.norm (u : Vec3) : Float :=
+  Float.sqrt u.normSq
+
+/-- Componentwise product. -/
+@[inline] def Vec3.mul (u v : Vec3) : Vec3 :=
+  ⟨u.x * v.x, u.y * v.y, u.z * v.z⟩
+
+/-- Componentwise map — workhorse for eigenvalue post-processing
     (clipping, shifting, reciprocals). -/
 @[inline] def Vec3.map (f : Float → Float) (v : Vec3) : Vec3 :=
   ⟨f v.x, f v.y, f v.z⟩
@@ -118,6 +155,31 @@ structure Decomposition where
 @[inline] def Mat3.scale (M : Mat3) (s : Float) : Mat3 :=
   ⟨M.c₀.scale s, M.c₁.scale s, M.c₂.scale s⟩
 
+@[inline] def Mat3.add (M N : Mat3) : Mat3 :=
+  ⟨M.c₀.add N.c₀, M.c₁.add N.c₁, M.c₂.add N.c₂⟩
+
+@[inline] def Mat3.neg (M : Mat3) : Mat3 :=
+  ⟨M.c₀.neg, M.c₁.neg, M.c₂.neg⟩
+
+@[inline] def Mat3.sub (M N : Mat3) : Mat3 :=
+  ⟨M.c₀.sub N.c₀, M.c₁.sub N.c₁, M.c₂.sub N.c₂⟩
+
+/-- Componentwise (Hadamard) product. -/
+@[inline] def Mat3.hadamard (M N : Mat3) : Mat3 :=
+  ⟨M.c₀.mul N.c₀, M.c₁.mul N.c₁, M.c₂.mul N.c₂⟩
+
+/-- Componentwise absolute value. -/
+@[inline] def Mat3.abs (M : Mat3) : Mat3 :=
+  ⟨M.c₀.abs, M.c₁.abs, M.c₂.abs⟩
+
+/-- Squared Frobenius norm: sum of squares of all entries. -/
+@[inline] def Mat3.normSq (M : Mat3) : Float :=
+  M.c₀.normSq + M.c₁.normSq + M.c₂.normSq
+
+/-- Frobenius norm: square root of sum of squares of all entries. -/
+@[inline] def Mat3.norm (M : Mat3) : Float :=
+  Float.sqrt M.normSq
+
 /-- det M: the triple product `(c₀ × c₁) ⬝ c₂` of the columns. -/
 @[inline] def Mat3.det (M : Mat3) : Float :=
   (M.c₀.cross M.c₁).dot M.c₂
@@ -144,24 +206,116 @@ def SymmMat3.toMat3 (A : SymmMat3) : Mat3 :=
     vector is not ordered eigenvalues. -/
 instance : Coe Eigval3 Vec3 := ⟨Eigval3.toVec3⟩
 
+/-! ## Powers on `Float` -/
+
+/-- Power by repeated multiplication — adequate for the small exponents
+(2 and 3) that appear in characteristic-polynomial computations. -/
+def powNat (x : Float) : Nat → Float
+  | 0     => 1.0
+  | n + 1 => x * powNat x n
+
+instance : Pow Float Nat where
+  pow := powNat
+
+/-! ## Custom typeclasses for notation -/
+
+/-- Absolute value behind a typeclass, so the same bars work on
+`Float` (magnitude), `Vec3` (componentwise), and `Mat3` (componentwise). -/
+class Abs (α : Type) where
+  abs : α → α
+
+instance : Abs Float where
+  abs := Float.abs
+
+instance : Abs Vec3 where
+  abs := Vec3.abs
+
+instance : Abs Mat3 where
+  abs := Mat3.abs
+
+/-- Euclidean norm for vectors, Frobenius norm for matrices. -/
+class Norm (α : Type) where
+  norm : α → Float
+
+/-- Squared norm: Euclidean for vectors, Frobenius for matrices. -/
+class NormSq (α : Type) where
+  normSq : α → Float
+
+instance : Norm Vec3 where
+  norm := Vec3.norm
+
+instance : NormSq Vec3 where
+  normSq := Vec3.normSq
+
+instance : Norm Mat3 where
+  norm := Mat3.norm
+
+instance : NormSq Mat3 where
+  normSq := Mat3.normSq
+
+/-- Hadamard (componentwise) product. -/
+class Hadamard (α : Type) where
+  hadamard : α → α → α
+
+instance : Hadamard Vec3 where
+  hadamard := Vec3.mul
+
+instance : Hadamard Mat3 where
+  hadamard := Mat3.hadamard
+
 /-! ## Arithmetic instances -/
 
 instance : Add Vec3 := ⟨Vec3.add⟩
+instance : Neg Vec3 := ⟨Vec3.neg⟩
 instance : Sub Vec3 := ⟨Vec3.sub⟩
+
+/-- Componentwise product as `*`. -/
+instance : Mul Vec3 := ⟨Vec3.mul⟩
+
+/-- Scalar multiplication as `s • v` (right-associative, precedence 73). -/
 instance : HSMul Float Vec3 Vec3 := ⟨fun s v => v.scale s⟩
+
+instance : Add Mat3 := ⟨Mat3.add⟩
+instance : Neg Mat3 := ⟨Mat3.neg⟩
+instance : Sub Mat3 := ⟨Mat3.sub⟩
 instance : Mul Mat3 := ⟨Mat3.mul⟩
 instance : HMul Mat3 Vec3 Vec3 := ⟨Mat3.mulVec⟩
 instance : HSMul Float Mat3 Mat3 := ⟨fun s M => M.scale s⟩
 
-end  -- public section
+/-! ## Operators -/
 
-/-- Transpose notation, matching Mathlib's `Matrix.transpose` and postfix
-    precedence convention. Activate with `open scoped Eig3x3`. -/
+/-- Dot product at precedence 72. -/
+scoped infixl:72 " ⬝ " => Vec3.dot
+
+/-- Dot product at precedence 72. Type as `\cdot` then `\_v` (or `\dot\_v`). -/
+scoped infixl:72 " ⬝ᵥ " => Vec3.dot
+
+/-- Cross product at precedence 74.
+Glyphs provided: `⨯₃` (U+2A2F) and `×₃` (U+00D7, typed `\times\_3`). -/
+scoped infixl:74 " ×₃ " => Vec3.cross
+scoped infixl:74 " ⨯₃ " => Vec3.cross
+
+/-- Absolute value notation. -/
+scoped notation:max "|" x "|" => Abs.abs x
+
+/-- Norm notation: Euclidean norm for `Vec3`, Frobenius norm for `Mat3` (type `\Vert`). -/
+scoped notation:max "‖" v "‖" => Norm.norm v
+
+/-- Squared norm notation: Euclidean for `Vec3`, Frobenius for `Mat3`.
+A bare postfix `x²` is not possible in Lean (`²` is an identifier-continuation
+character, so `x²` lexes as a single name). `‖²` works because after the closing
+`‖` the lexer is reading a symbol token and absorbs the superscript — the same
+mechanism that makes `⨯₃` lexable. Write it tight: `‖v‖²`, no space before the `²`. -/
+scoped notation:max "‖" v "‖²" => NormSq.normSq v
+
+/-- Hadamard (componentwise) product at precedence 100 (type `\odot`). -/
+scoped infixl:100 " ⊙ " => Hadamard.hadamard
+
+/-- Transpose notation. -/
 scoped postfix:max "ᵀ" => Mat3.transpose
 
-/-- Dot-product notation at Mathlib's infixl precedence.
-    Activate with `open scoped Eig3x3`. -/
-scoped infixl:72 " ⬝ " => Vec3.dot
+
+end  -- public section
 
 /-! ## Internal pipeline helpers (package-private) -/
 
