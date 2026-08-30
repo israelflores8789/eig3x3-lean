@@ -55,17 +55,12 @@ structure Eigval3 where
   l₂ : Float
   deriving Repr
 
-/-- Full eigendecomposition: `A = QΛQᵀ = Σᵢ λᵢ cᵢcᵢᵀ`.
-
-    `eigvals`:
-      Eigenvalues in increasing order: `l₀ ≤ l₁ ≤ l₂`.
-
-    `eigvecs`:
-      Eigenvector matrix Q; column `cᵢ` is a unit eigenvector for `lᵢ`.
-      Right-handed: `Q.det = 1`.
--/
+/-- Full eigendecomposition: `A = QΛQᵀ = Σᵢ λᵢ cᵢcᵢᵀ`. -/
 structure Decomposition where
+  /- Eigenvalues in increasing order: `l₀ ≤ l₁ ≤ l₂`. -/
   eigvals : Eigval3
+  /- Eigenvector matrix Q; column `cᵢ` is a unit eigenvector for `lᵢ`.
+     Right-handed: `Q.det = 1`. -/
   eigvecs : Mat3
   deriving Repr
 

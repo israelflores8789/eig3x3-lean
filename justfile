@@ -25,13 +25,13 @@ build_all: build build_bench build_cli
 # ---- Python parity harness ----
 
 parity suite="" n="1000" seed="42":
-    cd {{parity_dir}} && {{pytest}} parity.py {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
+    {{pytest}} {{parity_dir}}/parity.py {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
 
 parity-parallel suite="" n="1000" seed="42" workers="auto":
-    cd {{parity_dir}} && {{pytest}} parity.py -n {{workers}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
+    {{pytest}} {{parity_dir}}/parity.py -n {{workers}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
 
 parity-ci suite="" n="1000" seed="42" workers="auto" xml="generated/junit.xml":
-    cd {{parity_dir}} && {{pytest}} parity.py -n {{workers}} --junitxml={{xml}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
+    {{pytest}} {{parity_dir}}/parity.py -n {{workers}} --junitxml={{xml}} {{ if suite == "" { "" } else { "-k " + suite } }} --n {{n}} --seed {{seed}} -v
 
 errata n="2000" seed="42":
     cd {{parity_dir}} && {{py}} errata.py {{n}} {{seed}}
