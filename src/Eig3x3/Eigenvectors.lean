@@ -64,20 +64,20 @@ namespace Eig3x3
     Algorithmic Addition: If all crosses are exactly zero then A = λI, every
     direction is an eigenvector, and we return the unit eigenbasis vector e₁. -/
 def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
-  let r0 : Vec3 := ⟨A.a00 - lam, A.a01, A.a02⟩
-  let r1 : Vec3 := ⟨A.a01, A.a11 - lam, A.a12⟩
-  let r2 : Vec3 := ⟨A.a02, A.a12, A.a22 - lam⟩
-  let c0 := r0.cross r1
-  let c1 := r0.cross r2
-  let c2 := r1.cross r2
-  let d0 := c0.normSq
-  let d1 := c1.normSq
-  let d2 := c2.normSq
+  let r₀ : Vec3 := ⟨A.a₀₀ - lam, A.a₀₁, A.a₀₂⟩
+  let r₁ : Vec3 := ⟨A.a₀₁, A.a₁₁ - lam, A.a₁₂⟩
+  let r₂ : Vec3 := ⟨A.a₀₂, A.a₁₂, A.a₂₂ - lam⟩
+  let c₀ := r₀.cross r₁
+  let c₁ := r₀.cross r₂
+  let c₂ := r₁.cross r₂
+  let d₀ := c₀.normSq
+  let d₁ := c₁.normSq
+  let d₂ := c₂.normSq
   let (best, dmax) :=
-    if d1 > d0 then
-      if d2 > d1 then (c2, d2) else (c1, d1)
+    if d₁ > d₀ then
+      if d₂ > d₁ then (c₂, d₂) else (c₁, d₁)
     else
-      if d2 > d0 then (c2, d2) else (c0, d0)
+      if d₂ > d₀ then (c₂, d₂) else (c₀, d₀)
   if dmax == 0.0 then ⟨1.0, 0.0, 0.0⟩
   else best.scale (1.0 / dmax.sqrt)
 
@@ -99,7 +99,7 @@ def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
   (u, w.cross u)
 
 /-- Eigenvector for λ, exploiting that it must lie in the plane perpendicular
-    to `v0`, where `v0` is the unit eigenvector of an adjacent, well-separated
+    to `v₀`, where `v₀` is the unit eigenvector of an adjacent, well-separated
     eigenvalue. Eigenvectors of a symmetric matrix for distinct eigenvalues are
     orthogonal, and symmetry keeps that plane closed under A. Restricting A − λI
     to the plane via [u v] turns the problem into a 2×2 null system M X = 0,
@@ -109,35 +109,35 @@ def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
     vector in the plane is an eigenvector, and we return `u`.
 
     Reference: Eberly §5, Listing 6. -/
-def eigvecInPlane (A : SymmMat3) (v0 : Vec3) (lam : Float) : Vec3 :=
-  let (u, v) := orthonormalComplement v0
+def eigvecInPlane (A : SymmMat3) (v₀ : Vec3) (lam : Float) : Vec3 :=
+  let (u, v) := orthonormalComplement v₀
   let au := A.mulVec u
   let av := A.mulVec v
-  let m00 := u.dot au - lam
-  let m01 := u.dot av
-  let m11 := v.dot av - lam
-  if m00.abs < m11.abs then
-    -- Solve using row 1: m01·x0 + m11·x1 = 0
-    let maxAbs := max m11.abs m01.abs
+  let m₀₀ := u.dot au - lam
+  let m₀₁ := u.dot av
+  let m₁₁ := v.dot av - lam
+  if m₀₀.abs < m₁₁.abs then
+    -- Solve using row 1: m₀₁·x₀ + m₁₁·x₁ = 0
+    let maxAbs := max m₁₁.abs m₀₁.abs
     if maxAbs == 0.0 then u
-    else if m11.abs < m01.abs then
-      let t := m11 / m01
+    else if m₁₁.abs < m₀₁.abs then
+      let t := m₁₁ / m₀₁
       let n := 1.0 / (1.0 + t * t).sqrt
       (u.scale (t * n)).sub (v.scale n)        -- X = (t, −1)·n
     else
-      let t := m01 / m11
+      let t := m₀₁ / m₁₁
       let n := 1.0 / (1.0 + t * t).sqrt
       (u.scale n).sub (v.scale (t * n))        -- X = (1, −t)·n
   else
-    -- Solve using row 0: m00·x0 + m01·x1 = 0
-    let maxAbs := max m00.abs m01.abs
+    -- Solve using row 0: m₀₀·x₀ + m₀₁·x₁ = 0
+    let maxAbs := max m₀₀.abs m₀₁.abs
     if maxAbs == 0.0 then u
-    else if m00.abs < m01.abs then
-      let t := m00 / m01
+    else if m₀₀.abs < m₀₁.abs then
+      let t := m₀₀ / m₀₁
       let n := 1.0 / (1.0 + t * t).sqrt
       (u.scale n).sub (v.scale (t * n))        -- X = (1, −t)·n
     else
-      let t := m01 / m00
+      let t := m₀₁ / m₀₀
       let n := 1.0 / (1.0 + t * t).sqrt
       (u.scale (t * n)).sub (v.scale n)        -- X = (t, −1)·n
 
@@ -146,28 +146,28 @@ def eigvecInPlane (A : SymmMat3) (v0 : Vec3) (lam : Float) : Vec3 :=
     Column `cᵢ` of the result is a unit eigenvector for `lᵢ`.
 
     The cross-product construction is only accurate for an eigenvalue far from
-    its neighbors, so we first compare the gaps `l₂ − l₁` and `l₃ − l₂` to find
+    its neighbors, so we first compare the gaps `l₁ − l₀` and `l₂ − l₁` to find
     the isolated end of the spectrum and compute that eigenvector directly; the
     middle eigenvector then comes from the plane perpendicular to it. The third
     is simply the cross product of the other two since only one perpendicular
     direction remains; thus, it must be the remaining eigenvector, and the cross
     product picks the sign that makes the basis right-handed.
 
-    Precondition (contract): `e.l₁ ≤ e.l₂ ≤ e.l₃` must be the spectrum of `B`.
+    Precondition (contract): `e.l₀ ≤ e.l₁ ≤ e.l₂` must be the spectrum of `B`.
 
     References: Eberly §3; Habera-Zilian Eq. 2 for ordering. -/
 def eigvecs (B : SymmMat3) (e : Eigval3) : Mat3 :=
-  let gapLo := e.l₂ - e.l₁
-  let gapHi := e.l₃ - e.l₂
+  let gapLo := e.l₁ - e.l₀
+  let gapHi := e.l₂ - e.l₁
   if gapLo < gapHi then
-    -- λ₃ is isolated (Eberly's halfDet ≥ 0 case)
-    let v3 := eigvecIsolated B e.l₃
-    let v2 := eigvecInPlane B v3 e.l₂
-    ⟨v2.cross v3, v2, v3⟩
+    -- λ₂ is isolated (Eberly's halfDet ≥ 0 case)
+    let v₂ := eigvecIsolated B e.l₂
+    let v₁ := eigvecInPlane B v₂ e.l₁
+    ⟨v₁.cross v₂, v₁, v₂⟩
   else
-    -- λ₁ is isolated (Eberly's halfDet < 0 case)
-    let v1 := eigvecIsolated B e.l₁
-    let v2 := eigvecInPlane B v1 e.l₂
-    ⟨v1, v2, v1.cross v2⟩
+    -- λ₀ is isolated (Eberly's halfDet < 0 case)
+    let v₀ := eigvecIsolated B e.l₀
+    let v₁ := eigvecInPlane B v₀ e.l₁
+    ⟨v₀, v₁, v₀.cross v₁⟩
 
 end Eig3x3

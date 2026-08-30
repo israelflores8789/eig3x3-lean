@@ -55,32 +55,32 @@ public def runKnownAnswer : IO Unit := do
 
   -- Worked example: eigenvalues 2−√2, 2, 2+√2
   let d := eigendecomp workedExample
-  assertClose "worked λ₁" d.eigvals.l₁ 0.5857864376269049 (certTol workedExample)
-  assertClose "worked λ₂" d.eigvals.l₂ 2.0 (certTol workedExample)
-  assertClose "worked λ₃" d.eigvals.l₃ 3.4142135623730951 (certTol workedExample)
+  assertClose "worked λ₀" d.eigvals.l₀ 0.5857864376269049 (certTol workedExample)
+  assertClose "worked λ₁" d.eigvals.l₁ 2.0 (certTol workedExample)
+  assertClose "worked λ₂" d.eigvals.l₂ 3.4142135623730951 (certTol workedExample)
   assertTrue "worked ordered" d.eigvals.isOrdered
 
   -- Diagonal: eigenvalues (1, 2, 3) with axis eigenvectors (up to sign)
   let dd := eigendecomp diagonalCase
-  assertClose "diag λ₁" dd.eigvals.l₁ 1.0 (certTol diagonalCase)
-  assertClose "diag λ₂" dd.eigvals.l₂ 2.0 (certTol diagonalCase)
-  assertClose "diag λ₃" dd.eigvals.l₃ 3.0 (certTol diagonalCase)
-  assertClose "diag axis 1" dd.eigvecs.c₁.x.abs 1.0 (certTol diagonalCase)
-  assertClose "diag axis 2" dd.eigvecs.c₂.y.abs 1.0 (certTol diagonalCase)
-  assertClose "diag axis 3" dd.eigvecs.c₃.z.abs 1.0 (certTol diagonalCase)
+  assertClose "diag λ₀" dd.eigvals.l₀ 1.0 (certTol diagonalCase)
+  assertClose "diag λ₁" dd.eigvals.l₁ 2.0 (certTol diagonalCase)
+  assertClose "diag λ₂" dd.eigvals.l₂ 3.0 (certTol diagonalCase)
+  assertClose "diag axis 0" dd.eigvecs.c₀.x.abs 1.0 (certTol diagonalCase)
+  assertClose "diag axis 1" dd.eigvecs.c₁.y.abs 1.0 (certTol diagonalCase)
+  assertClose "diag axis 2" dd.eigvecs.c₂.z.abs 1.0 (certTol diagonalCase)
 
   -- Zero matrix: exact fast path, identity basis
   let dz := eigendecomp zeroMatrix
+  assertClose "zero λ₀" dz.eigvals.l₀ 0.0 0.0
   assertClose "zero λ₁" dz.eigvals.l₁ 0.0 0.0
   assertClose "zero λ₂" dz.eigvals.l₂ 0.0 0.0
-  assertClose "zero λ₃" dz.eigvals.l₃ 0.0 0.0
   assertTrue "zero basis" (dz.eigvecs.approx Mat3.id 0.0)
 
   -- Scaled identity: exact triple eigenvalue 3.7
   let ds := eigendecomp scaledIdentity
+  assertClose "scaled id λ₀" ds.eigvals.l₀ 3.7 0.0
   assertClose "scaled id λ₁" ds.eigvals.l₁ 3.7 0.0
   assertClose "scaled id λ₂" ds.eigvals.l₂ 3.7 0.0
-  assertClose "scaled id λ₃" ds.eigvals.l₃ 3.7 0.0
   assertTrue "scaled id ordered" ds.eigvals.isOrdered
 
   -- Notation end-to-end: change of basis and back is the identity on g
@@ -92,8 +92,8 @@ public def runKnownAnswer : IO Unit := do
 
   -- Coercion: Eigval3 elaborates as Vec3 where a Vec3 is expected
   let w : Vec3 := d.eigvals
-  assertClose "coe l₁" w.x d.eigvals.l₁ 0.0
-  assertClose "coe l₂" w.y d.eigvals.l₂ 0.0
-  assertClose "coe l₃" w.z d.eigvals.l₃ 0.0
+  assertClose "coe l₀" w.x d.eigvals.l₀ 0.0
+  assertClose "coe l₁" w.y d.eigvals.l₁ 0.0
+  assertClose "coe l₂" w.z d.eigvals.l₂ 0.0
 
 end Eig3x3.Tests

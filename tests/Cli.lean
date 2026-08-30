@@ -85,11 +85,11 @@ def resultJson (A : SymmMat3) : String :=
   let c := certify A d
   let e := d.eigvals
   let q := d.eigvecs
-  let af := [A.a00, A.a11, A.a22, A.a01, A.a02, A.a12].map exactDecimal
-  let evs := [e.l₁, e.l₂, e.l₃].map exactDecimal
-  let qf := [q.c₁.x, q.c₁.y, q.c₁.z,
-             q.c₂.x, q.c₂.y, q.c₂.z,
-             q.c₃.x, q.c₃.y, q.c₃.z].map exactDecimal
+  let af := [A.a₀₀, A.a₁₁, A.a₂₂, A.a₀₁, A.a₀₂, A.a₁₂].map exactDecimal
+  let evs := [e.l₀, e.l₁, e.l₂].map exactDecimal
+  let qf := [q.c₀.x, q.c₀.y, q.c₀.z,
+             q.c₁.x, q.c₁.y, q.c₁.z,
+             q.c₂.x, q.c₂.y, q.c₂.z].map exactDecimal
   "{\"matrix\":[" ++ String.intercalate "," af
     ++ "],\"eigvals\":[" ++ String.intercalate "," evs
     ++ "],\"eigvecs\":[" ++ String.intercalate "," qf

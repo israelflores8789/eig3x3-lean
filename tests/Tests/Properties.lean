@@ -48,13 +48,13 @@ def Prng.float11 (p : Prng) : Float × Prng :=
 
 /-- A random symmetric matrix with entries in [−1, 1). -/
 def Prng.symmMat3 (p : Prng) : SymmMat3 × Prng :=
-  let (x0, p) := p.float11
-  let (x1, p) := p.float11
-  let (x2, p) := p.float11
-  let (x3, p) := p.float11
-  let (x4, p) := p.float11
-  let (x5, p) := p.float11
-  (⟨x0, x1, x2, x3, x4, x5⟩, p)
+  let (x₀, p) := p.float11
+  let (x₁, p) := p.float11
+  let (x₂, p) := p.float11
+  let (x₃, p) := p.float11
+  let (x₄, p) := p.float11
+  let (x₅, p) := p.float11
+  (⟨x₀, x₁, x₂, x₃, x₄, x₅⟩, p)
 
 public def runProperties : IO Unit := do
   let n := 5000
@@ -70,7 +70,7 @@ public def runProperties : IO Unit := do
 
     -- The ordering contract (enforced by the sort in `eigvals`).
     if !e.isOrdered then
-      failures := failures.push s!"ordering: ({e.l₁}, {e.l₂}, {e.l₃})"
+      failures := failures.push s!"ordering: ({e.l₀}, {e.l₁}, {e.l₂})"
 
     -- Certificates under the shared gates.
     if c.maxResidual > tol then
@@ -81,15 +81,15 @@ public def runProperties : IO Unit := do
       failures := failures.push s!"reconstruction {c.reconstruction} > {tol}"
 
     -- Trace invariant (the sum adds ~2ε of its own rounding, inside the gate).
-    let tr := (A.a00 + A.a11) + A.a22
-    let se := (e.l₁ + e.l₂) + e.l₃
+    let tr := (A.a₀₀ + A.a₁₁) + A.a₂₂
+    let se := (e.l₀ + e.l₁) + e.l₂
     if (se - tr).abs > tol then
       failures := failures.push s!"trace: |{se} − {tr}| > {tol}"
 
     -- Determinant invariant; the scale is maxAbs³ (budget 64 covers det
     -- evaluation ≈5ε, the product ≈3ε, eigenvalue error ≈36ε at that scale).
     let mA := A.maxAbsEntry
-    let prod := (e.l₁ * e.l₂) * e.l₃
+    let prod := (e.l₀ * e.l₁) * e.l₂
     if (prod - A.toMat3.det).abs > 64.0 * Float.eps * mA * mA * mA then
       failures := failures.push s!"det: |{prod} − {A.toMat3.det}|"
 
@@ -101,7 +101,7 @@ public def runProperties : IO Unit := do
     -- scaling by 2^k significand-transparent, so this is `==`, not a gate.
     for s in ([0.5, 2.0] : List Float) do
       let eB := (eigendecomp (A.scale s)).eigvals
-      if !(eB.l₁ == s * e.l₁ && eB.l₂ == s * e.l₂ && eB.l₃ == s * e.l₃) then
+      if !(eB.l₀ == s * e.l₀ && eB.l₁ == s * e.l₁ && eB.l₂ == s * e.l₂) then
         failures := failures.push s!"scale-invariance ×{s}"
 
   if failures.size > 0 then

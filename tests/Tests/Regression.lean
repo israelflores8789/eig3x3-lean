@@ -23,8 +23,8 @@ namespace Eig3x3.Tests
     benchmarking only (reproduces the paper's naive-vs-present comparisons);
     suffers catastrophic cancellation near double eigenvalues with finite J₂
     (observed ≈5e-9 absolute eigenvalue error on the D2 path). -/
-def deltaNaive (J2 J3 : Float) : Float :=
-  let d := 4.0 * J2 * J2 * J2 - 27.0 * J3 * J3
+def deltaNaive (J₂ J₃ : Float) : Float :=
+  let d := 4.0 * J₂ * J₂ * J₂ - 27.0 * J₃ * J₃
   if d < 0.0 then 0.0 else d
 
 public def runRegression : IO Unit := do
@@ -36,15 +36,15 @@ public def runRegression : IO Unit := do
   -- Near-double eigenvalues at machine precision.
   -- (the naive Δ gave ≈2.5e-9 absolute eigenvalue error here)
   let d := eigendecomp nearDouble
-  assertClose "nearDouble λ₁" d.eigvals.l₁ (-1.0) 1e-12
-  assertClose "nearDouble λ₂" d.eigvals.l₂ 0.99999999 1e-12
-  assertClose "nearDouble λ₃" d.eigvals.l₃ 1.00000001 1e-12
+  assertClose "nearDouble λ₀" d.eigvals.l₀ (-1.0) 1e-12
+  assertClose "nearDouble λ₁" d.eigvals.l₁ 0.99999999 1e-12
+  assertClose "nearDouble λ₂" d.eigvals.l₂ 1.00000001 1e-12
   assertTrue "nearDouble ordered" d.eigvals.isOrdered
 
   -- Ordering contract at the degenerate angles (caught by the property suite
   -- on its first run). At a double eigenvalue, the tied pair is computed by
   -- two independent cosine evaluations, which can disagree by ~1 ulp and come
-  -- out inverted; the final sort in `eigvals` enforces `l₁ ≤ l₂ ≤ l₃`. The
+  -- out inverted; the final sort in `eigvals` enforces `l₀ ≤ l₁ ≤ l₂`. The
   -- sweeps pin both angle boundaries: a cluster at the bottom of the spectrum
   -- drives φ → 0 (J₃ > 0), a cluster at the top drives φ → π ( J₃ < 0).
   -- Several of these provably invert without the sort on reference libm; if
@@ -63,6 +63,6 @@ public def runRegression : IO Unit := do
 
   -- Informational: present vs naive discriminant on the near-double path.
   IO.println s!"info nearDouble Δ (Alg. 8): {delta nearDouble}"
-  IO.println s!"info nearDouble Δ (naive):  {deltaNaive (j2 nearDouble) (j3 nearDouble)}"
+  IO.println s!"info nearDouble Δ (naive):  {deltaNaive (j₂ nearDouble) (j₃ nearDouble)}"
 
 end Eig3x3.Tests

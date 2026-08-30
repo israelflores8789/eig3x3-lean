@@ -62,30 +62,30 @@ The rest of this module is internal, package-private.
 namespace Eig3x3
 
 /-- Algorithm 1: I₁ = tr(A). -/
-def i1 (A : SymmMat3) : Float := A.a00 + A.a11 + A.a22
+def i₁ (A : SymmMat3) : Float := A.a₀₀ + A.a₁₁ + A.a₂₂
 
 /-- Algorithm 2, symmetric case: J₂ = ½ tr(dev A)² from diagonal differences
     and off-diagonal squares. Exactly zero for scaled identities (H–Z Eq. 62),
     which is what keeps the near-triple-eigenvalue case stable. -/
-def j2 (A : SymmMat3) : Float :=
-  let d0 := A.a00 - A.a11
-  let d1 := A.a00 - A.a22
-  let d2 := A.a11 - A.a22
-  let diag := (d0 * d0 + d1 * d1 + d2 * d2) / 6.0
-  let offdiag := (A.a01 * A.a01 + A.a02 * A.a02 + A.a12 * A.a12)
+def j₂ (A : SymmMat3) : Float :=
+  let d₀ := A.a₀₀ - A.a₁₁
+  let d₁ := A.a₀₀ - A.a₂₂
+  let d₂ := A.a₁₁ - A.a₂₂
+  let diag := (d₀ * d₀ + d₁ * d₁ + d₂ * d₂) / 6.0
+  let offdiag := (A.a₀₁ * A.a₀₁ + A.a₀₂ * A.a₀₂ + A.a₁₂ * A.a₁₂)
   diag + offdiag
 
 /-- Algorithm 5, symmetric case: J₃ = det(dev A) via diagonal differences. -/
-def j3 (A : SymmMat3) : Float :=
-  let d0 := A.a00 - A.a11
-  let d1 := A.a00 - A.a22
-  let d2 := A.a11 - A.a22
-  let t1 := d1 + d2
-  let t2 := d0 - d2
-  let t3 := -d0 - d1
-  let offdiag := 2.0 * A.a01 * A.a12 * A.a02
-  let mixed := (A.a01 * A.a01 * t1 + A.a02 * A.a02 * t2 + A.a12 * A.a12 * t3) / 3.0
-  let diag := t1 * t2 * t3 / 27.0
+def j₃ (A : SymmMat3) : Float :=
+  let d₀ := A.a₀₀ - A.a₁₁
+  let d₁ := A.a₀₀ - A.a₂₂
+  let d₂ := A.a₁₁ - A.a₂₂
+  let t₀ := d₁ + d₂
+  let t₁ := d₀ - d₂
+  let t₂ := -d₀ - d₁
+  let offdiag := 2.0 * A.a₀₁ * A.a₁₂ * A.a₀₂
+  let mixed := (A.a₀₁ * A.a₀₁ * t₀ + A.a₀₂ * A.a₀₂ * t₁ + A.a₁₂ * A.a₁₂ * t₂) / 3.0
+  let diag := t₀ * t₁ * t₂ / 27.0
   offdiag + mixed - diag
 
 /-- Discriminant Δ = 4J₂³ − 27J₃² = ∏_{i<j}(λᵢ − λⱼ)².
@@ -108,29 +108,29 @@ def j3 (A : SymmMat3) : Float :=
     double-eigenvalue-at-small-scale cases, and on 20k random symmetric
     matrices; exact for scaled identities. -/
 def delta (A : SymmMat3) : Float :=
-  let p := A.a01
-  let q := A.a02
-  let r := A.a12
-  let d0 := A.a00 - A.a11
-  let d1 := A.a00 - A.a22
-  let d2 := A.a11 - A.a22
-  let r1  := p*r*q - q*p*r
-  let r2  := -p*q*d2 + p*p*r - q*q*r
-  let r3  := p*r*d1 - p*p*q + q*r*r
-  let r4  := q*r*d0 + p*r*r - q*q*p
-  let r5  := p*r*d1 - p*q*p + q*r*r
-  let r6  := q*r*d0 - p*q*q + p*r*r
-  let r7  := -q*p*d2 + p*p*r - q*r*q
-  let r8  := r*d0*d1 - q*p*d1 + p*p*r - r*r*r
-  let r9  := r*d0*d1 - q*p*d0 + q*r*q - r*r*r
-  let r10 := p*d1*d2 + q*r*d2 + p*q*q - p*p*p
-  let r11 := p*d1*d2 + q*r*d1 + p*r*r - p*p*p
-  let r12 := -q*d0*d2 + p*r*d0 + q*r*r - q*q*q
-  let r13 := q*d0*d2 + p*r*d2 - p*q*p + q*q*q
-  let r14 := d0*d1*d2 - p*p*d0 + q*q*d1 - r*r*d2
-  9.0*r1*r1 + 6.0*(r2*r2 + r3*r3 + r4*r4) + 8.0*(r5*r5 + r6*r6 + r7*r7)
-    + 2.0*(r8*r8 + r9*r9 + r10*r10 + r11*r11 + r12*r12 + r13*r13)
-    + r14*r14
+  let p := A.a₀₁
+  let q := A.a₀₂
+  let r := A.a₁₂
+  let d₀ := A.a₀₀ - A.a₁₁
+  let d₁ := A.a₀₀ - A.a₂₂
+  let d₂ := A.a₁₁ - A.a₂₂
+  let r₁  := p*r*q - q*p*r
+  let r₂  := -p*q*d₂ + p*p*r - q*q*r
+  let r₃  := p*r*d₁ - p*p*q + q*r*r
+  let r₄  := q*r*d₀ + p*r*r - q*q*p
+  let r₅  := p*r*d₁ - p*q*p + q*r*r
+  let r₆  := q*r*d₀ - p*q*q + p*r*r
+  let r₇  := -q*p*d₂ + p*p*r - q*r*q
+  let r₈  := r*d₀*d₁ - q*p*d₁ + p*p*r - r*r*r
+  let r₉  := r*d₀*d₁ - q*p*d₀ + q*r*q - r*r*r
+  let r₁₀ := p*d₁*d₂ + q*r*d₂ + p*q*q - p*p*p
+  let r₁₁ := p*d₁*d₂ + q*r*d₁ + p*r*r - p*p*p
+  let r₁₂ := -q*d₀*d₂ + p*r*d₀ + q*r*r - q*q*q
+  let r₁₃ := q*d₀*d₂ + p*r*d₂ - p*q*p + q*q*q
+  let r₁₄ := d₀*d₁*d₂ - p*p*d₀ + q*q*d₁ - r*r*d₂
+  9.0*r₁*r₁ + 6.0*(r₂*r₂ + r₃*r₃ + r₄*r₄) + 8.0*(r₅*r₅ + r₆*r₆ + r₇*r₇)
+    + 2.0*(r₈*r₈ + r₉*r₉ + r₁₀*r₁₀ + r₁₁*r₁₁ + r₁₂*r₁₂ + r₁₃*r₁₃)
+    + r₁₄*r₁₄
 
 /-- 2π/3 to full double precision. -/
 def twoPiOver3 : Float := 2.0943951023931953
@@ -140,22 +140,22 @@ def twoPiOver3 : Float := 2.0943951023931953
     For a scaled identity, J₂ = J₃ = Δ = 0, φ = atan2(0,0) = 0, and all three
     eigenvalues come out as exactly I₁/3.
 
-    Postcondition (contract): the result satisfies `l₁ ≤ l₂ ≤ l₃` enforced by
+    Postcondition (contract): the result satisfies `l₀ ≤ l₁ ≤ l₂` enforced by
     the final sort. -/
 public def eigvals (A : SymmMat3) : Eigval3 :=
-  let I1 := i1 A
-  let J2 := j2 A
+  let I₁ := i₁ A
+  let J₂ := j₂ A
   -- Exact scaled identity (H–Z Eq. 62): J₂ is a sum of squares, so it is
   -- exactly zero iff A = cI, and then all three eigenvalues are exactly the
   -- common diagonal entry.
-  if J2 == 0.0 then
-    ⟨A.a00, A.a00, A.a00⟩
+  if J₂ == 0.0 then
+    ⟨A.a₀₀, A.a₀₀, A.a₀₀⟩
   else
-    let J3 := j3 A
+    let J₃ := j₃ A
     let d  := delta A
-    let phi := Float.atan2 (Float.sqrt (27.0 * d)) (27.0 * J3)
-    let c  := 2.0 * Float.sqrt (3.0 * J2)
-    let lam := fun k : Float => (I1 + c * Float.cos (phi / 3.0 + twoPiOver3 * k)) / 3.0
+    let phi := Float.atan2 (Float.sqrt (27.0 * d)) (27.0 * J₃)
+    let c  := 2.0 * Float.sqrt (3.0 * J₂)
+    let lam := fun k : Float => (I₁ + c * Float.cos (phi / 3.0 + twoPiOver3 * k)) / 3.0
     let x := lam 1.0
     let y := lam 2.0
     let z := lam 3.0
@@ -168,6 +168,6 @@ public def eigvals (A : SymmMat3) : Eigval3 :=
     let (a, b) := if y < x then (y, x) else (x, y)
     let (b, c) := if z < b then (z, b) else (b, z)
     let (a, b) := if b < a then (b, a) else (a, b)
-    { l₁ := a, l₂ := b, l₃ := c }
+    { l₀ := a, l₁ := b, l₂ := c }
 
 end Eig3x3

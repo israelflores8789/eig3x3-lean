@@ -25,7 +25,7 @@ the eigendecomposition pipeline:
 namespace Eig3x3
 
 /-- Full eigendecomposition of a real symmetric 3×3 matrix:
-    `A = QΛQᵀ = Σᵢ λᵢ cᵢcᵢᵀ` with `l₁ ≤ l₂ ≤ l₃` and `Q` right-handed
+    `A = QΛQᵀ = Σᵢ λᵢ cᵢcᵢᵀ` with `l₀ ≤ l₁ ≤ l₂` and `Q` right-handed
     orthonormal.
 
     Pipeline: zero fast path → max-abs preconditioning (Eberly) → ordered

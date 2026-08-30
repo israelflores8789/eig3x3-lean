@@ -33,11 +33,11 @@ public def Vec3.approx (u v : Vec3) (tol : Float) : Bool :=
 
 /-- Entrywise approximate equality for matrices. -/
 public def Mat3.approx (M N : Mat3) (tol : Float) : Bool :=
-  M.c₁.approx N.c₁ tol && M.c₂.approx N.c₂ tol && M.c₃.approx N.c₃ tol
+  M.c₀.approx N.c₀ tol && M.c₁.approx N.c₁ tol && M.c₂.approx N.c₂ tol
 
-/-- Ordering contract on `eigvals`: `l₁ ≤ l₂ ≤ l₃`. -/
+/-- Ordering contract on `eigvals`: `l₀ ≤ l₁ ≤ l₂`. -/
 public def Eigval3.isOrdered (e : Eigval3) : Bool :=
-  decide (e.l₁ ≤ e.l₂) && decide (e.l₂ ≤ e.l₃)
+  decide (e.l₀ ≤ e.l₁) && decide (e.l₁ ≤ e.l₂)
 
 namespace Tests
 

@@ -132,8 +132,8 @@ public def runGolden : IO Unit := do
   for gc in cases do
     let d := eigendecomp gc.matrix
     let tol := certTol gc.matrix
+    assertClose s!"{gc.name} golden l₀" d.eigvals.l₀ gc.refs.l₀ tol
     assertClose s!"{gc.name} golden l₁" d.eigvals.l₁ gc.refs.l₁ tol
     assertClose s!"{gc.name} golden l₂" d.eigvals.l₂ gc.refs.l₂ tol
-    assertClose s!"{gc.name} golden l₃" d.eigvals.l₃ gc.refs.l₃ tol
 
 end Eig3x3.Tests

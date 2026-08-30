@@ -122,23 +122,23 @@ def parseInt (cs : List Char) : Option (Int × List Char) := do
     let s := if s.startsWith "+" then (s.drop 1).toString else s
     pure (← s.toInt?, rest)
 
-/-- One matrix row: `[a00, a11, a22, a01, a02, a12]` — SymmMat3 field
+/-- One matrix row: `[a₀₀, a₁₁, a₂₂, a₀₁, a₀₂, a₁₂]` — SymmMat3 field
     order. Shared by Cli.lean's input schema and Golden.lean's cases. -/
 def parseSymmMat3 (cs : List Char) : Option (SymmMat3 × List Char) := do
   let cs ← expectChar '[' cs
-  let (x0, cs) ← parseFloat cs
+  let (x₀, cs) ← parseFloat cs
   let cs ← expectChar ',' cs
-  let (x1, cs) ← parseFloat cs
+  let (x₁, cs) ← parseFloat cs
   let cs ← expectChar ',' cs
-  let (x2, cs) ← parseFloat cs
+  let (x₂, cs) ← parseFloat cs
   let cs ← expectChar ',' cs
-  let (x3, cs) ← parseFloat cs
+  let (x₃, cs) ← parseFloat cs
   let cs ← expectChar ',' cs
-  let (x4, cs) ← parseFloat cs
+  let (x₄, cs) ← parseFloat cs
   let cs ← expectChar ',' cs
-  let (x5, cs) ← parseFloat cs
+  let (x₅, cs) ← parseFloat cs
   let cs ← expectChar ']' cs
-  pure (⟨x0, x1, x2, x3, x4, x5⟩, cs)
+  pure (⟨x₀, x₁, x₂, x₃, x₄, x₅⟩, cs)
 
 /-- The `"matrices"` array. `partial`: a hand-rolled recursive-descent loop
     whose termination the compiler cannot see; the input is

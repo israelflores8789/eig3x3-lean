@@ -46,7 +46,7 @@ precision while still carrying the speed and determinism of a closed-form soluti
   * the Algorithm 8 sum-of-squares discriminant (factorization originating in
     Habera–Zilian 2021, arXiv:2111.02117),
   * quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4),
-  * ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
+  * ordered eigenvalues λ₀ ≤ λ₁ ≤ λ₂ (Eq. 2).
 
 * **Eigenvectors** (`Eig3x3.Eigenvectors`, internal) — D. Eberly, "A Robust
   Eigensolver for 3×3 Symmetric Matrices", Geometric Tools, CC BY 4.0).
