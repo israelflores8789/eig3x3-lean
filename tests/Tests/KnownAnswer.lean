@@ -15,7 +15,7 @@ Exact-in-float64 checks for the vector/matrix vocabulary (small integers
 only), known-answer eigenvalue checks, the exact fast paths (zero matrix,
 scaled identity), and end-to-end exercise of the notation (`ᵀ`, `⁻¹`, `⬝ᵥ`,
 `⬝ₘ`, `⊗ᵥ`, `⨯₃`, `•`, `⊙`, `|·|`, `‖·‖`, `‖·‖²`, `^`, `*`) and the
-`Eigval3 → Vec3` coercion as a downstream consumer would use them.
+`Eigval3 → Vec3` and `SymmMat3 → Mat3` coercions.
 -/
 
 namespace Eig3x3.Tests
@@ -195,5 +195,17 @@ public def runKnownAnswer : IO Unit := do
   assertClose "coe l₀" wEig.x d.eigvals.l₀ 0.0
   assertClose "coe l₁" wEig.y d.eigvals.l₁ 0.0
   assertClose "coe l₂" wEig.z d.eigvals.l₂ 0.0
+
+  -- 11. Coercion: SymmMat3 elaborates as Mat3 where a Mat3 is expected
+  let wMat : Mat3 := workedExample
+  assertClose "coe M₀₀" wMat.c₀.x workedExample.a₀₀ 0.0
+  assertClose "coe M₁₀" wMat.c₀.y workedExample.a₀₁ 0.0
+  assertClose "coe M₂₀" wMat.c₀.z workedExample.a₀₂ 0.0
+  assertClose "coe M₀₁" wMat.c₁.x workedExample.a₀₁ 0.0
+  assertClose "coe M₁₁" wMat.c₁.y workedExample.a₁₁ 0.0
+  assertClose "coe M₂₁" wMat.c₁.z workedExample.a₁₂ 0.0
+  assertClose "coe M₀₂" wMat.c₂.x workedExample.a₀₂ 0.0
+  assertClose "coe M₁₂" wMat.c₂.y workedExample.a₁₂ 0.0
+  assertClose "coe M₂₂" wMat.c₂.z workedExample.a₂₂ 0.0
 
 end Eig3x3.Tests
