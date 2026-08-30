@@ -31,18 +31,20 @@ Exposes `Certificates` and `certify`. The component metrics are package-private.
 
 namespace Eig3x3
 
+open scoped Eig3x3
+
 /-- Residual ‖Av − λv‖∞ for a claimed eigenpair. -/
 def residual (A : SymmMat3) (lam : Float) (v : Vec3) : Float :=
   let av := A.mulVec v
-  let r : Vec3 := ⟨av.x - lam * v.x, av.y - lam * v.y, av.z - lam * v.z⟩
-  max3 r.x.abs r.y.abs r.z.abs
+  let r : Vec3 := av - lam • v
+  max3 |r.x| |r.y| |r.z|
 
 /-- Orthonormality certificate: max |cᵢ·cⱼ − δᵢⱼ| over all pairs of columns
     of `Q`. -/
 def orthogonalityError (Q : Mat3) : Float :=
-  let m₀ := max (Q.c₀.dot Q.c₀ - 1.0).abs (Q.c₁.dot Q.c₁ - 1.0).abs
-  let m₁ := max (Q.c₂.dot Q.c₂ - 1.0).abs (Q.c₀.dot Q.c₁).abs
-  let m₂ := max (Q.c₀.dot Q.c₂).abs (Q.c₁.dot Q.c₂).abs
+  let m₀ := max |Q.c₀ ⬝ᵥ Q.c₀ - 1.0| |Q.c₁ ⬝ᵥ Q.c₁ - 1.0|
+  let m₁ := max |Q.c₂ ⬝ᵥ Q.c₂ - 1.0| |Q.c₀ ⬝ᵥ Q.c₁|
+  let m₂ := max |Q.c₀ ⬝ᵥ Q.c₂| |Q.c₁ ⬝ᵥ Q.c₂|
   max3 m₀ m₁ m₂
 
 /-- Reconstruct the matrix from a decomposition: A = Σᵢ λᵢ cᵢcᵢᵀ. -/
@@ -63,9 +65,9 @@ def reconstruct (d : Decomposition) : SymmMat3 :=
 /-- Reconstruction certificate: max |entry| of QΛQᵀ − A. -/
 def reconstructionError (A : SymmMat3) (d : Decomposition) : Float :=
   let B := reconstruct d
-  let m₀ := max (B.a₀₀ - A.a₀₀).abs (B.a₁₁ - A.a₁₁).abs
-  let m₁ := max (B.a₂₂ - A.a₂₂).abs (B.a₀₁ - A.a₀₁).abs
-  let m₂ := max (B.a₀₂ - A.a₀₂).abs (B.a₁₂ - A.a₁₂).abs
+  let m₀ := max |B.a₀₀ - A.a₀₀| |B.a₁₁ - A.a₁₁|
+  let m₁ := max |B.a₂₂ - A.a₂₂| |B.a₀₁ - A.a₀₁|
+  let m₂ := max |B.a₀₂ - A.a₀₂| |B.a₁₂ - A.a₁₂|
   max3 m₀ m₁ m₂
 
 /-- All three certificates for a decomposition of `A`, bundled. -/

@@ -25,6 +25,8 @@ involved), including:
 
 namespace Eig3x3.Tests
 
+open scoped Eig3x3
+
 /-- splitmix64: a tiny deterministic PRNG. -/
 structure Prng where
   s : UInt64
@@ -90,7 +92,7 @@ public def runProperties : IO Unit := do
     -- evaluation ≈5ε, the product ≈3ε, eigenvalue error ≈36ε at that scale).
     let mA := A.maxAbsEntry
     let prod := (e.l₀ * e.l₁) * e.l₂
-    if (prod - A.toMat3.det).abs > 64.0 * Float.eps * mA * mA * mA then
+    if (prod - A.toMat3.det).abs > 64.0 * Float.eps * mA ^ 3 then
       failures := failures.push s!"det: |{prod} − {A.toMat3.det}|"
 
     -- Right-handedness.

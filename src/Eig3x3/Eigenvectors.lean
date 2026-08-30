@@ -52,6 +52,8 @@ This is an internal, package-private module and not intended to be used directly
 
 namespace Eig3x3
 
+open scoped Eig3x3
+
 /-- Eigenvector for an *isolated* eigenvalue λ. When λ is well-separated from
     the other eigenvalues, A − λI has rank 2: its three rows lie in a plane,
     and the eigenvector is the one direction perpendicular to that plane. The
@@ -67,19 +69,19 @@ def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
   let r₀ : Vec3 := ⟨A.a₀₀ - lam, A.a₀₁, A.a₀₂⟩
   let r₁ : Vec3 := ⟨A.a₀₁, A.a₁₁ - lam, A.a₁₂⟩
   let r₂ : Vec3 := ⟨A.a₀₂, A.a₁₂, A.a₂₂ - lam⟩
-  let c₀ := r₀.cross r₁
-  let c₁ := r₀.cross r₂
-  let c₂ := r₁.cross r₂
-  let d₀ := c₀.normSq
-  let d₁ := c₁.normSq
-  let d₂ := c₂.normSq
+  let c₀ := r₀ ⨯₃ r₁
+  let c₁ := r₀ ⨯₃ r₂
+  let c₂ := r₁ ⨯₃ r₂
+  let d₀ := ‖c₀‖²
+  let d₁ := ‖c₁‖²
+  let d₂ := ‖c₂‖²
   let (best, dmax) :=
     if d₁ > d₀ then
       if d₂ > d₁ then (c₂, d₂) else (c₁, d₁)
     else
       if d₂ > d₀ then (c₂, d₂) else (c₀, d₀)
   if dmax == 0.0 then ⟨1.0, 0.0, 0.0⟩
-  else best.scale (1.0 / dmax.sqrt)
+  else (1.0 / dmax.sqrt) • best
 
 /-- Complete a unit vector `w` to a right-handed orthonormal frame {u, v, w}.
     A perpendicular to `w` can be considered `w × eᵢ` for some coordinate axis
@@ -90,13 +92,13 @@ def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
     Reference: Eberly §5, Listing 5. -/
 def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
   let u :=
-    if w.y.abs < w.x.abs then
-      let inv := 1.0 / (w.x * w.x + w.z * w.z).sqrt
+    if |w.y| < |w.x| then
+      let inv := 1.0 / (w.x ^ 2 + w.z ^ 2).sqrt
       ⟨-w.z * inv, 0.0, w.x * inv⟩
     else
-      let inv := 1.0 / (w.y * w.y + w.z * w.z).sqrt
+      let inv := 1.0 / (w.y ^ 2 + w.z ^ 2).sqrt
       ⟨0.0, w.z * inv, -w.y * inv⟩
-  (u, w.cross u)
+  (u, w ⨯₃ u)
 
 /-- Eigenvector for λ, exploiting that it must lie in the plane perpendicular
     to `v₀`, where `v₀` is the unit eigenvector of an adjacent, well-separated
@@ -113,33 +115,33 @@ def eigvecInPlane (A : SymmMat3) (v₀ : Vec3) (lam : Float) : Vec3 :=
   let (u, v) := orthonormalComplement v₀
   let au := A.mulVec u
   let av := A.mulVec v
-  let m₀₀ := u.dot au - lam
-  let m₀₁ := u.dot av
-  let m₁₁ := v.dot av - lam
-  if m₀₀.abs < m₁₁.abs then
+  let m₀₀ := u ⬝ᵥ au - lam
+  let m₀₁ := u ⬝ᵥ av
+  let m₁₁ := v ⬝ᵥ av - lam
+  if |m₀₀| < |m₁₁| then
     -- Solve using row 1: m₀₁·x₀ + m₁₁·x₁ = 0
-    let maxAbs := max m₁₁.abs m₀₁.abs
+    let maxAbs := max |m₁₁| |m₀₁|
     if maxAbs == 0.0 then u
-    else if m₁₁.abs < m₀₁.abs then
+    else if |m₁₁| < |m₀₁| then
       let t := m₁₁ / m₀₁
-      let n := 1.0 / (1.0 + t * t).sqrt
-      (u.scale (t * n)).sub (v.scale n)        -- X = (t, −1)·n
+      let n := 1.0 / (1.0 + t ^ 2).sqrt
+      (t * n) • u - n • v                      -- X = (t, −1)·n
     else
       let t := m₀₁ / m₁₁
-      let n := 1.0 / (1.0 + t * t).sqrt
-      (u.scale n).sub (v.scale (t * n))        -- X = (1, −t)·n
+      let n := 1.0 / (1.0 + t ^ 2).sqrt
+      n • u - (t * n) • v                      -- X = (1, −t)·n
   else
     -- Solve using row 0: m₀₀·x₀ + m₀₁·x₁ = 0
-    let maxAbs := max m₀₀.abs m₀₁.abs
+    let maxAbs := max |m₀₀| |m₀₁|
     if maxAbs == 0.0 then u
-    else if m₀₀.abs < m₀₁.abs then
+    else if |m₀₀| < |m₀₁| then
       let t := m₀₀ / m₀₁
-      let n := 1.0 / (1.0 + t * t).sqrt
-      (u.scale n).sub (v.scale (t * n))        -- X = (1, −t)·n
+      let n := 1.0 / (1.0 + t ^ 2).sqrt
+      n • u - (t * n) • v                      -- X = (1, −t)·n
     else
       let t := m₀₁ / m₀₀
-      let n := 1.0 / (1.0 + t * t).sqrt
-      (u.scale (t * n)).sub (v.scale n)        -- X = (t, −1)·n
+      let n := 1.0 / (1.0 + t ^ 2).sqrt
+      (t * n) • u - n • v                      -- X = (t, −1)·n
 
 /-- Assemble a right-handed orthonormal eigenbasis for the preconditioned
     matrix `B` from `e`, its ordered eigenvalues as produced by `eigvals B`.
@@ -163,11 +165,11 @@ def eigvecs (B : SymmMat3) (e : Eigval3) : Mat3 :=
     -- λ₂ is isolated (Eberly's halfDet ≥ 0 case)
     let v₂ := eigvecIsolated B e.l₂
     let v₁ := eigvecInPlane B v₂ e.l₁
-    ⟨v₁.cross v₂, v₁, v₂⟩
+    ⟨v₁ ⨯₃ v₂, v₁, v₂⟩
   else
     -- λ₀ is isolated (Eberly's halfDet < 0 case)
     let v₀ := eigvecIsolated B e.l₀
     let v₁ := eigvecInPlane B v₀ e.l₁
-    ⟨v₀, v₁, v₀.cross v₁⟩
+    ⟨v₀, v₁, v₀ ⨯₃ v₁⟩
 
 end Eig3x3

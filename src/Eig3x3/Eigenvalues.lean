@@ -61,6 +61,8 @@ The rest of this module is internal, package-private.
 
 namespace Eig3x3
 
+open scoped Eig3x3
+
 /-- Algorithm 1: I₁ = tr(A). -/
 def i₁ (A : SymmMat3) : Float := A.a₀₀ + A.a₁₁ + A.a₂₂
 

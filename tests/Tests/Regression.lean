@@ -19,12 +19,14 @@ discriminant from the naive representation.
 
 namespace Eig3x3.Tests
 
+open scoped Eig3x3
+
 /-- Naive discriminant Δ = 4J₂³ − 27J₃², clamped to [0, ∞). Kept for
     benchmarking only (reproduces the paper's naive-vs-present comparisons);
     suffers catastrophic cancellation near double eigenvalues with finite J₂
     (observed ≈5e-9 absolute eigenvalue error on the D2 path). -/
 def deltaNaive (J₂ J₃ : Float) : Float :=
-  let d := 4.0 * J₂ * J₂ * J₂ - 27.0 * J₃ * J₃
+  let d := 4.0 * J₂ ^ 3 - 27.0 * J₃ ^ 2
   if d < 0.0 then 0.0 else d
 
 public def runRegression : IO Unit := do

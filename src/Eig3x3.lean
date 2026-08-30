@@ -108,9 +108,16 @@ by construction.
 Unicode notation for common vector and matrix operations is offered
 with `open scoped Eig3x3`, including:
 * transpose a matrix: `Qᵀ`
-* dot product of vectors: `u ⬝ v`
-
-[TODO: add more here]
+* matrix inverse: `M⁻¹`
+* dot product of vectors: `u ⬝ᵥ v`
+* Frobenius inner product of matrices: `A ⬝ₘ B`
+* outer product of vectors: `u ⊗ᵥ v`
+* cross product of vectors: `u ⨯₃ v` (or `u ×₃ v`)
+* scalar multiplication: `s • v`, `s • M`
+* Hadamard entrywise product: `u ⊙ v`, `A ⊙ B`
+* norms: Euclidean `‖v‖`, `‖v‖²` and Frobenius `‖M‖`, `‖M‖²`
+* absolute value / magnitude: `|x|`, `|v|`, `|M|` (tight bars: `|v|`, not `| v |`)
+* powers: `x ^ 2`, `M ^ 2`
 
 The eigenvector machinery (`Eig3x3.Eigenvectors`) is deliberately not public.
 Use `eigendecomp`.
