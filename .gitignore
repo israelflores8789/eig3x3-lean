@@ -1,5 +1,6 @@
 # cache and other artifacts produced by Lean's Lake build tool
 .lake/
+docbuild/.lake/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

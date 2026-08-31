@@ -42,6 +42,19 @@ golden:
 bench:
     cd {{parity_dir}} && {{py}} bench.py
 
+# ---- documentation ----
+
+docs-update:
+    cd docbuild && lake update doc-gen4
+
+docs-build:
+    cd docbuild && lake build Eig3x3:docs
+
+docs: docs-build
+
+docs-serve port="8000":
+    cd docbuild/.lake/build/doc && {{py}} -m http.server {{port}}
+
 # ---- hygiene ----
 
 lint:

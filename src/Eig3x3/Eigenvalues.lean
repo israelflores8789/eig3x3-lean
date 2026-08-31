@@ -27,9 +27,9 @@ roughly their skewness — computed from *differences* of diagonal entries so
 that nearly-equal eigenvalues do not cancel away.
 
 The discriminant, Δ = 4J₂³ − 27J₃², (`delta`) is evaluated as a sum of squares so
-no subtraction of nearly-equal eigenvalues can occur and cause float-point
+no subtraction of nearly-equal eigenvalues can occur and cause floating-point
 instability. While the classical formula uses the arccos, the required angle can
-be expressed as the arctan2 leveraging its numerical stability near zero. Finally,
+be expressed as the arctan2, leveraging its numerical stability near zero. Finally,
 the eigenvalues are computed λₖ = (I₁ + 2√(3J₂)·cos(φ/3 + 2πk/3))/3 for
 k = { 1, 2, 3 } (`eigvals`).
 

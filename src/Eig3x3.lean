@@ -29,7 +29,7 @@ loops, convergence tests, and running time dependent on input random variables.
 The pre-existing closed-form alternatives, such as Cardano and Viète’s methods,
 avoid this computational cost but suffer in accuracy by evaluating the classical
 trigonometric cubic formula whose arccos near ±1 and subtractive discriminant
-lose precision two eigenvalues are close.
+lose precision when two eigenvalues are close.
 
 Habera–Zilian remove this trade-off by proposing a *closed-form* alternative where
 numerically dangerous steps — using invariants from diagonal differences, computing
@@ -49,8 +49,8 @@ precision while still carrying the speed and determinism of a closed-form soluti
   * ordered eigenvalues λ₀ ≤ λ₁ ≤ λ₂ (Eq. 2).
 
 * **Eigenvectors** (`Eig3x3.Eigenvectors`, internal) — D. Eberly, "A Robust
-  Eigensolver for 3×3 Symmetric Matrices", Geometric Tools, CC BY 4.0).
-  Specifically, the non-iterative algorithms drescribed in §5, inlcluding:
+  Eigensolver for 3×3 Symmetric Matrices", Geometric Tools (CC BY 4.0).
+  Specifically, the non-iterative algorithms described in §5, including:
   * max-abs preconditioning,
   * isolated-eigenvector from cross products (§5, Listing 4),
   * robust orthogonal complement (§5, Listing 5),
@@ -98,8 +98,8 @@ by construction.
 
 ## Usage
 
-`import Eig3x3` publically offers:
-* type primtives (`Vec3`, `Mat3`, `Eigval3`, `SymmMat3`, and `Decomposition`)
+`import Eig3x3` publicly offers:
+* type primitives (`Vec3`, `Mat3`, `Eigval3`, `SymmMat3`, and `Decomposition`)
 * vector/matrix operations through `Vec3` and `Mat3`,
 * `eigvals` for calculating eigenvalues using Habera-Zilian's method,
 * `eigendecomp` for performing eigendecomposition including the eigenvectors,

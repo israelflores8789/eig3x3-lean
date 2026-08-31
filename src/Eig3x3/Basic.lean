@@ -58,7 +58,7 @@ Useful consequences:
 * `u ⬝ᵥ u + v ⬝ᵥ v` parses as `(u ⬝ᵥ u) + (v ⬝ᵥ v)`.
 * `M⁻¹ᵀ` parses as `(M⁻¹)ᵀ`.
 
-Watch out: `⬝ᵥ` (72) binds tighter than `*` (70), so `M * v ⬝ᵥ w` parses as
+**Important**: `⬝ᵥ` (72) binds tighter than `*` (70), so `M * v ⬝ᵥ w` parses as
 `M * (v ⬝ᵥ w)` — write `(M * v) ⬝ᵥ w` instead.
 -/
 
@@ -68,8 +68,11 @@ public section
 
 /-- Vector over `Float` in real (ℝ³) space. -/
 structure Vec3 where
+  /-- X coordinate (first component). -/
   x : Float
+  /-- Y coordinate (second component). -/
   y : Float
+  /-- Z coordinate (third component). -/
   z : Float
   deriving Repr
 
@@ -77,8 +80,11 @@ structure Vec3 where
     this library produces is the eigenvector matrix Q, whose columns are
     eigenvectors, matching conventional mathematics and NumPy/SciPy/PyTorch. -/
 structure Mat3 where
+  /-- Column 0 vector. -/
   c₀ : Vec3
+  /-- Column 1 vector. -/
   c₁ : Vec3
+  /-- Column 2 vector. -/
   c₂ : Vec3
   deriving Repr
 
@@ -87,11 +93,17 @@ structure Mat3 where
     Meant to be used as an input parameter type, not for matrix
     math. Coerces one-way to `Mat3` for matrix operations. -/
 structure SymmMat3 where
+  /-- Diagonal entry A₀₀. -/
   a₀₀ : Float
+  /-- Diagonal entry A₁₁. -/
   a₁₁ : Float
+  /-- Diagonal entry A₂₂. -/
   a₂₂ : Float
+  /-- Off-diagonal entry A₀₁ = A₁₀. -/
   a₀₁ : Float
+  /-- Off-diagonal entry A₀₂ = A₂₀. -/
   a₀₂ : Float
+  /-- Off-diagonal entry A₁₂ = A₂₁. -/
   a₁₂ : Float
   deriving Repr
 
@@ -99,19 +111,22 @@ structure SymmMat3 where
 
     Not meant to be used directly. A distinct return type so eigenvalue
     ordering guarantees required by Eberly's algorithm are carried by the type.
-    Coerces to `Vec3` for vector operation. Coercion is one-way, and ordering
+    Coerces to `Vec3` for vector operations. Coercion is one-way, and ordering
     guarantees do not hold after coercion. -/
 structure Eigval3 where
+  /-- Smallest eigenvalue. -/
   l₀ : Float
+  /-- Middle eigenvalue. -/
   l₁ : Float
+  /-- Largest eigenvalue. -/
   l₂ : Float
   deriving Repr
 
 /-- Full eigendecomposition: `A = QΛQᵀ = Σᵢ λᵢ cᵢcᵢᵀ`. -/
 structure Decomposition where
-  /- Eigenvalues in increasing order: `l₀ ≤ l₁ ≤ l₂`. -/
+  /-- Eigenvalues in increasing order: `l₀ ≤ l₁ ≤ l₂`. -/
   eigvals : Eigval3
-  /- Eigenvector matrix Q; column `cᵢ` is a unit eigenvector for `lᵢ`.
+  /-- Eigenvector matrix Q; column `cᵢ` is a unit eigenvector for `lᵢ`.
      Right-handed: `Q.det = 1`. -/
   eigvecs : Mat3
   deriving Repr
@@ -120,31 +135,40 @@ structure Decomposition where
 /-! ## Vec3 operations -/
 
 
+/-- Vector addition `u + v`. -/
 @[inline] def Vec3.add (u v : Vec3) : Vec3 :=
   ⟨u.x + v.x, u.y + v.y, u.z + v.z⟩
 
+/-- Vector negation `-v`. -/
 @[inline] def Vec3.neg (v : Vec3) : Vec3 :=
   ⟨-v.x, -v.y, -v.z⟩
 
+/-- Vector subtraction `u - v`. -/
 @[inline] def Vec3.sub (u v : Vec3) : Vec3 :=
   ⟨u.x - v.x, u.y - v.y, u.z - v.z⟩
 
+/-- Scalar multiplication `s • v`. -/
 @[inline] def Vec3.scale (v : Vec3) (s : Float) : Vec3 :=
   ⟨s * v.x, s * v.y, s * v.z⟩
 
+/-- Scalar division `v / s`. -/
 @[inline] def Vec3.div (v : Vec3) (s : Float) : Vec3 :=
   let invS := 1.0 / s
   ⟨invS * v.x, invS * v.y, invS * v.z⟩
 
+/-- Vector dot product `u ⬝ᵥ v`. -/
 @[inline] def Vec3.dot (u v : Vec3) : Float :=
   u.x * v.x + u.y * v.y + u.z * v.z
 
+/-- Vector cross product `u ⨯₃ v` in ℝ³. -/
 @[inline] def Vec3.cross (u v : Vec3) : Vec3 :=
   ⟨u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x⟩
 
+/-- Squared Euclidean norm `‖u‖² = u.x² + u.y² + u.z²`. -/
 @[inline] def Vec3.normSq (u : Vec3) : Float :=
   u.x * u.x + u.y * u.y + u.z * u.z
 
+/-- Euclidean norm `‖u‖ = √(‖u‖²)`. -/
 @[inline] def Vec3.norm (u : Vec3) : Float :=
   Float.sqrt u.normSq
 
@@ -169,8 +193,10 @@ structure Decomposition where
 @[inline] def Vec3.map2 (f : Float → Float → Float) (u v : Vec3) : Vec3 :=
   ⟨f u.x v.x, f u.y v.y, f u.z v.z⟩
 
+/-- Componentwise absolute value of a vector `|v|`. -/
 @[inline] def Vec3.abs (v : Vec3) : Vec3 := v.map Float.abs
 
+/-- Convert ordered eigenvalues `Eigval3` to an unconstrained `Vec3`. -/
 @[inline] def Eigval3.toVec3 (e : Eigval3) : Vec3 := ⟨e.l₀, e.l₁, e.l₂⟩
 
 /-- One-way coercion: ordered eigenvalues are a vector, but an arbitrary
@@ -199,19 +225,24 @@ instance : Coe Eigval3 Vec3 := ⟨Eigval3.toVec3⟩
 @[inline] def Mat3.mul (M N : Mat3) : Mat3 :=
   ⟨M.mulVec N.c₀, M.mulVec N.c₁, M.mulVec N.c₂⟩
 
+/-- Scalar multiplication of a matrix `s • M`. -/
 @[inline] def Mat3.scale (M : Mat3) (s : Float) : Mat3 :=
   ⟨M.c₀.scale s, M.c₁.scale s, M.c₂.scale s⟩
 
+/-- Scalar division of a matrix `M / s`. -/
 @[inline] def Mat3.div (M : Mat3) (s : Float) : Mat3 :=
   let invS := 1.0 / s
   ⟨M.c₀.scale invS, M.c₁.scale invS, M.c₂.scale invS⟩
 
+/-- Matrix addition `M + N`. -/
 @[inline] def Mat3.add (M N : Mat3) : Mat3 :=
   ⟨M.c₀.add N.c₀, M.c₁.add N.c₁, M.c₂.add N.c₂⟩
 
+/-- Matrix negation `-M`. -/
 @[inline] def Mat3.neg (M : Mat3) : Mat3 :=
   ⟨M.c₀.neg, M.c₁.neg, M.c₂.neg⟩
 
+/-- Matrix subtraction `M - N`. -/
 @[inline] def Mat3.sub (M N : Mat3) : Mat3 :=
   ⟨M.c₀.sub N.c₀, M.c₁.sub N.c₁, M.c₂.sub N.c₂⟩
 
@@ -268,6 +299,7 @@ def Mat3.inv (M : Mat3) : Mat3 :=
   let invDet := 1.0 / det
   ⟨c₀'.scale invDet, c₁'.scale invDet, c₂'.scale invDet⟩
 
+/-- Convert a symmetric matrix representation `SymmMat3` to a full `Mat3`. -/
 def SymmMat3.toMat3 (A : SymmMat3) : Mat3 :=
   ⟨⟨A.a₀₀, A.a₀₁, A.a₀₂⟩, ⟨A.a₀₁, A.a₁₁, A.a₁₂⟩, ⟨A.a₀₂, A.a₁₂, A.a₂₂⟩⟩
 
@@ -281,6 +313,7 @@ instance : Coe SymmMat3 Mat3 := ⟨SymmMat3.toMat3⟩
 
 /-- Fast natural-number power, exposed as `x ^ⁿ n`. -/
 class PowNat (α : Type) where
+  /-- Exponentiate `x` to natural power `n`. -/
   powNat : α → Nat → α
 
 /-- Power by repeated multiplication — adequate for the small exponents
@@ -296,7 +329,7 @@ instance : PowNat Float where
   powNat x n := if n ≤ 8 then powNatSmall x n else Float.pow x n.toFloat
 
 /-- Conditioning for `Mat3`: exponentiation by squaring, `⌈log₂ n⌉` matrix
-products instead of `n`, with `M ^ⁿ 0 = Mat3.id`. -/
+    products instead of `n`, with `M ^ⁿ 0 = Mat3.id`. -/
 partial def Mat3.powSq (M : Mat3) (n : Nat) : Mat3 :=
   if n == 0 then Mat3.id
   else if n % 2 == 1 then M.mul (Mat3.powSq M (n - 1))
@@ -316,8 +349,9 @@ instance : Pow Mat3 Nat where
 
 
 /-- Absolute value behind a typeclass, so the same bars work on
-`Float` (magnitude), `Vec3` (componentwise), and `Mat3` (componentwise). -/
+    `Float` (magnitude), `Vec3` (componentwise), and `Mat3` (componentwise). -/
 class Abs (α : Type) where
+  /-- Absolute value / componentwise magnitude. -/
   abs : α → α
 
 instance : Abs Float where
@@ -332,6 +366,7 @@ instance : Abs Mat3 where
 
 /-- Euclidean norm for vectors, Frobenius norm for matrices. -/
 class Norm (α : Type) where
+  /-- Euclidean (vector) or Frobenius (matrix) norm. -/
   norm : α → Float
 
 instance : Norm Vec3 where
@@ -343,6 +378,7 @@ instance : Norm Mat3 where
 
 /-- Squared norm: Euclidean for vectors, Frobenius for matrices. -/
 class NormSq (α : Type) where
+  /-- Squared norm. -/
   normSq : α → Float
 
 instance : NormSq Vec3 where
@@ -354,6 +390,7 @@ instance : NormSq Mat3 where
 
 /-- Hadamard (componentwise) product. -/
 class Hadamard (α : Type) where
+  /-- Componentwise (Hadamard) product. -/
   hadamard : α → α → α
 
 instance : Hadamard Vec3 where
@@ -445,6 +482,7 @@ end  -- public section
    A.a₀₁ * v.x + A.a₁₁ * v.y + A.a₁₂ * v.z,
    A.a₀₂ * v.x + A.a₁₂ * v.y + A.a₂₂ * v.z⟩
 
+/-- Scale all entries of a symmetric matrix by `s`. -/
 @[inline] def SymmMat3.scale (A : SymmMat3) (s : Float) : SymmMat3 :=
   ⟨s * A.a₀₀, s * A.a₁₁, s * A.a₂₂, s * A.a₀₁, s * A.a₀₂, s * A.a₁₂⟩
 

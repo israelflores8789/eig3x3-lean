@@ -45,7 +45,7 @@ Specifically, the non-iterative algorithm (§5):
 The gap comparison method replaces Eberly's sign method, which is equivalent
 in exact arithmetic but more direct.
 
-## Visbility
+## Visibility
 
 This is an internal, package-private module and not intended to be used directly.
 -/
