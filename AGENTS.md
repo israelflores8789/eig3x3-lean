@@ -121,7 +121,7 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 
 ### Citations
 - `references.bib` is the docs bibliography. Cite in docstrings as `[Key]` or `[text][Key]` to allow doc-gen4 to render citations as links.
-- `Eigenvalues.lean` must cite [HaberaZilian2025]; `Eigenvectors.lean` must cite [Eberly2021]. New algorithmic sources get a bib entry first, then citations.
+- `Eigenvalues.lean` must cite [HaberaZilian2025]; `Eigenvectors.lean` must cite [Eberly2014]. New algorithmic sources get a bib entry first, then citations.
 - Keep `references.bib` in sync with `CITATION.cff`'s `references:` list.
 
 ## References

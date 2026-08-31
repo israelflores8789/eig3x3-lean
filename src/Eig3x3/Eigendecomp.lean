@@ -16,9 +16,9 @@ import all Eig3x3.Eigenvectors
 `eigendecomp` is the package's primary entry point. It owns all steps of
 the eigendecomposition pipeline:
 - zero fast path,
-- max-abs preconditioning (Eberly's overflow guard),
-- ordered eigenvalues on the scaled matrix (Habera–Zilian),
-- isolated-eigenvalue-first eigenvector assembly (Eberly),
+- max-abs preconditioning (Eberly's overflow guard [Eberly2014]),
+- ordered eigenvalues on the scaled matrix (Habera–Zilian [HaberaZilian2025]),
+- isolated-eigenvalue-first eigenvector assembly (Eberly [Eberly2014]),
 - and eigenvalue rescaling.
 -/
 
@@ -28,9 +28,9 @@ namespace Eig3x3
     `A = QΛQᵀ = Σᵢ λᵢ cᵢcᵢᵀ` with `l₀ ≤ l₁ ≤ l₂` and `Q` right-handed
     orthonormal.
 
-    Pipeline: zero fast path → max-abs preconditioning (Eberly) → ordered
-    eigenvalues on the scaled matrix (Habera–Zilian) → eigenvector assembly
-    consuming those eigenvalues (Eberly) → eigenvalue rescaling. -/
+    Pipeline: zero fast path → max-abs preconditioning (Eberly [Eberly2014]) → ordered
+    eigenvalues on the scaled matrix (Habera–Zilian [HaberaZilian2025]) → eigenvector
+    assembly consuming those eigenvalues (Eberly [Eberly2014]) → eigenvalue rescaling. -/
 public def eigendecomp (A : SymmMat3) : Decomposition :=
   let maxAbs := A.maxAbsEntry
   if maxAbs == 0.0 then

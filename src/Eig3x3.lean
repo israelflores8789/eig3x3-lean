@@ -14,8 +14,9 @@ public import Eig3x3.Eigenvalues
 # Eig3x3 — closed-form eigendecomposition of real symmetric 3×3 matrices
 
 Pure Lean 4 eigendecomposition implementation of *real symmetric* 3×3 matrices
-over the `Float` type using Habera-Zilian's method for computing the eigenvalue
-vector and Eberly's non-iterative method for computing the eigenvector matrix.
+over the `Float` type using Habera-Zilian's method [HaberaZilian2025] for computing
+the eigenvalue vector and Eberly's non-iterative method [Eberly2014] for computing
+the eigenvector matrix.
 
 No Mathlib, no FFI bindings, native Lean, zero dependencies.
 
@@ -31,25 +32,22 @@ avoid this computational cost but suffer in accuracy by evaluating the classical
 trigonometric cubic formula whose arccos near ±1 and subtractive discriminant
 lose precision when two eigenvalues are close.
 
-Habera–Zilian remove this trade-off by proposing a *closed-form* alternative where
-numerically dangerous steps — using invariants from diagonal differences, computing
-the discriminant as a sum of squares, representing the angle as the arctan — are
-re-engineered. Performance is demonstrated to match iterative solvers at machine
+Habera–Zilian [HaberaZilian2025] remove this trade-off by proposing a *closed-form*
+alternative where numerically dangerous steps — using invariants from diagonal differences,
+computing the discriminant as a sum of squares, representing the angle as the arctan —
+are re-engineered. Performance is demonstrated to match iterative solvers at machine
 precision while still carrying the speed and determinism of a closed-form solution.
 
 ## Provenance
 
-* **Eigenvalues** (`Eig3x3.Eigenvalues`) — Habera & Zilian, "Numerically
-  stable evaluation of closed-form expressions for eigenvalues of 3×3
-  matrices", arXiv:2511.00292v2 (2025). Specifically:
+* **Eigenvalues** (`Eig3x3.Eigenvalues`) — [HaberaZilian2025]. Specifically:
   * the invariants I₁ (Alg. 1), J₂ (Alg. 2), J₃ (Alg. 5),
   * the Algorithm 8 sum-of-squares discriminant (factorization originating in
-    Habera–Zilian 2021, arXiv:2111.02117),
+    [HaberaZilian2021]),
   * quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4),
   * ordered eigenvalues λ₀ ≤ λ₁ ≤ λ₂ (Eq. 2).
 
-* **Eigenvectors** (`Eig3x3.Eigenvectors`, internal) — D. Eberly, "A Robust
-  Eigensolver for 3×3 Symmetric Matrices", Geometric Tools (CC BY 4.0).
+* **Eigenvectors** (`Eig3x3.Eigenvectors`, internal) — [Eberly2014].
   Specifically, the non-iterative algorithms described in §5, including:
   * max-abs preconditioning,
   * isolated-eigenvector from cross products (§5, Listing 4),
@@ -59,9 +57,9 @@ precision while still carrying the speed and determinism of a closed-form soluti
 
 ## Deviations from the sources
 
-* Eberly's acos-based eigenvalue evaluation is replaced by the Habera–Zilian
-  invariant pipeline (Habera–Zilian prove the acos form is unstable near repeated
-  eigenvalues, and their arctan form is preferred).
+* Eberly's acos-based eigenvalue evaluation [Eberly2014] is replaced by the
+  Habera–Zilian invariant pipeline [HaberaZilian2025] (Habera–Zilian prove the
+  acos form is unstable near repeated eigenvalues, and their arctan form is preferred).
 * Eberly's sign half-determinant method is replaced by a direct gap comparison
   on the ordered eigenvalues — equivalent in exact arithmetic and more direct.
 * Adds a final 3-element sort of the computed eigenvalues: H–Z's ordering
@@ -70,8 +68,8 @@ precision while still carrying the speed and determinism of a closed-form soluti
   at a degenerate angle can disagree by ~1 ulp. The sort is a pure permutation,
   runs before eigenvector assembly, and the assembly remains right-handed by
   construction (the third vector is always a cross product).
-* `eigvecIsolated` adds a defensive exact-zero fallback; Eberly relies on
-  exact-arithmetic rank 2 and has no such guard.
+* `eigvecIsolated` adds a defensive exact-zero fallback; Eberly [Eberly2014] relies
+  on exact-arithmetic rank 2 and has no such guard.
 
 ## Validation (op-for-op float64 mirror vs `numpy.linalg.eigh`)
 
@@ -89,9 +87,9 @@ precision while still carrying the speed and determinism of a closed-form soluti
 
 Complex Hermitian is currently *out of scope* but is in consideration for v2.
 
-**Note**: Habera-Zilian report that Algorithm 8 for computing the discriminant
-exceeds its (lowest-order) forward-stability bound only for benchmarks with an
-ill-conditioned eigenbasis. However, this requires a regime with a non-orthogonal
+**Note**: Habera-Zilian [HaberaZilian2025] report that Algorithm 8 for computing the
+discriminant exceeds its (lowest-order) forward-stability bound only for benchmarks
+with an ill-conditioned eigenbasis. However, this requires a regime with a non-orthogonal
 eigenvector matrix, which symmetric matrices never possess (κ₂ = 1). This package
 is scoped to real symmetric matrices, so the failing regime is *out of scope*
 by construction.
@@ -101,7 +99,7 @@ by construction.
 `import Eig3x3` publicly offers:
 * type primitives (`Vec3`, `Mat3`, `Eigval3`, `SymmMat3`, and `Decomposition`)
 * vector/matrix operations through `Vec3` and `Mat3`,
-* `eigvals` for calculating eigenvalues using Habera-Zilian's method,
+* `eigvals` for calculating eigenvalues using Habera-Zilian's method [HaberaZilian2025],
 * `eigendecomp` for performing eigendecomposition including the eigenvectors,
 * and `certify` for runtime residual error feedback.
 

@@ -11,7 +11,7 @@ public import Eig3x3.Basic
 # Eig3x3.Eigenvalues — the Habera–Zilian invariant pipeline
 
 Given a *real symmetric matrix* `A` to decompose, performs Habera-Zilian's
-method to compute an ordered vector of eigenvalues, `Eigval3`.
+method [HaberaZilian2025] to compute an ordered vector of eigenvalues, `Eigval3`.
 
 ## Algorithm
 
@@ -36,14 +36,14 @@ k = { 1, 2, 3 } (`eigvals`).
 ## Provenance
 
 Habera & Zilian, "Numerically stable evaluation of closed-form expressions
-for eigenvalues of 3×3 matrices", arXiv:2511.00292v2 (2025). CC BY 4.0.
+for eigenvalues of 3×3 matrices", arXiv:2511.00292v2 (2025).
+[HaberaZilian2025] (CC BY 4.0).
 
 Specifically:
 * invariants I₁ (Alg. 1), J₂ (Alg. 2), J₃ (Alg. 5),
 * the Algorithm 8 sum-of-squares discriminant,
 * verified Algorithm 8 through factorization of the
-  original Habera-Zilian algorithm
-  (Habera–Zilian 2021, Eq. 29, arXiv:2111.02117),
+  original Habera-Zilian algorithm ([HaberaZilian2021], Eq. 29),
 * quadrant-safe angle φ = atan2(√(27Δ), 27J₃) (Eq. 4),
 * and ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
 
@@ -63,10 +63,10 @@ namespace Eig3x3
 
 open scoped Eig3x3
 
-/-- Algorithm 1: I₁ = tr(A). -/
+/-- [HaberaZilian2025] Algorithm 1: I₁ = tr(A). -/
 def i₁ (A : SymmMat3) : Float := A.a₀₀ + A.a₁₁ + A.a₂₂
 
-/-- Algorithm 2, symmetric case: J₂ = ½ tr(dev A)² from diagonal differences
+/-- [HaberaZilian2025] Algorithm 2, symmetric case: J₂ = ½ tr(dev A)² from diagonal differences
     and off-diagonal squares. Exactly zero for scaled identities (H–Z Eq. 62),
     which is what keeps the near-triple-eigenvalue case stable. -/
 def j₂ (A : SymmMat3) : Float :=
@@ -77,7 +77,7 @@ def j₂ (A : SymmMat3) : Float :=
   let offdiag := (A.a₀₁ * A.a₀₁ + A.a₀₂ * A.a₀₂ + A.a₁₂ * A.a₁₂)
   diag + offdiag
 
-/-- Algorithm 5, symmetric case: J₃ = det(dev A) via diagonal differences. -/
+/-- [HaberaZilian2025] Algorithm 5, symmetric case: J₃ = det(dev A) via diagonal differences. -/
 def j₃ (A : SymmMat3) : Float :=
   let d₀ := A.a₀₀ - A.a₁₁
   let d₁ := A.a₀₀ - A.a₂₂
@@ -92,7 +92,7 @@ def j₃ (A : SymmMat3) : Float :=
 
 /-- Discriminant Δ = 4J₂³ − 27J₃² = ∏_{i<j}(λᵢ − λⱼ)².
 
-    Habera–Zilian 2025, Algorithm 8, specialized to symmetric A: the auxiliary
+    [HaberaZilian2025], Algorithm 8, specialized to symmetric A: the auxiliary
     vectors u = DX(A) and v = DX(Aᵀ) coincide, so the sum-of-products
     Δ = Σᵢ wᵢ uᵢ vᵢ becomes a sum of squares with the published weights
     w = (9,6,6,6,8,8,8,2,2,2,2,2,2,1). All 14 DX terms are kept verbatim for
@@ -103,7 +103,7 @@ def j₃ (A : SymmMat3) : Float :=
     minus sign there, the formula fails the exact identity Δ = 4J₂³ − 27J₃²
     (verified in exact rational arithmetic over 200 random symmetric
     matrices); the plus sign also agrees with the validated x₁₀ term of the
-    2021 paper (arXiv:2111.02117, Eq. 29).
+    2021 paper ([HaberaZilian2021], Eq. 29).
 
     Validated: exact identity with 4J₂³ − 27J₃² in exact rational arithmetic;
     machine precision on both 2025 benchmark paths (D1, D2), on adversarial
@@ -137,7 +137,7 @@ def delta (A : SymmMat3) : Float :=
 /-- 2π/3 to full double precision. -/
 def twoPiOver3 : Float := 2.0943951023931953
 
-/-- Eigenvalues in increasing order (H–Z Eq. 2 with the Eq. 4 arctan angle).
+/-- Eigenvalues in increasing order ([HaberaZilian2025] Eq. 2 with the Eq. 4 arctan angle).
     `atan2` yields φ ∈ [0, π]; k = 1, 2, 3 then gives λ₁ ≤ λ₂ ≤ λ₃.
     For a scaled identity, J₂ = J₃ = Δ = 0, φ = atan2(0,0) = 0, and all three
     eigenvalues come out as exactly I₁/3.

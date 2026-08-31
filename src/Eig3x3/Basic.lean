@@ -110,9 +110,9 @@ structure SymmMat3 where
 /-- Ordered eigenvalues `l₀ ≤ l₁ ≤ l₂`.
 
     Not meant to be used directly. A distinct return type so eigenvalue
-    ordering guarantees required by Eberly's algorithm are carried by the type.
-    Coerces to `Vec3` for vector operations. Coercion is one-way, and ordering
-    guarantees do not hold after coercion. -/
+    ordering guarantees required by Eberly's algorithm [Eberly2014] are carried
+    by the type. Coerces to `Vec3` for vector operations. Coercion is one-way,
+    and ordering guarantees do not hold after coercion. -/
 structure Eigval3 where
   /-- Smallest eigenvalue. -/
   l₀ : Float
@@ -486,7 +486,7 @@ end  -- public section
 @[inline] def SymmMat3.scale (A : SymmMat3) (s : Float) : SymmMat3 :=
   ⟨s * A.a₀₀, s * A.a₁₁, s * A.a₂₂, s * A.a₀₁, s * A.a₀₂, s * A.a₁₂⟩
 
-/-- Largest |entry|, used for preconditioning (Eberly's overflow guard). -/
+/-- Largest |entry|, used for preconditioning (Eberly's overflow guard [Eberly2014]). -/
 def SymmMat3.maxAbsEntry (A : SymmMat3) : Float :=
   let m₀ := max A.a₀₀.abs A.a₀₁.abs
   let m₁ := max A.a₀₂.abs A.a₁₁.abs

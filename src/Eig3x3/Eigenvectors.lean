@@ -10,8 +10,9 @@ import all Eig3x3.Basic
 /-!
 # Eig3x3.Eigenvectors — the Eberly eigenvector assembly
 
-Given the eigenvalues from Habera-Zilian's method (see `Eig3x3.Eigenvalues`),
-this module performs Eberly's non-iterative method to compute the eigenvectors.
+Given the eigenvalues from Habera-Zilian's method (see `Eig3x3.Eigenvalues`,
+[HaberaZilian2025]), this module performs Eberly's non-iterative method
+[Eberly2014] to compute the eigenvectors.
 
 ## Algorithm
 
@@ -34,7 +35,7 @@ is valid, and the code falls back to the unit vector of the eigenbasis.
 ## Provenance
 
 D. Eberly, "A Robust Eigensolver for 3×3 Symmetric Matrices", Geometric
-Tools, (2014). CC BY 4.0.
+Tools, (2014). [Eberly2014] (CC BY 4.0).
 
 Specifically, the non-iterative algorithm (§5):
 * isolated-eigenvector from cross products (§5, Listing 4),
@@ -61,7 +62,7 @@ open scoped Eig3x3
     compute all three and keep the longest — in floating point, the longest
     cross carries the most accuracy.
 
-    Reference: Eberly §5, Listing 4.
+    Reference: [Eberly2014] §5, Listing 4.
 
     Algorithmic Addition: If all crosses are exactly zero then A = λI, every
     direction is an eigenvector, and we return the unit eigenbasis vector e₁. -/
@@ -89,7 +90,7 @@ def eigvecIsolated (A : SymmMat3) (lam : Float) : Vec3 :=
     cross product has the most accurate direction. The third vector is then
     just `w × u`: automatically unit-length and perpendicular to both.
 
-    Reference: Eberly §5, Listing 5. -/
+    Reference: [Eberly2014] §5, Listing 5. -/
 def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
   let u :=
     if |w.y| < |w.x| then
@@ -110,7 +111,7 @@ def orthonormalComplement (w : Vec3) : Vec3 × Vec3 :=
     whole 2×2 vanishes, such that M ≈ 0, then λ is a repeated eigenvalue, any
     vector in the plane is an eigenvector, and we return `u`.
 
-    Reference: Eberly §5, Listing 6. -/
+    Reference: [Eberly2014] §5, Listing 6. -/
 def eigvecInPlane (A : SymmMat3) (v₀ : Vec3) (lam : Float) : Vec3 :=
   let (u, v) := orthonormalComplement v₀
   let au := A.mulVec u
@@ -157,7 +158,7 @@ def eigvecInPlane (A : SymmMat3) (v₀ : Vec3) (lam : Float) : Vec3 :=
 
     Precondition (contract): `e.l₀ ≤ e.l₁ ≤ e.l₂` must be the spectrum of `B`.
 
-    References: Eberly §3; Habera-Zilian Eq. 2 for ordering. -/
+    References: [Eberly2014] §3; [HaberaZilian2025] Eq. 2 for ordering. -/
 def eigvecs (B : SymmMat3) (e : Eigval3) : Mat3 :=
   let gapLo := e.l₁ - e.l₀
   let gapHi := e.l₂ - e.l₁
