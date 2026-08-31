@@ -53,8 +53,49 @@ docs-dev:
 docs:
     cd docbuild && lake build Eig3x3:docs
 
+# docs-serve port="8000":
+#     cd docbuild/.lake/build/doc && {{py}} -m http.server {{port}}
 docs-serve port="8000":
+    @if command -v lsof >/dev/null 2>&1; then \
+        pids=$(lsof -t -i :{{port}}); \
+        if [ -n "$pids" ]; then \
+            echo "Port {{port}} is already in use by PID(s): $pids"; \
+            echo "Run 'just docs-serve-stop {{port}}' first."; \
+            exit 1; \
+        fi; \
+    elif command -v fuser >/dev/null 2>&1; then \
+        if fuser {{port}}/tcp >/dev/null 2>&1; then \
+            echo "Port {{port}} is already in use."; \
+            echo "Run 'just docs-serve-stop {{port}}' first."; \
+            exit 1; \
+        fi; \
+    else \
+        if {{py}} -c "import socket; s = socket.socket(); s.bind(('', {{port}})); s.close()" 2>/dev/null; then \
+            true; \
+        else \
+            echo "Port {{port}} is already in use (detected via socket bind)."; \
+            echo "Run 'just docs-serve-stop {{port}}' first."; \
+            exit 1; \
+        fi; \
+    fi
     cd docbuild/.lake/build/doc && {{py}} -m http.server {{port}}
+
+docs-serve-stop port="8000":
+    @echo "Stopping http.server on port 8000..."
+    @if command -v lsof >/dev/null 2>&1; then \
+        pids=$(lsof -t -i :{{port}}); \
+        if [ -n "$pids" ]; then \
+            echo "PIDs: $pids"; \
+            kill $pids; \
+        else \
+            echo "Nothing running on port {{port}}"; \
+        fi \
+    elif command -v fuser >/dev/null 2>&1; then \
+        fuser -k {{port}}/tcp || true; \
+    else \
+        echo "No lsof or fuser; please install one of them or kill manually."; \
+        exit 1; \
+    fi
 
 # ---- hygiene ----
 
