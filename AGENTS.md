@@ -94,30 +94,29 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 ### Rules
 - NEVER loosen a tolerance or edit an expected value to make a failure pass. STOP and REPORT the failure.
 - Numerical literals are INTENTIONALLY close (e.g. 1 ULP apart). Do NOT modify these figures; their purpose is to test mathematic float-point execution.
-- the directory `generated/` contains generated artifacts (e.g. `golden.json`). NEVER edit the contents inside `generated/`. 
+- the directory `generated/` contains generated artifacts (e.g. `golden.json`). NEVER edit the contents inside `generated/`.
   - USE `just golden` to generate or update `generated/golden.json`.
 - `parity/gates.py` mirrors `Tests/Util.lean`; IF requested by the user, modify them together or STOP and REPORT a conflict.
 - Do NOT modify `parity/errata.py`.
 - USE `just <cmd>` for all tests. Do NOT perform manual command line equivalents UNLESS you believe the `just` command to be stale. IF you believe a dedicated `just` command is stale, REPORT to the user your proposed update.
 
 ## Known Issues
-- The Habera–Zilian reference paper contains a typo in: §7, Algorithm 8, `r₁₀`. The corrected form is implemented in `src/Eig3x3/Eigenvalues.lean`. Do NOT "fix" it back. 
+- The Habera–Zilian reference paper contains a typo in: §7, Algorithm 8, `r₁₀`. The corrected form is implemented in `src/Eig3x3/Eigenvalues.lean`. Do NOT "fix" it back.
 
 ## Boundaries
 - Do NOT add Lake dependencies unless explicitly asked.
-- ALWAYS prefer the latest fully **stable** version of the Lean 4 toolchain. Do NOT change `lean-toolchain` without notifying the user. 
+- ALWAYS prefer the latest fully **stable** version of the Lean 4 toolchain. Do NOT change `lean-toolchain` without notifying the user.
 
 ## Documentation (doc-gen4)
 - API docs are generated with **doc-gen4** from the nested `docbuild/` Lake package. The root `lakefile.toml` must remain dependency-free. NEVER add `doc-gen4` to it. The `docbuild/` package is inert for downstream consumers.
 - The doc-gen4 `rev` in `docbuild/lakefile.toml` is pinned to match the root `lean-toolchain` stable release (`v4.x`). Bump the two *together*, never independently.
-- Do NOT build documentation UNLESS asked. 
+- Do NOT build documentation UNLESS asked.
 - Do NOT build documentation as a matter of routine when running tests or verifying source package changes.
 
 ### Commands
 - `just docs-dev` — build docs into `docbuild/.lake/build/doc/`
-- `just docs-serve` — preview locally at localhost:8000
 - `just docs-update` — the ONLY way doc-gen4 gets updated. Do NOT update every build unless requested.
-- Do NOT use `just docs` — reserved for a separate docs CI workflow. 
+- Do NOT use `just docs` — reserved for a separate docs CI/CD GitHub workflow (`docs.yml`).
 
 ### Citations
 - `references.bib` is the docs bibliography. Cite in docstrings as `[Key]` or `[text][Key]` to allow doc-gen4 to render citations as links.
@@ -131,4 +130,3 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 - Eberly (2014) — eigenvector decomposition
   - title: "A Robust Eigensolver for 3×3 Symmetric Matrices"
   - article: <https://www.geometrictools.com/Documentation/RobustEigenSymmetric3x3.pdf>
-
