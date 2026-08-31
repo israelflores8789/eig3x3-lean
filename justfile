@@ -99,13 +99,13 @@ docs-serve-stop port="8000":
 
 # ---- hygiene ----
 
-spell: 
+spell:
     typos
 
 spell-diff:
     typos --diff
 
-spell-fix: 
+spell-fix:
     typos --write-changes
 
 lint:

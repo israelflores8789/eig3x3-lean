@@ -5,7 +5,7 @@
 
 **This library is an implementation of the algorithms defined in the following scholarly articles and publishings:**
 
-David H. Eberly, "A Robust Eigensolver for 3x3 Symmetric Matrices," Geometric Tools, 
+David H. Eberly, "A Robust Eigensolver for 3x3 Symmetric Matrices," Geometric Tools,
 LLC, 2014. <https://www.geometrictools.com/Documentation/RobustEigenSymmetric3x3.pdf>
 
 Michal Habera and Andreas Zilian, "Numerically stable evaluation of closed-form

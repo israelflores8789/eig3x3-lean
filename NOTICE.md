@@ -7,7 +7,7 @@ Copyright © 2026 Israel Flores-Arbolay (<https://orcid.org/0009-0009-6801-4103>
 
 This project is distributed under the terms of its own license; see `LICENSE`.
 This file provides legally and scholarly relevant attribution for the works this
-project builds on. Mathematical methods are not subject to copyright; this attribution 
+project builds on. Mathematical methods are not subject to copyright; this attribution
 is maintained as scholarly courtesy.
 
 ---
@@ -37,7 +37,7 @@ deviatoric invariants with a stabilized discriminant as defined in the 2025 pape
 * and ordered eigenvalues λ₁ ≤ λ₂ ≤ λ₃ (Eq. 2).
 
 ### Eigenvector Provenance
-David H. Eberly, "A Robust Eigensolver for 3x3 Symmetric Matrices," Geometric Tools, 
+David H. Eberly, "A Robust Eigensolver for 3x3 Symmetric Matrices," Geometric Tools,
 LLC, 2014. <https://www.geometrictools.com/Documentation/RobustEigenSymmetric3x3.pdf>
 
 Null-space construction of eigenvectors from known eigenvalues, specifically
@@ -59,13 +59,13 @@ Correctness does not rest on manual review. The implementation is parity-tested
 in CI against an independent NumPy/LAPACK reference over a shared corpus of test
 vectors — including repeated and near-repeated eigenvalues, mpmath-based "golden"
 vectors, degenerate discriminant regimes, and runtime certificates on residual
-error, orthonomality, and reconstruction (QᵀQ = I) — under machine-epsilon-scaled 
+error, orthonomality, and reconstruction (QᵀQ = I) — under machine-epsilon-scaled
 tolerances.
 
 See `tests/` and `parity/`, or run `just parity` to reproduce.
 
 ## 3. Name and Affiliation
 
-The project name references `eig3x3`, the C implementation by Habera and Zilian, 
-and marks this as the Lean 4 implementation of their published work. This 
+The project name references `eig3x3`, the C implementation by Habera and Zilian,
+and marks this as the Lean 4 implementation of their published work. This
 project is not affiliated with or endorsed by the original authors.

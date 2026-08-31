@@ -1,3 +1,5 @@
+exclude: '^generated/golden\.json$'
+
 repos:
 - repo: https://github.com/crate-ci/typos
   rev: v1.50.0

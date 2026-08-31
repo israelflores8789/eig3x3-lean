@@ -6,7 +6,7 @@ abstract: >-
   A pure Lean 4 library for closed-form eigenvalue and eigenvector
   decomposition of 3 x 3 real matrices. Eigenvalues follow the numerically
   stabilized closed-form evaluation of Habera and Zilian; eigenvectors use
-  Eberly's null-space construction from known eigenvalues. Native Lean4 and 
+  Eberly's null-space construction from known eigenvalues. Native Lean4 and
   no external dependencies.
 authors:
   - family-names: Flores-Arbolay
