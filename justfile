@@ -4,7 +4,7 @@ py := "uv run python"
 pytest := "uv run pytest"
 parity_dir := "parity"
 
-default: build_all test lint typecheck parity
+default: build-all test lint typecheck parity
 
 # ---- Lean ----
 
@@ -14,13 +14,13 @@ build:
 test:
     lake test
 
-build_bench:
+build-bench:
     lake build eig3x3_bench
 
-build_cli:
+build-cli:
     lake build eig3x3_cli
 
-build_all: build build_bench build_cli
+build-all: build build-bench build-cli
 
 # ---- Python parity harness ----
 
@@ -47,15 +47,25 @@ bench:
 docs-update:
     cd docbuild && lake update doc-gen4
 
-docs-build:
-    cd docbuild && lake build Eig3x3:docs
+docs-dev:
+    cd docbuild && DOCGEN_SRC="vscode" lake build Eig3x3:docs
 
-docs: docs-build
+docs:
+    cd docbuild && lake build Eig3x3:docs
 
 docs-serve port="8000":
     cd docbuild/.lake/build/doc && {{py}} -m http.server {{port}}
 
 # ---- hygiene ----
+
+spell: 
+    typos
+
+spell-diff:
+    typos --diff
+
+spell-fix: 
+    typos --write-changes
 
 lint:
     uv run ruff check {{parity_dir}}

@@ -56,7 +56,7 @@ def parseRefs (cs : List Char) : Option (Eigval3 × List Char) := do
   let cs ← expectChar ']' cs
   pure (⟨a, b, c⟩, cs)
 
-/-- Skip human-readble display strings. -/
+/-- Skip human-readable display strings. -/
 def skipStringArray (cs : List Char) : Option (List Char) := do
   let cs ← expectChar '[' cs
   let (_, cs) ← parseStringLit cs

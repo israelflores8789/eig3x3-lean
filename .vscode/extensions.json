@@ -6,7 +6,8 @@
     "charliermarsh.ruff",
     "nefrob.vscode-just-syntax",
     "leanprover.lean4",
-    "tamasfe.even-better-toml"
+    "tamasfe.even-better-toml",
+    "tekumara.typos-vscode"
   ],
   "unwantedRecommendations": [
     "ms-python.vscode-pylance",
