@@ -15,9 +15,10 @@ eig3x3-lean/
 │   │   ├── Eigendecomp.lean   # Perform eigendecomposition
 │   │   └── Certificates.lean  # Runtime calculation assurances
 ├── tests/
-│   ├── Main.lean              # lean_exe: test driver (`lake test`)
-│   ├── Cli.lean               # lean_exe: eig3x3_cli, parity/bench JSON-driven CLI
+│   ├── Main.lean              # lean_exe: eig3x3_tests, test driver (`lake test`)
+│   ├── Cli.lean               # lean_exe: eig3x3_cli, parity JSON-driven CLI
 │   ├── JsonMiniReader.lean    # shared minimal JSON reader (Cli + Golden)
+│   ├── Bench.lean             # lean_exe: eig3x3_bench, benchmark CLI
 │   ├── Tests/
 │   │   ├── Certificates.lean  # Per-case certificate assertions under machine-epsilon gates
 │   │   ├── Golden.lean        # Assertions against "golden" reference vectors
@@ -33,13 +34,26 @@ eig3x3-lean/
 │   ├── golden.py              # 50-digit mpmath golden vectors generator; writes golden.json
 │   ├── conftest.py            # pytest configuration, auto-scaffolding fixtures & CLI options
 │   └── bench.py               # performance benchmark of Lean against numpy/LAPACK
-├── scripts/                   # dev/CI helper scripts
-├── golden.json                # generated golden vectors (generated, versioned, never hand-edited)
+├── docbuild/                  # doc-gen4 subproject for src/ docs generation
+│   ├── docs/references.bib    # symlink for doc-gen4 references
+│   ├── lake-manifest.json
+│   └── lakefile.toml          # keeps parent project (Eig3x3) zero-dependency
+├── .github/workflows/
+│   ├── ci.yml                 # CI workflow triggered on every PR to main and push to dev
+│   ├── docs.yml               # CD workflow for doc-gen4 scheduled weekly and every release on main
+│   └── cd.yml
+├── generated/golden.json      # generated golden vectors (generated, versioned, never hand-edited)
+├── CITATION.cff               # machine-readable citations for Habera-Zilian and Eberly's work
+├── references.bib             # BibTeX citations for doc-gen4
+├── LICENSE                    # Apache 2.0
+├── NOTICE.md
+├── README.md
 ├── lakefile.toml              # Lean4 project configuration
 ├── lean-toolchain             # Lean4 toolchain version
 ├── lake-manifest.json         # Lean4 project dependencies and metadata
 ├── pyproject.toml             # Python env (non-packaged) + pytest/ruff config
 ├── uv.lock
+├── .pre-commit.config.yaml
 └── justfile                   # command runner
 ```
 
@@ -64,16 +78,16 @@ Eig3x3 ──┬──> Util ──┬──> KnownAnswer ───┐
 ### Python parity test dependency flow (`parity/`)
 ```
 Parity Test:
-                                         generated/golden.json ──┐
-  gen_cases.py ──> lean_cli.py ──┬──> eig3x3_cli (Lean binary) ──┼──> parity.py
-                                 │                    gates.py ──┘
-                                 └──> golden.py ────────────────────> conftest.py (pytest)
+                                                 generated/golden.json ──┐
+  gen_cases.py ──> lean_cli.py ──┬──> eig3x3_cli (lean_exe: Main.lean) ──┼──> parity.py
+                                 │                            gates.py ──┘
+                                 └──> golden.py ────────────────────────────> conftest.py (pytest)
 
 Generate "Golden" Vectors:
-  golden.py (generate vectors) ──> generated/golden.json ──> Tests/Golden.lean
+  golden.py (generate vectors) ──> generated/golden.json ──> Tests/Golden.lean ──> eig3x3_tests (lean_exe: Main.lean)
 
 Benchmark:
-  bench.py  ──> eig3x3_cli (Lean binary)
+  bench.py  <──> eig3x3_bench (lean_exe: Bench.lean)
 ```
 
 ## Commands
