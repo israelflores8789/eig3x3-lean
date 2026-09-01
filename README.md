@@ -87,8 +87,11 @@ Then run `lake update` and `lake build`.
 
 Because `Eig3x3` has zero external dependencies (no Mathlib, no Batteries) and uses only standard Lean 4 core language primitives (`Float`, structures, and typeclasses), it maintains broad compatibility across Lean 4 versions:
 
-- **Supported Toolchains**: Lean 4 `v4.16.0` or later.
-- **CI Toolchain Matrix**: Built and continuously tested across active stable and candidate Lean 4 releases (including `v4.24.0`, `v4.28.0`, and `v4.34.0-rc2`).
+- **Supported Toolchains**: Lean 4 `v4.27.0` or later.
+- **CI Toolchain Matrix**: Built and continuously tested across active stable and candidate Lean 4 releases, including:
+  - `v4.27.0`
+  - `v4.30.0`
+  - `v4.34.0-rc2`
 
 ## Quick Start
 

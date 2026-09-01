@@ -20,8 +20,15 @@ jobs:
     - uses: crate-ci/typos@v1
 
   ci:
-    name: Full CI Gate (Lean + Parity)
+    name: Lean + Parity CI (${{ matrix.lean-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lean-version:
+        - leanprover/lean4:v4.27.0
+        - leanprover/lean4:v4.30.0
+        - leanprover/lean4:v4.34.0-rc2
 
     steps:
     - name: Checkout Repository
@@ -29,6 +36,8 @@ jobs:
 
     - name: Build Lean Project
       uses: leanprover/lean-action@v1
+      with:
+        lean-version: ${{ matrix.lean-version }}
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v10.0.1
@@ -48,6 +57,6 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v7
       with:
-        name: parity-junit-report
+        name: parity-junit-report-${{ strategy.job-index }}
         path: generated/junit.xml
         if-no-files-found: ignore
