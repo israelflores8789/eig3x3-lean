@@ -32,6 +32,7 @@ eig3x3-lean/
 │   ├── parity.py              # pytest test harness & numpy/LAPACK parity test
 │   ├── errata.py              # exhibits of errata found during implementation
 │   ├── golden.py              # 50-digit mpmath golden vectors generator; writes golden.json
+│   ├── validate_golden.py     # checks golden.json for file drift before release
 │   ├── conftest.py            # pytest configuration, auto-scaffolding fixtures & CLI options
 │   └── bench.py               # performance benchmark of Lean against numpy/LAPACK
 ├── docbuild/                  # doc-gen4 subproject for src/ docs generation
@@ -41,7 +42,7 @@ eig3x3-lean/
 ├── .github/workflows/
 │   ├── ci.yml                 # CI workflow triggered on every PR to main and push to dev
 │   ├── docs.yml               # CD workflow for doc-gen4 scheduled weekly and every release on main
-│   └── cd.yml
+│   └── release.yml            # CD workflow for GitHub release automation
 ├── generated/golden.json      # generated golden vectors (generated, versioned, never hand-edited)
 ├── CITATION.cff               # machine-readable citations for Habera-Zilian and Eberly's work
 ├── references.bib             # BibTeX citations for doc-gen4
@@ -89,7 +90,7 @@ Generate "Golden" Vectors:
   golden.py (generate vectors) ──> generated/golden.json ──> Tests/Golden.lean ──> eig3x3_tests (lean_exe: Main.lean)
 
 Benchmark:
-  bench.py  <──> eig3x3_bench (lean_exe: Bench.lean)
+  bench.py <──> eig3x3_bench (lean_exe: Bench.lean)
 ```
 
 ## Commands

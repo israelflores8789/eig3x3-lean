@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Verify Tag is on Main
+      run: |
+        git fetch origin main:refs/remotes/origin/main
+        git merge-base --is-ancestor ${{ github.sha }} origin/main
+
+    - name: Extract Release Notes from CHANGELOG
+      run: |
+        VERSION="${GITHUB_REF_NAME#v}"
+        awk -v v="$VERSION" '
+          $0 ~ "^## \\[" v "\\]" { found=1; next }
+          /^## \[/ { found=0 }
+          found
+        ' CHANGELOG.md > release-notes.md
+        if [ ! -s release-notes.md ]; then
+          echo "No CHANGELOG.md section for [$VERSION] — write release notes first."
+          exit 1
+        fi
+
+    - name: Build Lean Project
+      uses: leanprover/lean-action@v1
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v10.0.1
+      with:
+        enable-cache: true
+
+    - name: Setup Just
+      uses: extractions/setup-just@v4
+
+    - name: Install Python Dependencies
+      run: uv sync --dev
+
+    - name: Check Golden Vector Drift
+      run: |
+        cp generated/golden.json /tmp/golden-committed.json
+        just golden
+        uv run python parity/validate_goldens.py /tmp/golden-committed.json generated/golden.json
+        cp /tmp/golden-committed.json generated/golden.json
+
+    - name: Run Parity Suite
+      run: just ci
+
+    - name: Publish GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release create "${{ github.ref_name }}" \
+          --verify-tag \
+          --title "${{ github.ref_name }}" \
+          --notes-file release-notes.md \
+          generated/junit.xml

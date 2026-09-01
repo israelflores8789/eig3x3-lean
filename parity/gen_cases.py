@@ -2,8 +2,10 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""Case generation: the zoo, random matrices across scales, Habera-Zilian's
-proposed adversarial paths, and frontier cases.
+"""gen_cases.py — case generation
+
+The zoo, random matrices across scales, Habera-Zilian's proposed adversarial
+paths, and frontier cases.
 
 Everything is seeded; the seed travels in every report header. Matrices are
 6-tuples (a00, a11, a22, a01, a02, a12), matching Lean's Eig3x3.SymmMat3.

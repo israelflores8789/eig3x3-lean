@@ -45,4 +45,5 @@ Please confirm the verification steps performed:
 - [ ] I have maintained the zero-dependency rule for the root `Eig3x3` package (no Mathlib/Batteries in `lakefile.toml`).
 - [ ] I have added docstrings (`/-- ... -/`) for all new public declarations (`linter.missingDocs = true`).
 - [ ] I have not loosened any numerical tolerance gates or edited expected test values to force a pass.
+- [ ] I have not tampered with the golden vectors (`generated/golden.json`), or I have intentionally made changes and included my numerical reasoning.
 - [ ] If new citations are introduced, they have been added to `references.bib` and `CITATION.cff`.

@@ -2,7 +2,7 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Israel Flores-Arbolay
 
-"""Shared numerical test standard.
+"""gates.py — shared numerical test standard
 
 Implements one machine epsilon with scale-aware gates.
 

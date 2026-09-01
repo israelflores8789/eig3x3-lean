@@ -79,6 +79,16 @@ Both the native Lean test suite (`tests/Tests/Util.lean`) and the Python parity 
 - **Never edit generated files directly**: The file `generated/golden.json` is generated via 50-digit `mpmath` arithmetic. Update it only using `just golden`.
 - **Mirroring Mandate**: `parity/gates.py` and `tests/Tests/Util.lean` must always remain strictly synchronized.
 
+### Golden Test Vectors
+
+The parity suite compares Lean output against committed reference fixtures (`generated/golden.json`, produced by `just golden` from NumPy/LAPACK). These fixtures are **test definitions**, not build outputs:
+
+- **Always** run `just golden` *locally* to regenerate `generated/golden.json` and ensure there are no changes in the diff **before** submitting a pull request.
+- **Never** regenerate fixtures as part of a test run, in CI, or "to make a failing test pass." A failing comparison is a signal, not an inconvenience.
+- Regenerate deliberately with `just golden` when an intentional change alters numerical output — e.g., an algorithm change or a pinned NumPy/SciPy upgrade. Include the regenerated `golden.json` in the same PR and describe the numerical impact in the PR description. Reviewers should inspect the fixture diff like any other code change.
+- CI and the release workflow compare Lean against the *committed* fixtures, so every release is certified against the exact fixtures consumers receive.
+- The release workflow performs drift check against the committed fixtures. If it fails, do not patch around it. Investigate and regenerate in a PR.
+
 ## Verification & Testing
 
 Run the entire local CI gate before opening a pull request:
@@ -171,7 +181,7 @@ We welcome contributions in several key areas. If you plan to work on a signific
 1. **Iterative Fallback Solver**: An optional, robust iterative eigensolver (e.g., Jacobi rotations or QR with shifts) for pathological inputs where closed-form transcendental evaluations lose accuracy.
 2. **Complex Hermitian $3 \times 3$ Eigensolver**: Real eigenvalues and unitary eigenvector matrices ($Q^* Q = I$, $\det Q = 1$) for $A = A^*$.
 3. **Additional $3 \times 3$ Decompositions**: SVD via eigendecomposition of $A^T A$; generalized symmetric eigensolvers ($A v = \lambda B v$); polar decomposition ($A = U P$); fast Cholesky and $LDL^T$ factorizations.
-4. **Formal Verification & Bounds Proofs**: A separate, opt-in companion package (e.g., `Eig3x3.Verify` with Mathlib) formalizing correctness proofs, condition numbers, and error bounds — the core library stays proof-free.
+4. **Formal Verification & Bounds Proofs**: A separate, *opt-in* companion package (e.g., `Eig3x3.Verify` with Mathlib) formalizing correctness proofs, condition numbers, and error bounds. *The core library must stay proof-free*.
 5. **Platform Portability & Hardware Acceleration**: Characterization and optimization across ARM64 (NEON), x86-64 (AVX2/FMA), WebAssembly, and embedded targets; SIMD exploration once native vector primitives stabilize in Lean 4.
 6. **Differential Parity Corpus Expansion**: Additional adversarial generators (e.g., Wilkinson-type clustered spectra, random orthogonal similarity orbits $Q D Q^T$).
 
@@ -210,6 +220,9 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 Keep commit messages concise, descriptive, and focused on the *why* of the change (e.g., `fix: correct angle normalization in planar reduction`).
 
 We follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md`:
+
+> [!CAUTION]
+> When adding to the CHANGELOG, be careful to follow formatting rules exactly. The document is used in the CD workflow for GitHub release automation.
 
 - Record every notable change under `## [Unreleased]` at the top of the file as part of your pull request — do not batch entries at release time. Releases are listed newest-first with ISO dates (`## [1.0.0] - 2026-09-01`).
 - Group entries under the standard categories, which map from the commit type:
