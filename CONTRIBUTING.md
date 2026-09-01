@@ -136,6 +136,7 @@ The CI workflow (`.github/workflows/ci.yml`) runs on pull requests targeting `ma
   - Scoped notation: Place Unicode math operators under `open scoped Eig3x3` to avoid polluting downstream namespaces.
 - **Explicit Types**: Always provide explicit return types and argument types for public declarations.
 - **Float Operations**: Prefer idiomatic Lean float operations (e.g., `x.abs`, `x.sqrt`, `x.frExp`) and use `PowNat` / `^ⁿ` for integer exponentiation.
+- **Notation**: Make use of the notation provided by this library for `Vec3` and `Mat3` (`Eig3x3.Basic`) for all linear algebra operations.
 
 ### Documentation & Docstrings
 
@@ -195,7 +196,7 @@ just spell
 just ci
 ```
 
-### 4. Commit Guidelines
+### 4. Commit & Changelog Guidelines
 
 We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
@@ -208,13 +209,36 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 Keep commit messages concise, descriptive, and focused on the *why* of the change (e.g., `fix: correct angle normalization in planar reduction`).
 
+We follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md`:
+
+- Record every notable change under `## [Unreleased]` at the top of the file as part of your pull request — do not batch entries at release time. Releases are listed newest-first with ISO dates (`## [1.0.0] - 2026-09-01`).
+- Group entries under the standard categories, which map from the commit type:
+  - `Added` for new features (`feat:`)
+  - `Changed` for changes to existing behavior (`perf:`, user-visible `refactor:`), including any adjustment to tolerance gates or certificate definitions
+  - `Deprecated` for features slated for removal
+  - `Removed` for features removed in this release
+  - `Fixed` for bug fixes (`fix:`), including numerical regressions and newly documented errata
+  - `Security` for vulnerability fixes
+- **Write entries for the library's users, not the committer**. State the behavioral or numerical effect (e.g., "Reduced worst-case residual for near-double-root matrices to within the $16\varepsilon$ orthogonality gate"), not the implementation diff. Internal-only changes (`test:`, `docs:`, `chore:`) need no entry.
+- Any change to the public API surface (`Eigval3`, `Vec3`, `SymmMat3`, `Mat3`, `Decomposition`, `Eig3x3.certify`) **must** have a changelog entry, and breaking changes are prefixed with **BREAKING**.
+- Versions follow [Semantic Versioning](https://semver.org/). Because downstream projects consume Eig3x3 through Lake/Reservoir, any breaking change to a public declaration *requires a major version bump*. At release time, rename `Unreleased` to the new version and date, then open a fresh empty `Unreleased` section above it, for example:
+   ```markdown
+   ## [Unreleased]
+
+   ## [1.0.0] - 2026-09-01
+
+   ### Added
+
+   - Closed-form Habera–Zilian eigenvalues with Eberly null-space eigenvectors...
+   ```
+
 ### 5. Submitting a Pull Request
 
 1. Push your branch to your fork:
    ```bash
-   git push origin feat/iterative-fallback
+   git push origin feat/<your-new-feature>
    ```
-2. Open a Pull Request targeting the `dev` branch.
+2. Open a Pull Request **targeting the `dev` branch**.
 3. Fill out the Pull Request template completely:
    - Summary of changes and motivation.
    - Algorithmic and mathematical references.

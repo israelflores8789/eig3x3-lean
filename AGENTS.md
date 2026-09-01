@@ -48,6 +48,8 @@ eig3x3-lean/
 ├── LICENSE                    # Apache 2.0
 ├── NOTICE.md
 ├── README.md
+├── CONTRIBUTING.md
+├── CHANGELOG.md
 ├── lakefile.toml              # Lean4 project configuration
 ├── lean-toolchain             # Lean4 toolchain version
 ├── lake-manifest.json         # Lean4 project dependencies and metadata
