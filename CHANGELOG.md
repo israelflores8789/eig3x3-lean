@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Closed-form eigendecomposition of 3x3 real symmetric matrices in pure Lean 4
   over `Float`, with no Mathlib dependency
 - Eigenvalues via the Habera-Zilian (2025) closed-form method
-- Eigenvector construction following Eberly's (2021) r0 × r1 cross-product
+- Eigenvector construction following Eberly's (2014) r0 × r1 cross-product
   convention
 - Core types: `SymmMat3`, `Vec3`, `Mat3`, and `Decomposition` (with
   `eigvals` and `eigvecs` fields)

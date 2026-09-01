@@ -22,7 +22,7 @@ Doctrine:
     references), reconstructed bit-exactly from dyadic pairs.
 
 Usage:
-    python parity.py                    # after `just build_cli`
+    python parity.py                    # after `just build-cli`
 """
 
 import argparse
@@ -249,7 +249,7 @@ def main() -> int:
 
     if not lean_cli.available(args.lean_binary):
         p.error(
-            f"eig3x3_cli not found at {args.lean_binary!r}; run `just build_cli` first"
+            f"eig3x3_cli not found at {args.lean_binary!r}; run `just build-cli` first"
         )
 
     rng = np.random.default_rng(args.seed)

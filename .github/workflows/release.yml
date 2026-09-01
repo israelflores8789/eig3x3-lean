@@ -58,7 +58,7 @@ jobs:
       run: |
         cp generated/golden.json /tmp/golden-committed.json
         just golden
-        uv run python parity/validate_goldens.py /tmp/golden-committed.json generated/golden.json
+        uv run python parity/validate_golden.py /tmp/golden-committed.json generated/golden.json
         cp /tmp/golden-committed.json generated/golden.json
 
     - name: Run Parity Suite

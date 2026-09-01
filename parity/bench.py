@@ -16,7 +16,7 @@ Reports:
 * numpy/LAPACK batched in-process computation cost
 
 Usage:
-    python bench.py                      # after `just build_bench` and `just build_cli`
+    python bench.py                      # after `just build-bench` and `just build-cli`
 """
 
 import argparse
@@ -84,12 +84,12 @@ def main() -> int:
 
     if not lean_cli.available(BENCH_BINARY):
         p.error(
-            f"eig3x3_bench not found at {BENCH_BINARY!r}; run `just build_bench` first",
+            f"eig3x3_bench not found at {BENCH_BINARY!r}; run `just build-bench` first",
         )
 
     if not lean_cli.available(args.lean_binary):
         p.error(
-            f"eig3x3_cli not found at {args.lean_binary!r}; run `just build_cli` first"
+            f"eig3x3_cli not found at {args.lean_binary!r}; run `just build-cli` first"
         )
 
     rng = np.random.default_rng(args.seed)

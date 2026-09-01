@@ -69,7 +69,7 @@ def run(matrices: list, binary: str = DEFAULT_BINARY) -> list:
     """Run the CLI on a batch of 6-tuples; returns a list of Result."""
     if not available(binary):
         raise FileNotFoundError(
-            f"eig3x3_cli not found at {binary!r}; run `just build_cli` first"
+            f"eig3x3_cli not found at {binary!r}; run `just build-cli` first"
         )
     payload = {"matrices": [[float(x) for x in A] for A in matrices]}
     proc = subprocess.run(
@@ -85,7 +85,7 @@ def run(matrices: list, binary: str = DEFAULT_BINARY) -> list:
         if "matrix" not in r:
             raise RuntimeError(
                 "eig3x3_cli result is missing the matrix echo field; "
-                "try rebuilding with `just build_cli`.\n"
+                "try rebuilding with `just build-cli`.\n"
                 "If the problem persists, check that Cli.lean dispatches "
                 'an echoed "matrix".'
             )
