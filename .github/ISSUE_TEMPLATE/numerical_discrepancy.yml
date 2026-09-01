@@ -1,0 +1,49 @@
+name: "📐 Numerical Discrepancy / Precision Issue"
+description: "Report an eigenvalue/eigenvector precision anomaly, certificate gate violation, or floating-point instability"
+title: "[Numerical]: "
+labels: ["numerical", "bug"]
+body:
+- type: markdown
+  attributes:
+    value: |
+      Use this form to report cases where Eig3x3 produces unexpected numerical results, violates the $64\varepsilon / 16\varepsilon$ certificate gates, exhibits loss of precision, or diverges from reference LAPACK/mpmath solutions.
+- type: textarea
+  id: matrix
+  attributes:
+    label: Input Symmetric Matrix
+    description: "Provide the 6 matrix entries (a00, a11, a22, a01, a02, a12) or the exact Lean/JSON representation."
+    placeholder: "⟨a00, a11, a22, a01, a02, a12⟩ or JSON [[...]]"
+  validations:
+    required: true
+- type: textarea
+  id: computed_results
+  attributes:
+    label: Eig3x3 Computed Output
+    description: "Provide computed eigenvalues, eigenvectors, and runtime certificates (from Eig3x3.certify)."
+    placeholder: |
+      Eigenvalues: [l0, l1, l2]
+      Certificates:
+        maxResidual: ...
+        orthogonality: ...
+        reconstruction: ...
+  validations:
+    required: true
+- type: textarea
+  id: reference_results
+  attributes:
+    label: Reference Output (NumPy / LAPACK / mpmath / Mathematica)
+    description: "Provide the expected reference values and tool used (e.g., numpy.linalg.eigh or 50-digit mpmath)."
+  validations:
+    required: true
+- type: textarea
+  id: analysis
+  attributes:
+    label: Error Analysis / Gate Violation
+    description: "Describe which gate failed (e.g., residual > 64 * EPS * maxAbsEntry(A) or orthogonality > 16 * EPS)."
+  validations:
+    required: true
+- type: textarea
+  id: environment
+  attributes:
+    label: Environment & Platform
+    description: "OS, CPU architecture (e.g., x86_64, aarch64, M1/M2), Lean version, libm implementation if known."

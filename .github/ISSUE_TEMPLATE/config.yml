@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+- name: Lean Zulip Community
+  url: https://leanprover.zulipchat.com/
+  about: Please ask general Lean 4 questions on the official Lean Zulip.
