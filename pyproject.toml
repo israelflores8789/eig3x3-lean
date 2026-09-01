@@ -2,7 +2,7 @@
 
 [project]
 name = "eig3x3-parity"
-version = "0.1.0"
+version = "1.0.0"
 description = "Parity and validation harness for the eig3x3 Lean library"
 requires-python = ">=3.12"
 dependencies = ["numpy", "mpmath"]
