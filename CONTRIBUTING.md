@@ -20,7 +20,7 @@ The Lean version is pinned in `lean-toolchain` (e.g., `leanprover/lean4:v4.34.0-
 ### Setup
 
 ```bash
-git clone https://github.com/israelflores8789/eig3x3-lean.git && cd eig3x3
+git clone https://github.com/israelflores8789/eig3x3-lean.git && cd eig3x3-lean
 uv sync --dev               # Python dev dependencies into .venv (parity harness)
 uv run pre-commit install   # formatting, YAML, and spell-check hooks
 just build                  # core library, CLI harness, and benchmarks
@@ -97,7 +97,7 @@ Run the entire local CI gate before opening a pull request:
 just ci   # Lean tests, Ruff, Pyrefly, pytest parity suite (with JUnit XML), typos
 ```
 
-The sections below describe what the gate covers. For individual recipes (`just test`, `just parity`, `just lint`, `just typecheck`, `just spell-diff`, …), see `just --list`.
+The sections below describe what the gate covers. For individual recipes (`just test`, `just parity`, `just lint`, `just typecheck`, `just spell`, …), see `just --list`.
 
 ### Lean Test Suite (`just test`)
 

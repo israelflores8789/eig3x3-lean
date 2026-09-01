@@ -1,13 +1,16 @@
-# Eig3x3
+<h1 align="center">Eig3x3</h1>
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Lean 4](https://img.shields.io/badge/Lean-v4.34.0--rc2-blue.svg)](https://github.com/leanprover/lean4)
-[![Reservoir](https://img.shields.io/badge/Reservoir-v1.0.0-green.svg)](https://reservoir.lean-lang.org/@israelflores8789/Eig3x3)
-[![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-brightgreen.svg)](#)
+<p align="center">
+  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="Licence - Apache 2.0"></a>
+  <a href="https://israelflores8789.github.io/eig3x3-lean"><img src="https://img.shields.io/badge/docs-Lean%20v4.34.0--rc2-blue.svg"></a>
+  <a href="https://github.com/israelflores8789/eig3x3-lean/releases"><img src="https://img.shields.io/github/v/release/israelflores8789/eig3x3-lean" alt="Latest Release"></a>
+  <!-- <a href="https://reservoir.lean-lang.org/@israelflores8789/Eig3x3"><img src="https://reservoir.lean-lang.org/badge/@israelflores8789/Eig3x3.svg" alt="Reservoir"></a> -->
+  <a href ="https://github.com/israelflores8789/eig3x3-lean/actions"><img src="https://github.com/israelflores8789/eig3x3-lean/actions/workflows/ci.yml/badge.svg" alt="Build Status"></a>
+</p>
 
-A pure, high-performance **Lean 4** library for the closed-form eigendecomposition of $3 \times 3$ real symmetric matrices over IEEE 754 64-bit floating point (`Float`).
+A high-performance, pure **Lean 4** library for the closed-form eigendecomposition of $3 \times 3$ real symmetric matrices over IEEE 754 64-bit floating point (`Float`).
 
-**Eig3x3** delivers machine-precision eigenvalues and eigenvectors without external C/FFI bindings and without Mathlib dependencies.
+**Eig3x3** delivers machine-precision eigenvalues and eigenvectors without external C/FFI bindings and Mathlib dependencies.
 
 ## Table of Contents
 
@@ -16,14 +19,14 @@ A pure, high-performance **Lean 4** library for the closed-form eigendecompositi
 - [Installation](#installation)
   - [Supported Toolchains & Downstream Compatibility](#supported-toolchains--downstream-compatibility)
 - [Quick Start](#quick-start)
-- [Core Architecture & Numerical Methods](#core-architecture--numerical-methods)
+- [Matrix Algebra Notation & Operators](#matrix-algebra-notation--operators)
 - [Accuracy & Numerical Stability](#accuracy--numerical-stability)
-- [3D Vector & Matrix Algebra Vocabulary](#3d-vector--matrix-algebra-vocabulary)
+- [Performance Benchmarks](#performance-benchmarks)
+- [Core Architecture & Numerical Methods](#core-architecture--numerical-methods)
 - [Runtime Certificates](#runtime-certificates)
 - [Verification & Testing](#verification--testing)
   - [Lean Test Suite](#lean-test-suite)
   - [Python Parity & Differential Suite](#python-parity--differential-suite)
-- [Performance Benchmarks](#performance-benchmarks)
 - [Citation](#citation)
 - [Credits](#credits)
 
@@ -38,14 +41,14 @@ A pure, high-performance **Lean 4** library for the closed-form eigendecompositi
 
 ## Motivation
 
-Eigendecomposition of $3 \times 3$ symmetric matrices is a core primitive across scientific computing, geometric processing, robotics, and physics simulations.
+I'm using Lean to both prove properties of a custom density model I wrote and compute parity figures to validate implementations of that density model in other applications (e.g. my Python-based Jupyter notebook research). The inspiration for this came from [Amazon's own use of Lean](https://aws.amazon.com/blogs/opensource/lean-into-verified-software-development/) as their parity source-of-truth for the Cedar DSL written in Rust. Fitting my model requires Newton's method, and I needed a floating-point eigensolver for ill-conditioned Hessian management on the parity part of my Lean work. The research I found while solving this problem for myself was exciting, and I chose to make it open-source when I saw how useful it could be for others.
 
-Standard production workflows typically bind via FFI to iterative LAPACK routines (e.g., `dsyev`). While robust, iterative routines:
+Eigendecomposition of $3 \times 3$ symmetric matrices is a core operation across scientific computing, geometric processing, robotics, physics, and more. Standard workflows typically bind via FFI to iterative LAPACK routines (e.g., `dsyev`). For anything $n \le 5$, however, LAPACK routines can be inefficient; and while robust, iterative routines:
 1. Impose external C build dependencies and FFI overhead.
 2. Suffer variable execution times dependent on convergence criteria.
 3. Complicate deployment across pure-Lean environments, embedded contexts, and web/Wasm targets.
 
-Classical closed-form solutions (Cardano/Viète) avoid iterations but suffer catastrophic floating-point cancellation near degenerate (double or triple) eigenvalues. **Eig3x3** brings recent advances in numerically stable closed-form solvers to the Lean 4 ecosystem, providing a lightweight, robust foundation for scientific computing in Lean.
+Classical closed-form solutions, like Cardano/Viète, avoid the iterative approach but suffer catastrophic floating-point cancellation near degenerate eigenvalues. This implementation with **Eig3x3** brings recent advances in numerically stable closed-form solvers to the Lean 4 ecosystem, providing a lightweight, robust and pure Lean solution for the scientific community.
 
 ## Installation
 
@@ -83,15 +86,12 @@ Then run `lake update` and `lake build`.
 ### Supported Toolchains & Downstream Compatibility
 
 > [!NOTE]
-> When `Eig3x3` is consumed as a Lake dependency in your project, its internal `lean-toolchain` file is **ignored** by Lake — your root project's toolchain governs the entire workspace.
+> When `Eig3x3` is consumed as a Lake dependency in your project, its internal `lean-toolchain` file is **ignored** by Lake — your root project's toolchain governs the entire workspace. The **minimum supported toolchain** is `v4.27.0`.
 
-Because `Eig3x3` has zero external dependencies (no Mathlib, no Batteries) and uses only standard Lean 4 core language primitives (`Float`, structures, and typeclasses), it maintains broad compatibility across Lean 4 versions:
-
-- **Supported Toolchains**: Lean 4 `v4.27.0` or later.
-- **CI Toolchain Matrix**: Built and continuously tested across active stable and candidate Lean 4 releases, including:
-  - `v4.27.0`
-  - `v4.30.0`
-  - `v4.34.0-rc2`
+`Eig3x3` has significant backwards compatibility and is built and continuously tested across the following active stable and candidate Lean 4 releases:
+- `v4.27.0`
+- `v4.30.0`
+- `v4.34.0-rc2`
 
 ## Quick Start
 
@@ -118,8 +118,8 @@ def main : IO Unit := do
   -- 3. Verify numerical quality with runtime certificates:
   let certs := Eig3x3.certify A decomp
   IO.println s!"Max Residual ‖Av - λv‖∞: {certs.maxResidual}"
-  IO.println s!"Orthogonality Error:    {certs.orthogonality}"
-  IO.println s!"Reconstruction Error:   {certs.reconstruction}"
+  IO.println s!"Orthogonality Error:     {certs.orthogonality}"
+  IO.println s!"Reconstruction Error:    {certs.reconstruction}"
   -- Errors are typically ≈ 1e-16 to 1e-15
 
   -- 4. Convenient vector & matrix arithmetic:
@@ -128,6 +128,57 @@ def main : IO Unit := do
   let norm := ‖transformed‖
   IO.println s!"Transformed vector norm: {norm}"
 ```
+
+## Matrix Algebra Notation & Operators
+
+`import Eig3x3` includes a complete, standalone 3D linear algebra toolkit with `Float`-type structures `Vec3` and `Mat3` for a 3-element vector and 3-column matrix, respectively, without Mathlib dependencies. Eigenvalues are returned as an ordered `Eigval3` structure which coerces to `Vec3` for vector algebra, and eigenvectors are returned as a `Mat3` structure. Activating `open scoped Eig3x3` enables the following mathematical notations with Mathlib conventions:
+
+| Notation | Operation | Lean Declaration | Precedence / Associativity |
+| :--- | :--- | :--- | :--- |
+| `u + v` / `A + B` | Addition | `HAdd.hAdd` | `infixl:65` |
+| `u - v` / `A - B` | Subtraction | `HSub.hSub` | `infixl:65` |
+| `-v` / `-A` | Negation | `Neg.neg` | Prefix |
+| `A * B` | Matrix product | `HMul.hMul` | `infixl:70` |
+| `A * v` | Matrix-vector product | `HMul.hMul` | `infixl:70` |
+| `v * A` | Row-vector matrix product ($v^T A$) | `HMul.hMul` | `infixl:70` |
+| `v / s` / `A / s` | Scalar division | `HDiv.hDiv` | `infixl:70` |
+| `u ⊗ᵥ v` | Vector outer product ($u v^T$) | `Vec3.outer` | `infixl:70` |
+| `u ⬝ᵥ v` | Vector dot product | `Vec3.dot` | `infixl:72` |
+| `A ⬝ₘ B` | Matrix Frobenius inner product | `Mat3.dot` | `infixl:72` |
+| `s • v` / `s • A` | Scalar multiplication | `HSMul.hSMul` | `infixr:73` |
+| `u ⨯₃ v` | Vector cross product ($\mathbb{R}^3$) | `Vec3.cross` | `infixl:74` |
+| `x ^ⁿ n` / `A ^ⁿ n`| Fast natural power (repeated mul / squaring) | `PowNat.powNat`| `infixr:80` |
+| `u ⊙ v` / `A ⊙ B` | Hadamard (entrywise) product | `Hadamard.hadamard`| `infixl:100` |
+| `\|x\|` / `\|v\|` / `\|A\|` | Absolute value / entrywise magnitude | `Abs.abs` | Delimited (`\|v\|`) |
+| `‖v‖` / `‖A‖` | Euclidean (vector) / Frobenius (matrix) norm | `Norm.norm` | Delimited (`‖v‖`) |
+| `‖v‖²` / `‖A‖²` | Squared norm | `NormSq.normSq` | Delimited (`‖v‖²`) |
+| `Aᵀ` | Matrix transpose | `Mat3.transpose` | `postfix:max` |
+| `A⁻¹` | Matrix inverse (via cofactors) | `Inv.inv` | `postfix:max` |
+
+
+## Accuracy & Numerical Stability
+
+Max residual error ($\|Av - \lambda v\|_\infty / \|A\|_\infty$) across characteristic problem regimes in double precision (`Float` / `float64`):
+
+| Test Regime | Naive Cardano / Viète | NumPy / LAPACK (`dsyev`) | `Eig3x3` (Lean 4) | Status / Notes |
+| :--- | :---: | :---: | :---: | :--- |
+| **Uniform Random** ($A_{ij} \in [-1, 1]$) | $\sim 10^{-15}$ | $\sim 10^{-16}$ | $\mathbf{\sim 10^{-16}}$ | Machine precision across all solvers |
+| **Near-Double Eigenvalues** ($\delta = 10^{-8}$) | $\approx 3.6 \times 10^{-9}$ | $\approx 2.2 \times 10^{-16}$ | $\mathbf{\approx 2.2 \times 10^{-16}}$ | Naive loses ~8 digits; Eig3x3 matches LAPACK |
+| **Near-Triple Eigenvalues** ($\delta = 10^{-8}$) | $\approx 1.5 \times 10^{-8}$ | $\approx 2.2 \times 10^{-16}$ | $\mathbf{\approx 2.2 \times 10^{-16}}$ | $J_2 \to 0$ stabilized via diagonal differences |
+| **Scaled Identity** ($cI$) | $\sim 10^{-15}$ | $0.0$ | $\mathbf{0.0}$ | Exact zero fast path ($J_2 = 0$) |
+| **Dynamic Range** ($10^{-300}$ to $10^{300}$) | Overflow / Underflow | Fails / Subnormal | $\mathbf{\sim 10^{-16}}$ | Bit-transparent `Float.frExp` scaling |
+
+## Performance Benchmarks
+
+Benchmarks measured on $n = 20{,}000$ random symmetric matrices comparing in-process Lean 4 native execution against optimized NumPy/LAPACK (`dgeev`/`dsyev`):
+
+| Implementation / Workload | Latency (µs / matrix) | Throughput (matrices / sec) | Speedup vs. Single LAPACK |
+| :--- | :---: | :---: | :---: |
+| **`Eig3x3` (Lean in-process)** | **0.35 µs** | **~2,850,000 / s** | **~35× faster** |
+| **`Eig3x3` + `certify` (Lean in-process)** | **0.44 µs** | **~2,270,000 / s** | **~28× faster** |
+| `numpy.linalg.eigh` (single-matrix loop) | 12.90 µs | ~77,500 / s | 1.0× (baseline) |
+| `numpy.linalg.eigh` (vectorized batch) | 1.55 µs | ~645,000 / s | ~8.3× faster |
+| `Eig3x3` CLI (end-to-end JSON IPC) | 6.22 µs | ~160,000 / s | ~2.1× faster |
 
 ## Core Architecture & Numerical Methods
 
@@ -171,44 +222,6 @@ The calculation of eigenvectors is fundamentally a null-space computation of $(A
 2. **Quadrant-Safe $\text{atan2}$ Angle Formulation**: Replaces the classical $\arccos$ formulation with $\varphi = \text{atan2}(\sqrt{27\Delta}, 27J_3)$, maintaining forward stability across the full domain.
 3. **Ordering Contract Guard**: While Habera–Zilian guarantees $\lambda_0 \le \lambda_1 \le \lambda_2$ in exact arithmetic, floating-point evaluation of transcendental $\cos$ at degenerate angles can vary by $\sim 1\text{ ULP}$. A final 3-element compare-exchange sort enforces the strict ordering contract.
 4. **Spectral Gap Isolation**: Compares $(\lambda_1 - \lambda_0)$ vs $(\lambda_2 - \lambda_1)$ to construct the isolated eigenvector first from the longest row cross-product, completing the remaining eigenvectors via 2D planar reduction and cross product.
-
-## Accuracy & Numerical Stability
-
-Max residual error ($\|Av - \lambda v\|_\infty / \|A\|_\infty$) across characteristic problem regimes in double precision (`Float` / `float64`):
-
-| Test Regime | Naive Cardano / Viète | NumPy / LAPACK (`dsyev`) | `Eig3x3` (Lean 4) | Status / Notes |
-| :--- | :---: | :---: | :---: | :--- |
-| **Uniform Random** ($A_{ij} \in [-1, 1]$) | $\sim 10^{-15}$ | $\sim 10^{-16}$ | $\mathbf{\sim 10^{-16}}$ | Machine precision across all solvers |
-| **Near-Double Eigenvalues** ($\delta = 10^{-8}$) | $\approx 3.6 \times 10^{-9}$ | $\approx 2.2 \times 10^{-16}$ | $\mathbf{\approx 2.2 \times 10^{-16}}$ | Naive loses ~8 digits; Eig3x3 matches LAPACK |
-| **Near-Triple Eigenvalues** ($\delta = 10^{-8}$) | $\approx 1.5 \times 10^{-8}$ | $\approx 2.2 \times 10^{-16}$ | $\mathbf{\approx 2.2 \times 10^{-16}}$ | $J_2 \to 0$ stabilized via diagonal differences |
-| **Scaled Identity** ($cI$) | $\sim 10^{-15}$ | $0.0$ | $\mathbf{0.0}$ | Exact zero fast path ($J_2 = 0$) |
-| **Dynamic Range** ($10^{-300}$ to $10^{300}$) | Overflow / Underflow | Fails / Subnormal | $\mathbf{\sim 10^{-16}}$ | Bit-transparent `Float.frExp` scaling |
-
-## 3D Vector & Matrix Algebra Vocabulary
-
-`import Eig3x3` includes a complete, standalone 3D linear algebra toolkit with `Float`-type structures `Vec3` and `Mat3` for a 3-element vector and 3-column matrix, respectively, without Mathlib dependencies. Activating `open scoped Eig3x3` enables the following mathematical notations with Mathlib conventions:
-
-| Notation | Operation | Lean Declaration | Precedence / Associativity |
-| :--- | :--- | :--- | :--- |
-| `u + v` / `A + B` | Addition | `HAdd.hAdd` | `infixl:65` |
-| `u - v` / `A - B` | Subtraction | `HSub.hSub` | `infixl:65` |
-| `-v` / `-A` | Negation | `Neg.neg` | Prefix |
-| `A * B` | Matrix product | `HMul.hMul` | `infixl:70` |
-| `A * v` | Matrix-vector product | `HMul.hMul` | `infixl:70` |
-| `v * A` | Row-vector matrix product ($v^T A$) | `HMul.hMul` | `infixl:70` |
-| `v / s` / `A / s` | Scalar division | `HDiv.hDiv` | `infixl:70` |
-| `u ⊗ᵥ v` | Vector outer product ($u v^T$) | `Vec3.outer` | `infixl:70` |
-| `u ⬝ᵥ v` | Vector dot product | `Vec3.dot` | `infixl:72` |
-| `A ⬝ₘ B` | Matrix Frobenius inner product | `Mat3.dot` | `infixl:72` |
-| `s • v` / `s • A` | Scalar multiplication | `HSMul.hSMul` | `infixr:73` |
-| `u ⨯₃ v` | Vector cross product ($\mathbb{R}^3$) | `Vec3.cross` | `infixl:74` |
-| `x ^ⁿ n` / `A ^ⁿ n`| Fast natural power (repeated mul / squaring) | `PowNat.powNat`| `infixr:80` |
-| `u ⊙ v` / `A ⊙ B` | Hadamard (entrywise) product | `Hadamard.hadamard`| `infixl:100` |
-| `\|x\|` / `\|v\|` / `\|A\|` | Absolute value / entrywise magnitude | `Abs.abs` | Delimited (`\|v\|`) |
-| `‖v‖` / `‖A‖` | Euclidean (vector) / Frobenius (matrix) norm | `Norm.norm` | Delimited (`‖v‖`) |
-| `‖v‖²` / `‖A‖²` | Squared norm | `NormSq.normSq` | Delimited (`‖v‖²`) |
-| `Aᵀ` | Matrix transpose | `Mat3.transpose` | `postfix:max` |
-| `A⁻¹` | Matrix inverse (via cofactors) | `Inv.inv` | `postfix:max` |
 
 ## Runtime Certificates
 
@@ -273,18 +286,6 @@ just parity golden       # 50-digit mpmath golden cases
 # Generate CI JUnit XML report
 just parity-ci
 ```
-
-## Performance Benchmarks
-
-Benchmarks measured on $n = 20{,}000$ random symmetric matrices comparing in-process Lean 4 native execution against optimized NumPy/LAPACK (`dgeev`/`dsyev`):
-
-| Implementation / Workload | Latency (µs / matrix) | Throughput (matrices / sec) | Speedup vs. Single LAPACK |
-| :--- | :---: | :---: | :---: |
-| **`Eig3x3` (Lean in-process)** | **0.35 µs** | **~2,850,000 / s** | **~35× faster** |
-| **`Eig3x3` + `certify` (Lean in-process)** | **0.44 µs** | **~2,270,000 / s** | **~28× faster** |
-| `numpy.linalg.eigh` (single-matrix loop) | 12.90 µs | ~77,500 / s | 1.0× (baseline) |
-| `numpy.linalg.eigh` (vectorized batch) | 1.55 µs | ~645,000 / s | ~8.3× faster |
-| `Eig3x3` CLI (end-to-end JSON IPC) | 6.22 µs | ~160,000 / s | ~2.1× faster |
 
 ## Citation
 
