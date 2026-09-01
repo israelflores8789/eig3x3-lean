@@ -24,6 +24,7 @@ git clone https://github.com/israelflores8789/eig3x3-lean.git && cd eig3x3
 uv sync --dev               # Python dev dependencies into .venv (parity harness)
 uv run pre-commit install   # formatting, YAML, and spell-check hooks
 just build                  # core library, CLI harness, and benchmarks
+source .venv/bin/activate   # activate the python virtual environment
 ```
 
 Verify the build with a CLI smoke test:
@@ -34,15 +35,15 @@ echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3_cli
 
 **Expected output:** eigenvalues `[0.58578643762690497, 2.0, 3.4142135623730949]` with certificates (`maxResidual`, `orthogonality`, `reconstruction`) around $10^{-16}$. If the output diverges or throws a JSON parse error, stop and investigate before proceeding.
 
-That's the whole setup. Run `just --list` — or read the `justfile`, which is the source of truth — for every other recipe (individual build targets, parity sub-suites, docs, benchmarks). This guide documents workflows and policy, not individual commands.
+Run `just --list` for more granular recipes.
 
 ### Editor Setup
 
-If you use VS Code, open the workspace root and accept the recommended extensions when prompted (`.vscode/extensions.json`: Lean 4, Python, Ruff, Pyrefly, typos, TOML, and `justfile` syntax). Workspace settings in `.vscode/settings.json` are preconfigured: 2-space Lean indentation with format on save, and Ruff handling Python formatting and import sorting. For other editors, a Lean 4 language server and your usual Python tooling are sufficient.
+If you use VS Code, open the workspace root and accept the recommended extensions when prompted (`.vscode/extensions.json`: Lean 4, Python, Ruff, Pyrefly, typos, TOML, and `justfile` syntax). Workspace settings in `.vscode/settings.json` are preconfigured: 2-space Lean indentation with format on save, and Ruff handling Python formatting and import sorting. For other editors, a Lean 4 language server and the Python tooling included in this project with `uv` are sufficient.
 
 ### Spell Checking
 
-We maintain zero spelling errors across code, comments, and documentation. Run `just spell-diff` to check and `just spell-fix` to apply unambiguous fixes.
+We maintain zero spelling errors across code, comments, and documentation. Run `just spell` to check and `just spell-fix` to apply unambiguous fixes.
 
 > [!IMPORTANT]
 > If a flagged word is a legitimate domain term, proper noun (e.g., author names like *Habera*, *Zilian*, *Eberly*), or mathematical identifier, **do not** introduce misspelled workarounds. Propose adding the word to `_typos.toml` under `[default.extend-words]`.
@@ -56,7 +57,7 @@ We maintain zero spelling errors across code, comments, and documentation. Run `
 
 ## Numerical Standards & Invariants
 
-Eig3x3 targets 64-bit double precision floating point (IEEE 754 `binary64`, machine epsilon $\varepsilon = 2^{-52} \approx 2.220446049250313 \times 10^{-16}$).
+Eig3x3 targets 64-bit double precision floating point (**IEEE 754** `binary64`, machine epsilon $\varepsilon = 2^{-52} \approx 2.220446049250313 \times 10^{-16}$).
 
 ### Scale-Aware Machine-Epsilon Gates
 
@@ -98,15 +99,15 @@ The test runner (`tests/Main.lean`) executes five dedicated modules:
 4. **`Regression`**: Pinned historical boundary cases, including the Habera–Zilian $r_{10}$ discriminant check and clustered perturbation paths.
 5. **`Certificates`**: Verification that all matrices in the case zoo satisfy the $64\varepsilon / 16\varepsilon$ runtime gates.
 
-The Lean suite certifies its own output; it does not depend on Python to be correct.
+The Lean suite certifies its own output and does not depend on Python to be correct.
 
 ### Python Parity Suite (`just parity`)
 
-The Python harness is a differential reference, not a second implementation: it feeds matrices through the compiled CLI and compares against NumPy/LAPACK (`dgeev`/`dsyev`) and 50-digit `mpmath` golden values. The default run uses n=1000 random samples; `just parity-parallel` distributes it across cores with pytest-xdist. Named sub-suites (`zoo`, `random`, `logscale`, `paths`, `smallscale`, `frontier`, `golden`) target specific regimes — e.g., `just parity frontier` for the $2^{\pm 997}$ dynamic-range cases. See the `justfile` for the full list.
+The Python harness is a differential reference. It feeds matrices through the compiled CLI and compares against NumPy/LAPACK (`dgeev`/`dsyev`) and 50-digit `mpmath` golden values. The default run uses n=1000 random samples. You can use `just parity-parallel` to distribute large tests across cores with `pytest-xdist`. Named sub-suites (`zoo`, `random`, `logscale`, `paths`, `smallscale`, `frontier`, `golden`) target specific regimes — e.g., `just parity frontier` for the $2^{\pm 997}$ dynamic-range cases. See the `justfile` for the full list.
 
 ### Errata (`just errata`)
 
-Executes exhibits discovered during the initial algorithm implementation (e.g., the Habera–Zilian §7 Algorithm 8 $r_{10}$ paper typo).
+Executes exhibits discovered during the initial algorithm implementation (e.g., the Habera–Zilian §7 Algorithm 8 $r_{10}$ original paper typo).
 
 > [!NOTE]
 > `parity/errata.py` is a permanent record of mathematical errata. Do not modify existing exhibits.
@@ -129,13 +130,20 @@ The CI workflow (`.github/workflows/ci.yml`) runs on pull requests targeting `ma
 ### Lean 4
 
 - **Language Settings**: We enforce `autoImplicit = false`, `builtinLint = true`, `linter.unusedVariables = true`, `linter.deprecated = true`, and `linter.missingDocs = true` in `lakefile.toml`.
-- **Naming Conventions**: Types, structures, and typeclasses use `UpperCamelCase` (e.g., `SymmMat3`, `Vec3`, `Decomposition`); functions, definitions, and theorems use `lowerCamelCase` (e.g., `eigendecomp`, `maxAbsEntry`, `residual`). Place Unicode math operators under `open scoped Eig3x3` to avoid polluting downstream namespaces.
+- **Naming Conventions**:
+  - Types, structures, and typeclasses: `UpperCamelCase` (e.g., `SymmMat3`, `Vec3`, `Decomposition`).
+  - Functions, definitions, and theorems: `lowerCamelCase` (e.g., `eigendecomp`, `maxAbsEntry`, `residual`).
+  - Scoped notation: Place Unicode math operators under `open scoped Eig3x3` to avoid polluting downstream namespaces.
 - **Explicit Types**: Always provide explicit return types and argument types for public declarations.
 - **Float Operations**: Prefer idiomatic Lean float operations (e.g., `x.abs`, `x.sqrt`, `x.frExp`) and use `PowNat` / `^ⁿ` for integer exponentiation.
 
 ### Documentation & Docstrings
 
-Because `linter.missingDocs = true` is enabled, all public types, structures, fields, and definitions in `src/` **must** have docstrings (`/-- ... -/`). Module documentation (`/-! ... -/`) should describe high-level mathematical concepts and design decisions. Cite sources with bracket syntax linked to `references.bib` (e.g., `[HaberaZilian2025]`, `[Eberly2014]`); when introducing new mathematical sources, add entries to both `references.bib` and `CITATION.cff`.
+Because `linter.missingDocs = true` is enabled, all public types, structures, fields, and definitions in `src/` **must** have docstrings (`/-- ... -/`).
+
+- Module documentation (`/-! ... -/`) should describe high-level mathematical concepts and design decisions.
+- Use BibTeX citations linking to `references.bib` using the bracket syntax (e.g., `[HaberaZilian2025]` or `[Eberly2014]`).
+- When introducing new mathematical sources, add the corresponding entries to `references.bib` and `CITATION.cff`.
 
 ### Python
 
@@ -153,7 +161,7 @@ API documentation is generated with `doc-gen4` from the isolated subproject in `
 Use `just docs-dev` to build locally and `just docs-serve` to preview on http://localhost:8000.
 
 > [!CAUTION]
-> Do not use `just docs` for local development; it is reserved for the automated GitHub Pages deployment workflow (`.github/workflows/docs.yml`).
+> Do not use `just docs` for local development. It is reserved for the automated GitHub Pages deployment workflow (`.github/workflows/docs.yml`).
 
 ## Areas for Contribution (Roadmap)
 
@@ -177,25 +185,42 @@ For non-trivial enhancements, bug fixes, or new mathematical routines, open an i
 Fork the repository, clone your fork, and create a descriptive branch off `dev` (or `main` for critical patches):
 
 ```bash
-git checkout -b feat/iterative-fallback
-# or: git checkout -b fix/atan2-quadrant-guard
+git checkout -b feat/<your-new-feature>
 ```
 
 ### 3. Validate Locally
 
 ```bash
-just spell-diff && just ci
+just spell
+just ci
 ```
 
 ### 4. Commit Guidelines
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `perf:`, `test:`, `docs:`, `refactor:`. Keep messages concise, descriptive, and focused on the *why* of the change (e.g., `fix: correct angle normalization in planar reduction`).
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+- `feat: add 3x3 SVD decomposition`
+- `fix: correct angle normalization in planar reduction`
+- `perf: optimize matrix-vector multiplication`
+- `test: add Wilkinson cluster test cases`
+- `docs: update Habera-Zilian 2025 citations`
+- `refactor: extract symmetric matrix cofactors`
+
+Keep commit messages concise, descriptive, and focused on the *why* of the change (e.g., `fix: correct angle normalization in planar reduction`).
 
 ### 5. Submitting a Pull Request
 
-1. Push your branch and open a Pull Request targeting the `dev` branch.
-2. Fill out the PR template completely: summary and motivation, algorithmic/mathematical references, verification steps taken, and confirmation that all numerical gates and CI checks pass.
-3. Engage with code review feedback promptly. Once approved and all status checks pass, your contribution will be merged!
+1. Push your branch to your fork:
+   ```bash
+   git push origin feat/iterative-fallback
+   ```
+2. Open a Pull Request targeting the `dev` branch.
+3. Fill out the Pull Request template completely:
+   - Summary of changes and motivation.
+   - Algorithmic and mathematical references.
+   - Verification steps taken and local test outputs.
+   - Confirmation that all numerical gates and CI checks pass.
+4. Engage with code review feedback promptly. Once approved and all status checks pass, your contribution will be merged!
 
 ---
 
