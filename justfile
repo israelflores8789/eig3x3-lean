@@ -4,15 +4,15 @@ py := "uv run python"
 pytest := "uv run pytest"
 parity_dir := "parity"
 
-default: build-all test lint typecheck parity
+default: build test lint typecheck parity
 
 # ---- Lean ----
 
-build:
-    lake build
-
 test:
     lake test
+
+build-lean:
+    lake build
 
 build-bench:
     lake build eig3x3_bench
@@ -20,7 +20,7 @@ build-bench:
 build-cli:
     lake build eig3x3_cli
 
-build-all: build build-bench build-cli
+build: build-lean build-bench build-cli
 
 # ---- Python parity harness ----
 

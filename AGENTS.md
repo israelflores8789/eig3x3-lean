@@ -101,7 +101,7 @@ All commands run via `just` from the repo root; `just --list` shows everything.
 | `just bench` | performance benchmark of Lean binary against numpy/LAPACK | informational only |
 | `just ci` | all of the above plus ruff and pyrefly | all green |
 
-- USE `just build-all` to build the Lean source, bench, and CLI binaries.
+- USE `just build` to build the Lean source, bench, and CLI binaries, and `just build-lean` to build the library only.
 - **CLI Smoke Test**: After running `just build-cli`, RUN `echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3_cli` and EXPECT eigenvalues 0.58578643762690497, 2.0, 3.4142135623730949 with certificates ≈ 1e-16. IF the result does NOT match expectations, STOP and REPORT the failure.
 - USE `just spell-diff` to check for spelling errors FIRST, VERIFY the errors presented make semantic sense AND are not correctly spelled terms (e.g. author's names like "Michal Habera" etc), THEN USE `just spell-fix` to correct spelling errors package-wide IF safe to do so. IF an error presented is identified as a correctly spelled term, STOP and PROPOSE to the user a change to the `_typos.toml` config file (create ONLY if missing and required). Do NOT use `just spell`.
 

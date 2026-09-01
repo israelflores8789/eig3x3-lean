@@ -4,8 +4,6 @@ Thank you for your interest in contributing to **Eig3x3**!
 
 Eig3x3 is a pure Lean 4, zero-dependency, closed-form eigensolver for $3 \times 3$ real symmetric matrices operating over IEEE 754 64-bit floating-point numbers (`Float`). It combines the invariant-based eigenvalue algorithm of Habera & Zilian (2025) with the null-space eigenvector construction of Eberly (2014).
 
-This document outlines development setup, coding standards, numerical precision requirements, testing workflows, and the contribution lifecycle.
-
 ## Table of Contents
 
 - [Core Principles & Architectural Mandates](#core-principles--architectural-mandates)
@@ -41,16 +39,12 @@ This document outlines development setup, coding standards, numerical precision 
   - [4. Commit Guidelines](#4-commit-guidelines)
   - [5. Submitting a Pull Request](#5-submitting-a-pull-request)
 
----
-
 ## Core Principles & Architectural Mandates
 
 1. **Zero External Dependencies**: The core library (`src/`) must **never** depend on Mathlib, Batteries, or external C/FFI bindings. It must compile purely against the standard Lean 4 toolchain as a self-contained Lake package.
 2. **Deterministic Closed-Form Speed**: Algorithms must be non-iterative, branch-minimized, and execute in sub-microsecond time ($\sim 0.35\,\mu\text{s}$).
 3. **Rigorous Numerical Stability**: Floating-point operations must adhere strictly to IEEE 754 double precision (`Float`), using power-of-two preconditioning (`Float.frExp`) and sum-of-squares formulations to eliminate catastrophic cancellation.
-4. **Empirical Certification**: Because pure floating-point arithmetic is not formally verified via Lean proofs, runtime certificates (`Eig3x3.certify`) validate accuracy per decomposition.
-
----
+4. **Empirical Certification**: Because pure floating-point arithmetic is not formally verified via Lean proofs, runtime certificates (`Eig3x3.certify`) validate accuracy per decomposition. Floating-point proofs are outside the scope of this project.
 
 ## Development Environment Setup
 
@@ -132,8 +126,6 @@ Install pre-commit hooks to enforce formatting, YAML validity, and spell checks 
 uv run pre-commit install
 ```
 
----
-
 ## Building the Project
 
 We use `just` recipes to standardize builds across Lean and Python. Run `just --list` to inspect all available tasks.
@@ -141,8 +133,11 @@ We use `just` recipes to standardize builds across Lean and Python. Run `just --
 ### Build Targets
 
 ```bash
-# Build the core Lean library (Eig3x3)
+# Build everything (core library, CLI harness, and benchmark binaries)
 just build
+
+# Build only the core Lean library (Eig3x3)
+just build-lean
 # or: lake build
 
 # Build the JSON CLI harness for Python parity testing
@@ -152,9 +147,6 @@ just build-cli
 # Build the in-process microbenchmark executable
 just build-bench
 # or: lake build eig3x3_bench
-
-# Build all Lean binaries and libraries
-just build-all
 ```
 
 ### CLI Smoke Test
@@ -170,8 +162,6 @@ echo '{"matrices":[[2.0,2.0,2.0,1.0,0.0,1.0]]}' | .lake/build/bin/eig3x3_cli
 - Certificates (`maxResidual`, `orthogonality`, `reconstruction`): $\approx 10^{-16}$.
 
 If the output diverges or throws a JSON parse error, stop and investigate before proceeding.
-
----
 
 ## IEEE 754 Numerical Standards & Invariants
 
@@ -196,8 +186,6 @@ Both the native Lean test suite (`tests/Tests/Util.lean`) and the Python parity 
 - **Preserve Numerical Literals**: Values in test cases (e.g., $1.0 + 1.0\times 10^{-8}$, $2^{\pm 997}$, ULP perturbations) are crafted specifically to exercise corner cases (such as near-double roots or exponent extremes). Do not round or alter them.
 - **Never edit generated files directly**: The file `generated/golden.json` is generated via 50-digit `mpmath` arithmetic. Update it only using `just golden`.
 - **Mirroring Mandate**: `parity/gates.py` and `tests/Tests/Util.lean` must always remain strictly synchronized.
-
----
 
 ## Verification & Testing
 
@@ -266,8 +254,6 @@ just bench
 
 This compares in-process Lean 4 execution against single-matrix and vectorized `numpy.linalg.eigh`.
 
----
-
 ## CI/CD Lifecycle & Test Reports
 
 Our Continuous Integration workflow (`.github/workflows/ci.yml`) runs on every pull request targeting `main` or `dev`, and on pushes to `dev`.
@@ -293,8 +279,6 @@ Run the entire CI gate locally before opening a PR:
 ```bash
 just ci
 ```
-
----
 
 ## Code Style & Conventions
 
@@ -322,8 +306,6 @@ Because `linter.missingDocs = true` is enabled, all public types, structures, fi
 - **Type Annotations**: All Python functions in `parity/` must have complete type signatures validated by Pyrefly (`just typecheck`).
 - **No Side Effects**: Differential test scripts must avoid global state mutations and support `pytest-xdist` parallel workers.
 
----
-
 ## Documentation System (`doc-gen4`)
 
 API documentation is generated using `doc-gen4` via the isolated subproject in `docbuild/`.
@@ -345,8 +327,6 @@ just docs-serve-stop
 > [!CAUTION]
 > Do not use `just docs` for local development; it is reserved for the automated GitHub Pages deployment workflow (`.github/workflows/docs.yml`).
 
----
-
 ## Areas for Contribution (Roadmap)
 
 We welcome contributions in several key areas. If you plan to work on a significant feature, please open an issue first for architectural discussion.
@@ -367,8 +347,6 @@ We welcome contributions in several key areas. If you plan to work on a signific
    - Explorations of SIMD vectorization once native vector primitives stabilize in Lean 4.
 6. **Differential Parity Corpus Expansion**:
    - Additional adversarial matrix generators (e.g., Wilkinson-type clustered spectra, random orthogonal similarity orbits $Q D Q^T$).
-
----
 
 ## Contribution Procedure & Git Workflow
 
