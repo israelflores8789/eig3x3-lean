@@ -1,0 +1,33 @@
+exclude: '^generated/golden\.json$'
+
+repos:
+- repo: https://github.com/crate-ci/typos
+  rev: v1.50.0
+  hooks:
+  - id: typos
+
+- repo: https://github.com/google/yamlfmt
+  rev: v0.21.0
+  hooks:
+  - id: yamlfmt
+    args:
+    - -formatter
+    - indent=2,indentless_arrays=true,retain_line_breaks=true
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+
+- repo: https://github.com/rhysd/actionlint
+  rev: v1.7.12
+  hooks:
+  - id: actionlint
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: check-yaml
+    args: [--unsafe, --allow-multiple-documents]
+  - id: check-added-large-files

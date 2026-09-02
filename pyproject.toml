@@ -1,0 +1,64 @@
+#:schema https://json.schemastore.org/pyproject.json
+
+[project]
+name = "eig3x3-parity"
+version = "1.0.0"
+description = "Parity and validation harness for the eig3x3 Lean library"
+requires-python = ">=3.12"
+dependencies = ["numpy", "mpmath"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "pyrefly",
+    "pytest-xdist>=3.8.0",
+    "pre-commit>=4.6.2",
+    "pre-commit-uv>=4.3.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = [".", "parity"]
+testpaths = ["parity"]
+python_files = ["parity.py"]
+markers = [
+    "zoo: curated test zoo matrices",
+    "random: uniform random matrix sweeps",
+    "logscale: log-scale matrix sweeps across 600 orders of magnitude",
+    "paths: Habera-Zilian adversarial perturbation paths",
+    "smallscale: vanishing scale double eigenvalues",
+    "frontier: extreme dynamic range matrices",
+    "golden: 50-digit mpmath reference cases",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["parity"]
+
+[tool.ruff.lint]
+# E: Pycodestyle errors, F: Pyflakes, I: Isort (import organization), B: Bugbear
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E731"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pyrefly]
+preset = "default"
+python-interpreter-path = ".venv/bin/python"
+search-path = ["parity"]
+project-includes = ["parity/**/*.py"]
+project-excludes = [
+    "**/node_modules",
+    "**/.venv",
+    "**/build",
+    "**/dist"
+]
+
+[tool.pyrefly.errors]
+unnecessary-type-conversion = "ignore"

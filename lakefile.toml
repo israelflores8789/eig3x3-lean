@@ -1,12 +1,40 @@
 name = "Eig3x3"
-version = "0.1.0"
-defaultTargets = ["eig3x3"]
+version = "1.0.0"
+license = "Apache-2.0"
+description = "Fast, numerically-stable, pure Lean4 closed-form floating-point eigensolver of 3x3 symmetric matrices"
+keywords = ["linear-algebra", "matrix", "symmetric", "eigenvalues", "eigenvectors", "eigendecomposition", "eigensolver"]
+homepage = "https://israelflores8789.github.io/eig3x3-lean"
+licenseFiles = ["LICENSE", "NOTICE.md"]
+reservoir = true
+defaultTargets = ["Eig3x3"]
+testDriver = "eig3x3_tests"
+autoImplicit = false
+builtinLint = true
+linter.unusedVariables = true
+linter.deprecated = true
+linter.missingDocs = true
 
 [[lean_lib]]
 name = "Eig3x3"
 srcDir = "src"
+globs = ["Eig3x3.*"]
+
+[[lean_lib]]
+name = "Tests"
+srcDir = "tests"
+globs = ["Tests.*", "JsonMiniReader"]
 
 [[lean_exe]]
-name = "eig3x3"
+name = "eig3x3_tests"
 root = "Main"
-srcDir = "src"
+srcDir = "tests"
+
+[[lean_exe]]
+name = "eig3x3_cli"
+root = "Cli"
+srcDir = "tests"
+
+[[lean_exe]]
+name = "eig3x3_bench"
+root = "Bench"
+srcDir = "tests"

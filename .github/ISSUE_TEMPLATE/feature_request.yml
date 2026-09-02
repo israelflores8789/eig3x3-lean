@@ -1,0 +1,38 @@
+name: "✨ Feature Request / Enhancement"
+description: "Suggest a new linear algebra feature, performance optimization, or algorithm improvement"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thank you for suggesting a feature! Please check existing issues and discussions before opening a new proposal.
+- type: textarea
+  id: problem
+  attributes:
+    label: Problem Statement / Motivation
+    description: "Is your feature request related to a problem or limitation? Please describe."
+  validations:
+    required: true
+- type: textarea
+  id: proposed_solution
+  attributes:
+    label: Proposed Solution / Feature Description
+    description: "A clear and concise description of the feature or routine you would like added."
+  validations:
+    required: true
+- type: textarea
+  id: mathematical_references
+  attributes:
+    label: Mathematical References / Literature
+    description: "Cite papers, textbooks, or reference algorithms (e.g., arXiv DOIs, published papers, or established numerical recipes)."
+- type: textarea
+  id: alternatives
+  attributes:
+    label: Alternatives Considered
+    description: "Describe any alternative solutions or features you've considered."
+- type: textarea
+  id: contribution
+  attributes:
+    label: Would you be willing to submit a PR?
+    description: "Let us know if you'd like to implement this feature yourself!"

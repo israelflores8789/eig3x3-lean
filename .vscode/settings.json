@@ -1,0 +1,23 @@
+{
+  "[lean4]": {
+    "editor.defaultFormatter": "leanprover.lean4",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  "python.languageServer": "None",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.ruff": "always",
+      "source.fixAll.ruff": "always"
+    }
+  },
+  "ruff.enable": true,
+  "ruff.organizeImports": true,
+  "evenBetterToml.schema.associations": {
+    "lakefile.toml": "https://schemastore.org",
+    "pyproject.toml": "https://json.schemastore.org/pyproject.json"
+  }
+}
