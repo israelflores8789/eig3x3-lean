@@ -34,10 +34,11 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v7
 
+    - name: Pin Matrix Toolchain
+      run: echo "${{ matrix.lean-version }}" > lean-toolchain
+
     - name: Build Lean Project
       uses: leanprover/lean-action@v1
-      with:
-        lean-version: ${{ matrix.lean-version }}
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v10.0.1
