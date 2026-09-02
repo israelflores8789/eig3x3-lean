@@ -151,6 +151,93 @@ release-gh:
         apt-get update && apt-get install -y gh
     fi
 
+# Moves the CHANGELOG [Unreleased] section to the new version, bumps
+# version in pyproject.toml + lakefile.toml, regenerates uv.lock,
+# and runs pre-flight checks. The commit and tag stay manual and
+# deliberate. Includes guards to prevent accidental double-release
+# or empty release notes.
+release bump="patch":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # --- Guard 0: clean tree, so the bump commit stays atomic ---
+    if [ -n "$(git status --porcelain)" ]; then
+        echo "error: working tree is dirty; commit or stash first" >&2
+        exit 1
+    fi
+
+    # --- Compute the candidate version WITHOUT writing pyproject.toml ---
+    version="$(uv version --bump "{{ bump }}" --dry-run --short)"
+    echo "candidate version: $version"
+
+    # --- Guard 1: exactly one Unreleased heading (catches format drift) ---
+    count="$(grep -cE '^## \[Unreleased\]$' CHANGELOG.md || true)"
+    if [ "$count" -ne 1 ]; then
+        echo "error: expected exactly one '## [Unreleased]' heading, found $count" >&2
+        exit 1
+    fi
+
+    # --- Guard 2: idempotency — refuse if this version section exists ---
+    if grep -qE "^## \[$version\] - " CHANGELOG.md; then
+        echo "error: CHANGELOG.md already has a [$version] section" >&2
+        exit 1
+    fi
+
+    # --- Guard 3: Unreleased must contain at least one bullet ---
+    # (Doubles as a re-run guard: after a successful rotation, Unreleased
+    # is empty, so running `just release` again aborts here.)
+    bullets="$(awk '
+        /^## \[Unreleased\]$/ { found=1; next }
+        /^## \[/ { found=0 }
+        found' CHANGELOG.md | grep -cE '^[[:space:]]*[-*] ' || true)"
+    if [ "$bullets" -eq 0 ]; then
+        echo "error: [Unreleased] has no bullet entries; write release notes first" >&2
+        exit 1
+    fi
+
+    # --- All guards passed; now mutate, in dependency order ---
+
+    # 1. Bump pyproject.toml (uv version writes the file itself).
+    uv version --bump "{{ bump }}"
+
+    # 2. Mirror into lakefile.toml (plain semver, no v! literal).
+    sed -i -E "s/^(version[[:space:]]*=[[:space:]]*)\"[^\"]*\"/\1\"$version\"/" lakefile.toml
+    grep -E "^version[[:space:]]*=" lakefile.toml
+
+    sed -i -E "s/^(version[[:space:]]*=[[:space:]]*)\"[^\"]*\"/\1\"$version\"/" docbuild/lakefile.toml
+    grep -E "^version[[:space:]]*=" docbuild/lakefile.toml
+
+    # 3. Regenerate uv.lock against the bumped pyproject.
+    uv sync
+
+    # 4. CHANGELOG rotation via temp file; swap only after validation.
+    today="$(date +%Y-%m-%d)"
+    tmp="$(mktemp)"
+    awk -v version="$version" -v date="$today" '
+        /^## \[Unreleased\]$/ {
+            print "## [Unreleased]"
+            print ""
+            print "## [" version "] - " date
+            next
+        }
+        { print }
+    ' CHANGELOG.md > "$tmp"
+
+    if ! grep -qE "^## \[$version\] - $today\$" "$tmp"; then
+        rm -f "$tmp"
+        echo "error: CHANGELOG rewrite failed validation; file untouched" >&2
+        exit 1
+    fi
+    mv "$tmp" CHANGELOG.md
+    grep -A4 "^## \[$version\]" CHANGELOG.md | head -6
+
+    echo ""
+    echo "Bumped to $version. Review the diff, then:"
+    echo "  git add -A && git commit -m \"Release v$version\""
+    echo "  git push, open the dev -> main PR, merge, then:"
+    echo "  git tag -a v$version -m \"v$version\" && git push origin v$version"
+
+
 # Create or update GitHub rulesets from .github/rulesets/*.json.
 # Requires gh authentication: run 'gh auth login' once first.
 rulesets: release-tooling
