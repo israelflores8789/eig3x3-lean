@@ -37,18 +37,18 @@ A high-performance, pure **Lean 4** library for the closed-form eigendecompositi
 - **Deterministic Sub-Microsecond Speed**: Closed-form computation eliminates loop branches and iterative convergence checks, achieving $\sim 0.35\,\mu\text{s}$ per decomposition ($\sim 2.8\times 10^6$ matrices/sec).
 - **Bit-Transparent Preconditioning**: Employs `Float.frExp` power-of-two scaling to guard against underflow/overflow over 600 orders of magnitude ($10^{-300}$ to $10^{300}$) with zero mantissa rounding distortion.
 - **Runtime Error Certificates**: Built-in verification module (`certify`) computing per-instance residual, orthonormality, and reconstruction errors.
-- **Mathlib-Consistent Operator Layer**: Opt-in Unicode notation (`open scoped Eig3x3`) providing `Qᵀ`, `M⁻¹`, `u ⬝ᵥ v`, `A ⬝ₘ B`, `u ⊗ᵥ v`, `u ⨯₃ v`, `s • v`, `u ⊙ v`, `‖v‖`, `|x|`, and fast natural powers `x ^ⁿ n`.
+- **Mathlib-Consistent Operator Layer**: Opt-in Unicode notation for floating-point vector (`Vec3`) and matrix (`Mat3`) operations (`open scoped Eig3x3`) providing `Qᵀ`, `M⁻¹`, `u ⬝ᵥ v`, `A ⬝ₘ B`, `u ⊗ᵥ v`, `u ⨯₃ v`, `s • v`, `u ⊙ v`, `‖v‖`, `|x|`, and fast natural powers `x ^ⁿ n`.
 
 ## Motivation
 
-I'm using Lean to both prove properties of a custom density model I wrote and compute parity figures to validate implementations of that density model in other applications (e.g. my Python-based Jupyter notebook research). The inspiration for this came from [Amazon's own use of Lean](https://aws.amazon.com/blogs/opensource/lean-into-verified-software-development/) as their parity source-of-truth for the Cedar DSL written in Rust. Fitting my model requires Newton's method, and I needed a floating-point eigensolver for ill-conditioned Hessian management on the parity part of my Lean work. The research I found while solving this problem for myself was exciting, and I chose to make it open-source when I saw how useful it could be for others.
+I was using Lean to both prove properties of a custom density model I wrote and compute parity figures to validate implementations of that density model in other applications (e.g. my Python-based Jupyter notebook research). The inspiration for this came from [Amazon's own use of Lean](https://aws.amazon.com/blogs/opensource/lean-into-verified-software-development/) as their parity source-of-truth for their Cedar DSL written in Rust. Fitting my model requires Newton's method, and I needed a floating-point eigensolver for ill-conditioned Hessian management on the parity part of my Lean work. The research I found while solving this problem for myself was exciting, and I chose to make it open-source when I saw how useful it could be for others in the Lean community.
 
-Eigendecomposition of $3 \times 3$ symmetric matrices is a core operation across scientific computing, geometric processing, robotics, physics, and more. Standard workflows typically bind via FFI to iterative LAPACK routines (e.g., `dsyev`). For anything $n \le 5$, however, LAPACK routines can be inefficient; and while robust, iterative routines:
-1. Impose external C build dependencies and FFI overhead.
-2. Suffer variable execution times dependent on convergence criteria.
-3. Complicate deployment across pure-Lean environments, embedded contexts, and web/Wasm targets.
+Eigendecomposition of $3 \times 3$ symmetric matrices is a core operation across scientific computing, geometric processing, robotics, physics, and more. Classical closed-form solutions, like Cardano/Viète, suffer catastrophic floating-point cancellation near degenerate eigenvalues. Standard workflows typically bind via FFI to more numerically robust but iterative LAPACK routines (e.g., `dsyev`). For anything $n \le 5$, iterative routines such as LAPACK can be inefficient and suffer their own consequences, such as:
+1. Imposing external C build dependencies and FFI overhead.
+2. Suffering variable execution times dependent on convergence criteria.
+3. Complicating deployment across pure-Lean environments, embedded contexts, and web/Wasm targets.
 
-Classical closed-form solutions, like Cardano/Viète, avoid the iterative approach but suffer catastrophic floating-point cancellation near degenerate eigenvalues. This implementation with **Eig3x3** brings recent advances in numerically stable closed-form solvers to the Lean 4 ecosystem, providing a lightweight, robust and pure Lean solution for the scientific community.
+**Eig3x3** combines recent 2025 advancements eigenvalue computation from [Michal Habera and Andreas Zilian](https://doi.org/10.48550/arXiv.2511.00292) at the University of Luxembourg with David Eberly's industry standard [Geometric Tools](https://www.geometrictools.com/Documentation/RobustEigenSymmetric3x3.pdf) algorithms for eigenvectors as a numerically stable closed-form solver to the Lean 4 ecosystem, providing a lightweight, robust and pure Lean solution for the scientific computing community.
 
 ## Installation
 
@@ -289,7 +289,7 @@ just parity-ci
 
 ## Citation
 
-If you use `Eig3x3` in your academic research or software project, please cite:
+If you use `Eig3x3` in your academic research or software project, please include the [`NOTICE.md`](https://github.com/israelflores8789/eig3x3-lean/blob/main/NOTICE.md) and cite:
 
 ```bibtex
 @software{FloresArbolay_Eig3x3_2026,
