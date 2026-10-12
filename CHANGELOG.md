@@ -1,3 +1,9 @@
+<!--
+Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Israel Flores-Arbolay
+-->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

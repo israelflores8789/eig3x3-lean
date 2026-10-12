@@ -1,3 +1,9 @@
+<!--
+Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Israel Flores-Arbolay
+-->
+
 # Contributing to Eig3x3
 
 Thank you for your interest in contributing to **Eig3x3**!

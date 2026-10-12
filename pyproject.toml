@@ -1,5 +1,9 @@
 #:schema https://json.schemastore.org/pyproject.json
 
+# Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Israel Flores-Arbolay
+
 [project]
 name = "eig3x3-parity"
 version = "1.1.0"

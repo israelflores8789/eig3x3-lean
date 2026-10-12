@@ -1,8 +1,11 @@
-"""Keep the README Lean badge synchronized with the root toolchain."""
+# Copyright (c) 2026 Israel Flores-Arbolay. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Israel Flores-Arbolay
 
-from pathlib import Path
+"""sync_toolchain_badge.py — Keep the README Lean toolchain badge synchronized."""
+
 import re
-
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TOOLCHAIN_FILE = ROOT / "lean-toolchain"
@@ -21,7 +24,9 @@ def main() -> None:
         raise SystemExit(f"invalid Lean version in lean-toolchain: {version!r}")
 
     # Shields uses doubled hyphens to represent literal hyphens in badge text.
-    badge_url = f"https://img.shields.io/badge/Lean-{version.replace('-', '--')}-blue.svg"
+    badge_url = (
+        f"https://img.shields.io/badge/Lean-{version.replace('-', '--')}-blue.svg"
+    )
     readme = README_FILE.read_text(encoding="utf-8")
     updated, replacements = BADGE_PATTERN.subn(badge_url, readme)
     if replacements != 1:
