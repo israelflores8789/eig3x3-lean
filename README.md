@@ -91,7 +91,8 @@ Then run `lake update` and `lake build`.
 `Eig3x3` has significant backwards compatibility and is built and continuously tested across the following active stable and candidate Lean 4 releases:
 - `v4.27.0`
 - `v4.30.0`
-- `v4.34.0-rc2`
+- `v4.34.1`
+- `v4.35.0-rc4`
 
 ## Quick Start
 

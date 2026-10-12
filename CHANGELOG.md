@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support Lean toolchain v4.34.1 and add it to the CI matrix
+- Support Lean toolchain v4.35.0-rc4 and add it to the CI matrix
+- Updated documentation
+
 ## [1.0.0] - 2026-09-01
 
 ### Added
