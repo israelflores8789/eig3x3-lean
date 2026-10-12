@@ -28,7 +28,8 @@ jobs:
         lean-version:
         - leanprover/lean4:v4.27.0
         - leanprover/lean4:v4.30.0
-        - leanprover/lean4:v4.34.0-rc2
+        - leanprover/lean4:v4.34.1
+        - leanprover/lean4:v4.35.0-rc4
 
     steps:
     - name: Checkout Repository
