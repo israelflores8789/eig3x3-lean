@@ -1,11 +1,12 @@
 <h1 align="center">Eig3x3</h1>
 
 <p align="center">
-  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="Licence - Apache 2.0"></a>
-  <a href="https://israelflores8789.github.io/eig3x3-lean"><img src="https://img.shields.io/badge/docs-Lean%20v4.34.0--rc2-blue.svg"></a>
-  <a href="https://github.com/israelflores8789/eig3x3-lean/releases"><img src="https://img.shields.io/github/v/release/israelflores8789/eig3x3-lean" alt="Latest Release"></a>
-  <!-- <a href="https://reservoir.lean-lang.org/@israelflores8789/Eig3x3"><img src="https://reservoir.lean-lang.org/badge/@israelflores8789/Eig3x3.svg" alt="Reservoir"></a> -->
   <a href ="https://github.com/israelflores8789/eig3x3-lean/actions"><img src="https://github.com/israelflores8789/eig3x3-lean/actions/workflows/ci.yml/badge.svg" alt="Build Status"></a>
+  <a href="https://reservoir.lean-lang.org/@israelflores8789/Eig3x3"><img src="https://img.shields.io/badge/Reservoir-Eig3x3-blue" alt="Reservoir"></a>
+  <a href="https://github.com/israelflores8789/eig3x3-lean/releases"><img src="https://img.shields.io/github/v/release/israelflores8789/eig3x3-lean" alt="Latest Release"></a>
+  <a href="https://github.com/israelflores8789/eig3x3-lean/blob/main/lean-toolchain"><img src="https://img.shields.io/badge/Lean-v4.35.0--rc4-blue.svg" alt="Lean toolchain"></a>
+  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="Licence - Apache 2.0"></a>
+
 </p>
 
 A high-performance, pure **Lean 4** library for the closed-form eigendecomposition of $3 \times 3$ real symmetric matrices over IEEE 754 64-bit floating point (`Float`).

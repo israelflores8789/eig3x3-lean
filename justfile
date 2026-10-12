@@ -125,6 +125,10 @@ ci: test lint typecheck parity-ci
 
 # All recipes are idempotent.
 
+# Sync the README Lean badge from the root lean-toolchain file.
+sync-toolchain-badge:
+    uv run python scripts/sync_toolchain_badge.py
+
 # Install jq and the GitHub CLI (Debian/Ubuntu), then print next steps.
 release-tooling: release-jq release-gh
     @echo ""
@@ -194,6 +198,9 @@ release bump="patch":
         echo "error: [Unreleased] has no bullet entries; write release notes first" >&2
         exit 1
     fi
+
+    # Keep the README badge tied to the root project's Lean toolchain.
+    just sync-toolchain-badge
 
     # --- All guards passed; now mutate, in dependency order ---
 
